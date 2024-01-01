@@ -102,14 +102,14 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-DATABASES = {"default": {
-    "ENGINE": env("ENGINE"),
-    "NAME": env("NAME"),
-    "USER": env("USER"),
-    "PASSWORD": env("PASSWORD"),
-    "HOST": env("HOST"),
-    "PORT": env("PORT")}
-}
+# DATABASES = {"default": {
+#     "ENGINE": env("ENGINE"),
+#     "NAME": env("NAME"),
+#     "USER": env("USER"),
+#     "PASSWORD": env("PASSWORD"),
+#     "HOST": env("HOST"),
+#     "PORT": env("PORT")}
+# }
 
 
 
