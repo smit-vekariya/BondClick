@@ -5,7 +5,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 import json
-from rest_framework.views import APIView
+from rest_framework.views import APIView, View
 from account.serializers import BondUserSerializers
 from rest_framework_simplejwt.settings import api_settings
 from datetime import datetime, timedelta
@@ -14,11 +14,18 @@ from django.contrib.auth import authenticate
 from django.core.cache import cache
 from manager import manager
 from django.db.models import CharField, Value, F, Func
-from django.db import IntegrityError
+from django.shortcuts import render
 
 
 
 # Create your views here.
+
+class Welcome(View):
+    template_name = "welcome.html"
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -75,6 +82,7 @@ class VerifyRegisterUser(APIView):
             current_time = datetime.now()
             opt_validate = current_time - user_data["otp_created"]
             if opt_validate < timedelta(minutes=1):
+                user_data["company"] = 1
                 serializer = BondUserSerializers(data=user_data)
                 if serializer.is_valid():
                     serializer.save()
