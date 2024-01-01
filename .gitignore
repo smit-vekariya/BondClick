@@ -6,3 +6,4 @@ MAlonzo/**
 .venv
 venv
 # *.gz
+*.sqlite3
