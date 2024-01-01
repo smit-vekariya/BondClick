@@ -20,6 +20,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
@@ -34,7 +35,9 @@ SECRET_KEY = 'django-insecure-di-p=wlzad=(z38btnh0fr+60=3cz#h!9q(&f_69d7*ojzqu82
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+
+ALLOWED_HOSTS = ["panelprime.pythonanywhere.com","*"]
+
 
 AUTH_USER_MODEL = 'account.BondUser'
 AUTHENTICATION_BACKENDS = ['account.backends.MobileNumberBackend','django.contrib.auth.backends.ModelBackend']
@@ -148,10 +151,19 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+<<<<<<< HEAD
+# STATIC_URL = env("STATIC_URL")
+# STATIC_ROOT = env("STATIC_ROOT")
+
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+=======
 STATIC_URL = env("STATIC_URL")
 STATIC_ROOT = BASE_DIR / 'static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+>>>>>>> de4a8bfc6037e7c69991957bed2559a4fa8c07c6
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
