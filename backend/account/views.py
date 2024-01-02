@@ -13,8 +13,10 @@ from account.models import BondUser
 from django.contrib.auth import authenticate
 from django.core.cache import cache
 from manager import manager
-from django.db.models import CharField, Value, F, Func
+from django.db.models import CharField, Value, F, Func, ExpressionWrapper
 from django.shortcuts import render
+from django.db.models.functions import Concat
+
 
 
 
@@ -137,7 +139,7 @@ class VerifyLoginBondUser(APIView):
 class BondUserProfile(APIView):
     def get(self, request):
         try:
-            user_info = BondUser.objects.filter(id=request.user.id).values("full_name","mobile","email").annotate(full_address=Func(F("address"), Value(', '), F("pin_code"), Value(', '), F("city__name"), Value(', '), F("state__name"),function='CONCAT',output_field=CharField())).first()
+            user_info = BondUser.objects.filter(id=request.user.id).values("full_name","mobile","email").annotate(full_address=Concat(F("address"), Value(', '), ("pin_code"), Value(', '), F("city__name"), Value(', '), F("state__name"),output_field=CharField())).first()
             return HttpResponse(json.dumps({"data":[user_info], "status": 1, "message": "User profile details."}))
         except Exception as e:
             manager.create_from_exception(e)
