@@ -1,6 +1,5 @@
 from django.contrib import admin
-from account.models import MainMenu, Company, Distributor, BondUser, State, City
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from account.models import MainMenu, Company, Distributor, BondUser, State, City, UserToken
 
 
 # Register your models here.
@@ -13,30 +12,12 @@ class MainMenuAdmin(admin.ModelAdmin):
 
 @admin.register(Distributor)
 class DistributorAdmin(admin.ModelAdmin):
-    list_display = ("is_deleted", "company", "identity_id", "name")
+    list_display = ('name', 'identity_id', 'company', 'is_deleted')
 
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ("is_deleted", "identity_id", "name")
-
-# class BondUserCreationForm(UserCreationForm):
-#     class Meta:
-#         model = BondUser
-#         fields = ('email', 'is_active', 'is_staff')
-
-# class BondUserChangeForm(UserChangeForm):
-#     class Meta:
-#         model = BondUser
-#         fields = ('email', 'is_active', 'is_staff')
-
-# @admin.register(BondUser)
-# class BondUserAdmin(admin.ModelAdmin):
-#     form = BondUserCreationForm
-#     add_form = BondUserChangeForm
-
-#     list_display = ('email', 'is_active', 'is_staff')
-#     search_fields = ('email',)
+    list_display = ('name', 'identity_id', 'is_deleted')
 
 @admin.register(BondUser)
 class BondUserAdmin(admin.ModelAdmin):
@@ -45,12 +26,15 @@ class BondUserAdmin(admin.ModelAdmin):
 
 @admin.register(State)
 class StateAdmin(admin.ModelAdmin):
-    list_display = ("is_deleted", "code", "name")
+    list_display = ('name', 'code', 'is_deleted')
 
 
 @admin.register(City)
 class CityAdmin(admin.ModelAdmin):
-    list_display = ("is_deleted", "state", "code", "name")
+    list_display = ('name', 'code', 'state', 'is_deleted')
 
 
 
+@admin.register(UserToken)
+class UserTokenAdmin(admin.ModelAdmin):
+    list_display = ("user", "access_token", "is_allowed")

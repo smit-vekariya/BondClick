@@ -141,7 +141,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE =  'Asia/Kolkata'
+
 
 USE_I18N = True
 
@@ -154,6 +156,10 @@ USE_TZ = True
 STATIC_URL = env("STATIC_URL")
 STATIC_ROOT = BASE_DIR / 'static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = env("MEDIA_URL")
+MEDIA_ROOT = BASE_DIR / 'media/'
+
 
 
 # Default primary key field type
@@ -182,7 +188,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
-    "UPDATE_LAST_LOGIN": False,
+    "UPDATE_LAST_LOGIN": True,
 
     "ALGORITHM": "HS256",
     # "SIGNING_KEY": settings.SECRET_KEY,

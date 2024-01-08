@@ -2,6 +2,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
+def upload_location(instance, filename):
+    extension = filename.rsplit('.')[1]
+    return f"profile/{instance.mobile}.{extension}"
+
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, mobile, password=None, **extra_fields):
         if not mobile:
@@ -19,11 +24,6 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-
-# class UserProfile(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     theme = models.CharField(max_length=15, null=True, blank=True)
-
 class MainMenu(models.Model):
     name = models.CharField(max_length=100, null=True,blank=True)
     icon = models.CharField(max_length=100, null=True,blank=True)
@@ -36,8 +36,8 @@ class MainMenu(models.Model):
         return self.name
 
 class State(models.Model):
-    name = models.CharField(max_length=30, null=True, blank=True)
-    code = models.CharField(max_length=30, null=True, blank=True)
+    name = models.CharField(max_length=40, null=True, blank=True)
+    code = models.CharField(max_length=5, null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
@@ -45,7 +45,7 @@ class State(models.Model):
 
 class City(models.Model):
     name = models.CharField(max_length=30, null=True, blank=True)
-    code = models.CharField(max_length=30, null=True, blank=True)
+    code = models.CharField(max_length=5, null=True, blank=True)
     state = models.ForeignKey(State, on_delete=models.PROTECT, null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
 
@@ -80,6 +80,7 @@ class BondUser(AbstractBaseUser, PermissionsMixin):
     city = models.ForeignKey(City, on_delete=models.CASCADE, null=True, blank=True)
     state = models.ForeignKey(State, on_delete=models.CASCADE, null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
+    profile = models.ImageField(upload_to=upload_location, null=True, blank=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
     distributor = models.ForeignKey(Distributor, on_delete=models.CASCADE, null=True, blank=True)
     password = models.CharField(max_length=200, null=True, blank=True)
@@ -94,3 +95,9 @@ class BondUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.mobile
+
+
+class UserToken(models.Model):
+    user = models.ForeignKey(BondUser, on_delete=models.CASCADE)
+    access_token = models.CharField(max_length=400)
+    is_allowed = models.BooleanField(default=True)

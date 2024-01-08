@@ -18,7 +18,12 @@ urlpatterns = [
     path("verify_register/", VerifyRegisterUser.as_view(), name="register_verify"),
     path("login/", LoginBondUser.as_view(), name="login_bond_user"),
     path("verify_login/", VerifyLoginBondUser.as_view(), name="verify_login"),
+    path("logout/", LogoutBondUser.as_view(), name="logout"),
     path('bond_user_profile/', BondUserProfile.as_view(), name="bond_user_profile"),
+
+    # cache data apis
+    path('city_state/', GetCityState.as_view(), name="city_state"),
+
 
 
 ]
