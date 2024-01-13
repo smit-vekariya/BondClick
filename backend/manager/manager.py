@@ -10,6 +10,7 @@ import json
 from django.conf import settings
 from functools import wraps
 
+
 def create_from_exception(self, url=None, exception=None, traceback=None, **kwargs):
     if not exception:
         exc_type, exc_value, traceback = sys.exc_info()
@@ -49,13 +50,24 @@ def create_from_text(message, class_name=None, level=40, traceback=None):
     ErrorBase.objects.create(class_name=class_name, message=message, traceback=traceback, level=level)
 
 
-def check_secret_key(function):
-    @wraps(function)
-    def decorator(request, *args, **kwrgs):
-        key = request.headers.get("Secret-Key")
-        if key == settings.SECRET_KEY:
-            return function(request, *args, **kwrgs)
-        else:
-          return HttpResponse(json.dumps({"data":{}, "status": 0, "message": "Secret key did not match!"}))
+class HttpsAppResponse:
+    def send(data,status,message):
+        return HttpResponse(json.dumps({"data":data, "status": status, "message": message}))
 
-    return decorator
+    def exception(error):
+        logging.exception("Something went wrong.")
+        create_from_exception(error)
+        return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(error)}))
+
+
+
+# def check_secret_key(function):
+#     @wraps(function)
+#     def decorator(request, *args, **kwrgs):
+#         key = request.headers.get("Secret-Key")
+#         if key == settings.SECRET_KEY:
+#             return function(request, *args, **kwrgs)
+#         else:
+#           return HttpResponse(json.dumps({"data":{}, "status": 0, "message": "Secret key did not match!"}))
+
+#     return decorator

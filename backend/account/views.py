@@ -9,6 +9,7 @@ from account.models import BondUser
 from django.contrib.auth import authenticate
 from django.core.cache import cache
 from manager import manager
+from manager.manager import HttpsAppResponse
 from django.db.models import CharField, Value, F
 from django.shortcuts import render
 from django.db.models.functions import Concat
@@ -63,12 +64,11 @@ class RegisterUser(APIView):
             serializer = BondUserSerializers(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return HttpResponse(json.dumps({"data":[], "status": 1, "message": "Registration successfully"}))
+                return HttpsAppResponse.send([], 1, "Registration successfully")
             else:
-                return HttpResponse(json.dumps({"data":[], "status": 0, "message": serializer.errors}))
+                return HttpsAppResponse.send([], 0, serializer.errors)
         except Exception as e:
-            manager.create_from_exception(e)
-            return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(e)}))
+            return HttpsAppResponse.exception(str(e))
 
 
 class RegisterBondUser(APIView):
@@ -83,10 +83,9 @@ class RegisterBondUser(APIView):
             register_user_data["otp"] = 343434
             register_user_data["otp_created"] = datetime.now()
             cache.set(register_user_data["mobile"], register_user_data)
-            return HttpResponse(json.dumps({"data":[], "status": 1, "message": "Otp has been send to mobile number successfully"}))
+            return HttpsAppResponse.send([], 1, "Otp has been send to mobile number successfully")
         except Exception as e:
-            manager.create_from_exception(e)
-            return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(e)}))
+           return HttpsAppResponse.exception(str(e))
 
 
 class VerifyRegisterUser(APIView):
@@ -106,15 +105,14 @@ class VerifyRegisterUser(APIView):
                         serializer.save()
                         user = authenticate(request, mobile=user_data["mobile"])
                         tokens = MyTokenObtainPairSerializer.get_token(user)
-                        return HttpResponse(json.dumps({"data":tokens, "status": 1, "message": "Registration successfully"}))
+                        return HttpsAppResponse.send(tokens, 1, "Registration successfully")
                     else:
-                        return HttpResponse(json.dumps({"data":[], "status": 0, "message": serializer.errors}))
+                        return HttpsAppResponse.send([], 0, serializer.errors)
                 else:
-                    return HttpResponse(json.dumps({"data":[], "status": 1, "message": "Your otp has been expire."}))
-            return HttpResponse(json.dumps({"data":[], "status": 1, "message": "You need to registration."}))
+                    return HttpsAppResponse.send([], 1, "Your otp has been expire.")
+            return HttpsAppResponse.send([], 1, "You need to registration.")
         except Exception as e:
-            manager.create_from_exception(e)
-            return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(e)}))
+            return HttpsAppResponse.exception(str(e))
 
 
 class LoginBondUser(APIView):
@@ -127,12 +125,15 @@ class LoginBondUser(APIView):
             # send_otp_to_mobile(mobile_no, otp)
             # register_user_data["otp"] = otp
             login_data["otp"] = 353535
-            login_data["otp_created"] = datetime.now()
-            cache.set(login_data["mobile"], login_data)
-            return HttpResponse(json.dumps({"data":[], "status": 1, "message": "Otp has been send to mobile number successfully"}))
+            is_exit=  BondUser.objects.filter(mobile=login_data["mobile"]).exists()
+            if is_exit:
+                login_data["otp_created"] = datetime.now()
+                cache.set(login_data["mobile"], login_data)
+                return HttpsAppResponse.send([], 1, "Otp has been send to mobile number successfully")
+            else:
+                return HttpsAppResponse.send([], 1, "User not found.")
         except Exception as e:
-            manager.create_from_exception(e)
-            return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(e)}))
+           return HttpsAppResponse.exception(str(e))
 
 
 class VerifyLoginBondUser(APIView):
@@ -148,13 +149,12 @@ class VerifyLoginBondUser(APIView):
                 if opt_validate < timedelta(minutes=1):
                     user = authenticate(request, mobile=login_data["mobile"])
                     tokens = MyTokenObtainPairSerializer.get_token(user)
-                    return HttpResponse(json.dumps({"data":tokens, "status": 1, "message": "Login successfully"}))
+                    return HttpsAppResponse.send(tokens, 1, "Login successfully")
                 else:
-                    return HttpResponse(json.dumps({"data":[], "status": 1, "message": "Your otp has been expire."}))
-            return HttpResponse(json.dumps({"data":[], "status": 1, "message": "You need to login with mobile number."}))
+                    return HttpsAppResponse.send([], 1, "Your otp has been expire.")
+            return HttpsAppResponse.send([], 1, "You need to login with mobile number.")
         except Exception as e:
-            manager.create_from_exception(e)
-            return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(e)}))
+            return HttpsAppResponse.exception(str(e))
 
 
 class LogoutBondUser(APIView):
@@ -164,31 +164,26 @@ class LogoutBondUser(APIView):
             UserToken.objects.filter(user_id=request.user.id).delete()
             token = RefreshToken(token=refresh_token)
             token.blacklist()
-            return HttpResponse(json.dumps({"data":[], "status": 1, "message": "User logout successfully."}))
+            return HttpsAppResponse.send([], 1, "User logout successfully.")
         except Exception as e:
-            manager.create_from_exception(e)
-            return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(e)}))
+            return HttpsAppResponse.exception(str(e))
 
 
 class BondUserProfile(APIView):
     def get(self, request):
         try:
             user_info = BondUser.objects.filter(id=request.user.id).values("full_name","mobile").annotate(full_address=Concat(F("address"), Value(', '), ("pin_code"), Value(', '), F("city__name"), Value(', '), F("state__name"),output_field=CharField())).first()
-            return HttpResponse(json.dumps({"data":[user_info], "status": 1, "message": "User profile details."}))
+            return HttpsAppResponse.send([user_info], 1, "User profile details.")
         except Exception as e:
-            manager.create_from_exception(e)
-            return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(e)}))
+            return HttpsAppResponse.exception(str(e))
 
 
 class GetCityState(APIView):
-    authentication_classes =[]
-    permission_classes = []
     def get(self,request):
         try:
             city = list(City.objects.filter(is_deleted=False).values("id","name").order_by("name"))
             state = list(State.objects.filter(is_deleted=False).values("id","name").order_by("name"))
             response = [{"City":city,"State":state}]
-            return HttpResponse(json.dumps({"data":response, "status": 1, "message": "City and state data fetch successfully."}))
+            return HttpsAppResponse.send(response, 1, "City and state data fetch successfully.")
         except Exception as e:
-            manager.create_from_exception(e)
-            return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(e)}))
+            return HttpsAppResponse.exception(str(e))
