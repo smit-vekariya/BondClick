@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from account.models import BondUser
 from django.contrib.auth import authenticate
 from django.core.cache import cache
+from account.backends import AdminLoginBackend
 from manager import manager
 from manager.manager import HttpsAppResponse
 from django.db.models import CharField, Value, F
@@ -17,7 +18,6 @@ from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, Bl
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import update_last_login
 from account.models import MainMenu,UserToken, City, State
-
 
 # Create your views here.
 
@@ -33,11 +33,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         try:
             token = super().get_token(user)
             token['mobile'] = user.mobile
+            token['full_name'] = user.full_name
             access_token =  str(token.access_token)
             refresh_token = str(token)
             UserToken.objects.update_or_create(user_id=user.id,defaults={'access_token': access_token})
             update_last_login(None, user)
-            response=[{"access_token":str(access_token),"refresh_token":refresh_token}]
+            response=[{"access":str(access_token),"refresh":refresh_token}]
             return response
         except Exception as e:
             manager.create_from_exception(e)
@@ -46,6 +47,26 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
+class AdminLogin(APIView):
+    authentication_classes =[]
+    permission_classes = []
+    def post(self,request):
+        try:
+            mobile = request.data["mobile"]
+            password = request.data["password"]
+            if mobile and password:
+                user = AdminLoginBackend.authenticate(request, mobile=mobile, password=password)
+                if user:
+                    tokens = MyTokenObtainPairSerializer.get_token(user)
+                    return HttpsAppResponse.send(tokens, 1, "Login successfully")
+                else:
+                    return HttpsAppResponse.send([], 0, "User is not found with this credential.")
+            else:
+                return HttpsAppResponse.send([], 0, "Mobile and password is require.")
+        except Exception as e:
+            return HttpsAppResponse.exception(str(e))
 
 
 class MainMenuView(APIView):
@@ -179,6 +200,8 @@ class BondUserProfile(APIView):
 
 
 class GetCityState(APIView):
+    authentication_classes =[]
+    permission_classes = []
     def get(self,request):
         try:
             city = list(City.objects.filter(is_deleted=False).values("id","name").order_by("name"))
