@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from account.models import BondUser
 from django.contrib.auth import authenticate
 from django.core.cache import cache
-from account.backends import AdminLoginBackend
+# from account.backends import AdminLoginBackend
 from manager import manager
 from manager.manager import HttpsAppResponse
 from django.db.models import CharField, Value, F
@@ -49,24 +49,24 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
-class AdminLogin(APIView):
-    authentication_classes =[]
-    permission_classes = []
-    def post(self,request):
-        try:
-            mobile = request.data["mobile"]
-            password = request.data["password"]
-            if mobile and password:
-                user = AdminLoginBackend.authenticate(request, mobile=mobile, password=password)
-                if user:
-                    tokens = MyTokenObtainPairSerializer.get_token(user)
-                    return HttpsAppResponse.send(tokens, 1, "Login successfully")
-                else:
-                    return HttpsAppResponse.send([], 0, "User is not found with this credential.")
-            else:
-                return HttpsAppResponse.send([], 0, "Mobile and password is require.")
-        except Exception as e:
-            return HttpsAppResponse.exception(str(e))
+# class AdminLogin(APIView):
+#     authentication_classes =[]
+#     permission_classes = []
+#     def post(self,request):
+#         try:
+#             mobile = request.data["mobile"]
+#             password = request.data["password"]
+#             if mobile and password:
+#                 user = AdminLoginBackend.authenticate(request, mobile=mobile, password=password)
+#                 if user:
+#                     tokens = MyTokenObtainPairSerializer.get_token(user)
+#                     return HttpsAppResponse.send(tokens, 1, "Login successfully")
+#                 else:
+#                     return HttpsAppResponse.send([], 0, "User is not found with this credential.")
+#             else:
+#                 return HttpsAppResponse.send([], 0, "Mobile and password is require.")
+#         except Exception as e:
+#             return HttpsAppResponse.exception(str(e))
 
 
 class MainMenuView(APIView):
