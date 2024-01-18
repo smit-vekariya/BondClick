@@ -7,8 +7,8 @@ from django.utils.encoding import smart_str
 from manager.models import ErrorBase
 from django.http import HttpResponse
 import json
-from django.conf import settings
-from functools import wraps
+import random
+
 
 
 def create_from_exception(self, url=None, exception=None, traceback=None, **kwargs):
@@ -58,6 +58,16 @@ class HttpsAppResponse:
         logging.exception("Something went wrong.")
         create_from_exception(error)
         return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(error)}))
+
+
+class Util(object):
+
+    @staticmethod
+    def send_otp_to_mobile(mobile_no):
+        otp = random.randint(100000, 999999)
+        return 343434
+
+
 
 
 

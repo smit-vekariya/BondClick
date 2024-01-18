@@ -24,6 +24,8 @@ urlpatterns = [
     # cache data apis
     path('city_state/', GetCityState.as_view(), name="city_state"),
 
+    #adminpanel api
+    path('admin_login/', AdminLogin.as_view(), name='admin_login'),
 
 
 ]
