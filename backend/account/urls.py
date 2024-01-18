@@ -22,7 +22,7 @@ urlpatterns = [
     path('bond_user_profile/', BondUserProfile.as_view(), name="bond_user_profile"),
 
     # cache data apis
-    path('city_state/', GetCityState.as_view(), name="city_state"),
+    path('city_state_distributer/', GetCityStateDistributer.as_view(), name="city_state_distributer"),
 
     #adminpanel api
     path('admin_login/', AdminLogin.as_view(), name='admin_login'),

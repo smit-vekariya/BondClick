@@ -17,7 +17,7 @@ from django.db.models.functions import Concat
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import update_last_login
-from account.models import MainMenu,UserToken, City, State
+from account.models import MainMenu,UserToken, City, State, Distributor
 
 
 # Create your views here.
@@ -211,14 +211,15 @@ class BondUserProfile(APIView):
             return HttpsAppResponse.exception(str(e))
 
 
-class GetCityState(APIView):
+class GetCityStateDistributer(APIView):
     authentication_classes =[]
     permission_classes = []
     def get(self,request):
         try:
             city = list(City.objects.filter(is_deleted=False).values("id","name").order_by("name"))
             state = list(State.objects.filter(is_deleted=False).values("id","name").order_by("name"))
-            response = [{"City":city,"State":state}]
+            distributor = list(Distributor.objects.filter(is_deleted=False).values("id","name").order_by("name"))
+            response = [{"City":city,"State":state,"Distributor":distributor}]
             return HttpsAppResponse.send(response, 1, "City and state data fetch successfully.")
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
