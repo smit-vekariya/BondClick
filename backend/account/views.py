@@ -114,15 +114,10 @@ class RegisterBondUser(APIView):
                 return HttpsAppResponse.send([], 0, serializer.errors)
             otp = Util.send_otp_to_mobile(mobile_no)
             register_user_data["otp"] = otp
-<<<<<<< HEAD
-            register_user_data["otp_created"] = datetime.now()
-            manager.create_from_text(str(mobile_no)+str(register_user_data))
-            cache.set(mobile_no + "register", register_user_data)
-=======
             register_user_data["otp_created"] = str(datetime.now())
             register_user_data["mobile"] = mobile_no
+            manager.create_from_text(json.dumps(register_user_data))
             request.session['otp_register_user_data_'+str(mobile_no)] = json.dumps(register_user_data)
->>>>>>> 33853918adef37d44374b986651e0adff61e4123
             return HttpsAppResponse.send([], 1, "Otp has been send to mobile number successfully")
         except Exception as e:
            return HttpsAppResponse.exception(str(e))
@@ -134,12 +129,8 @@ class VerifyRegisterUser(APIView):
     def post(self,request):
         try:
             verify_data = request.data
-<<<<<<< HEAD
             manager.create_from_text(str(verify_data))
-            user_data = cache.get(verify_data["mobile"] + "register")
-=======
             user_data = request.session.get('otp_register_user_data_'+str(verify_data["mobile"]))
->>>>>>> 33853918adef37d44374b986651e0adff61e4123
             if user_data:
                 request.session.pop('otp_register_user_data_'+str(verify_data["mobile"]))
                 request.session.save()
@@ -178,6 +169,7 @@ class LoginBondUser(APIView):
                 login_data["otp"] = otp
                 login_data["otp_created"] = str(datetime.now())
                 login_data["mobile"] = mobile_no
+                manager.create_from_text(json.dumps(login_data))
                 request.session['otp_login_data_'+str(mobile_no)] = json.dumps(login_data)
                 return HttpsAppResponse.send([], 1, "Otp has been send to mobile number successfully")
             else:
@@ -192,6 +184,7 @@ class VerifyLoginBondUser(APIView):
     def post(self,request):
         try:
             login_data = request.data
+            manager.create_from_text(json.dumps(login_data))
             user_data = request.session.get('otp_login_data_'+str(login_data["mobile"]))
             if user_data:
                 request.session.pop('otp_login_data_'+str(login_data["mobile"]))
