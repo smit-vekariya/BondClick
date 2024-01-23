@@ -23,5 +23,4 @@ class BondUserSerializers(serializers.ModelSerializer):
         fields = '__all__'
 
         def create(self, validate):
-            print(validate,"=====================")
             BondUser.objects.create(*validate)

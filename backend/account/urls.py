@@ -26,6 +26,7 @@ urlpatterns = [
 
     #adminpanel api
     path('admin_login/', AdminLogin.as_view(), name='admin_login'),
+    path('user_list/', UserList.as_view(), name="user_list")
 
 
 ]
