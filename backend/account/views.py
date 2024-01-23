@@ -19,6 +19,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import update_last_login
 from account.models import MainMenu,UserToken, City, State, Distributor
 
+from manager import manager
+
 
 # Create your views here.
 
@@ -112,6 +114,7 @@ class RegisterBondUser(APIView):
             otp = Util.send_otp_to_mobile(mobile_no)
             register_user_data["otp"] = otp
             register_user_data["otp_created"] = datetime.now()
+            manager.create_from_text(str(mobile_no)+str(register_user_data))
             cache.set(mobile_no + "register", register_user_data)
             return HttpsAppResponse.send([], 1, "Otp has been send to mobile number successfully")
         except Exception as e:
@@ -124,6 +127,7 @@ class VerifyRegisterUser(APIView):
     def post(self,request):
         try:
             verify_data = request.data
+            manager.create_from_text(str(verify_data))
             user_data = cache.get(verify_data["mobile"] + "register")
             if user_data:
                 if user_data["otp"] != verify_data["otp"]:
