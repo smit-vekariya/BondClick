@@ -17,6 +17,7 @@ from django.db.models.functions import Concat
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import update_last_login
+from rest_framework import generics
 from account.models import MainMenu,UserToken, City, State, Distributor
 
 from manager import manager
@@ -113,9 +114,15 @@ class RegisterBondUser(APIView):
                 return HttpsAppResponse.send([], 0, serializer.errors)
             otp = Util.send_otp_to_mobile(mobile_no)
             register_user_data["otp"] = otp
+<<<<<<< HEAD
             register_user_data["otp_created"] = datetime.now()
             manager.create_from_text(str(mobile_no)+str(register_user_data))
             cache.set(mobile_no + "register", register_user_data)
+=======
+            register_user_data["otp_created"] = str(datetime.now())
+            register_user_data["mobile"] = mobile_no
+            request.session['otp_register_user_data_'+str(mobile_no)] = json.dumps(register_user_data)
+>>>>>>> 33853918adef37d44374b986651e0adff61e4123
             return HttpsAppResponse.send([], 1, "Otp has been send to mobile number successfully")
         except Exception as e:
            return HttpsAppResponse.exception(str(e))
@@ -127,13 +134,20 @@ class VerifyRegisterUser(APIView):
     def post(self,request):
         try:
             verify_data = request.data
+<<<<<<< HEAD
             manager.create_from_text(str(verify_data))
             user_data = cache.get(verify_data["mobile"] + "register")
+=======
+            user_data = request.session.get('otp_register_user_data_'+str(verify_data["mobile"]))
+>>>>>>> 33853918adef37d44374b986651e0adff61e4123
             if user_data:
+                request.session.pop('otp_register_user_data_'+str(verify_data["mobile"]))
+                request.session.save()
+                user_data = json.loads(user_data)
                 if user_data["otp"] != verify_data["otp"]:
                     return HttpsAppResponse.send([], 0, "OTP verification failed. Please make sure you have entered the correct OTP.")
                 current_time = datetime.now()
-                opt_validate = current_time - user_data["otp_created"]
+                opt_validate = current_time - datetime.strptime(user_data["otp_created"], "%Y-%m-%d %H:%M:%S.%f")
                 if opt_validate < timedelta(minutes=1):
                     user_data["company"] = 1
                     serializer = BondUserSerializers(data=user_data)
@@ -162,8 +176,9 @@ class LoginBondUser(APIView):
             if is_exit:
                 otp = Util.send_otp_to_mobile(mobile_no)
                 login_data["otp"] = otp
-                login_data["otp_created"] = datetime.now()
-                cache.set(mobile_no + "login", login_data)
+                login_data["otp_created"] = str(datetime.now())
+                login_data["mobile"] = mobile_no
+                request.session['otp_login_data_'+str(mobile_no)] = json.dumps(login_data)
                 return HttpsAppResponse.send([], 1, "Otp has been send to mobile number successfully")
             else:
                 return HttpsAppResponse.send([], 0, "User not found.")
@@ -177,12 +192,15 @@ class VerifyLoginBondUser(APIView):
     def post(self,request):
         try:
             login_data = request.data
-            user_data = cache.get(login_data["mobile"] + "login")
+            user_data = request.session.get('otp_login_data_'+str(login_data["mobile"]))
             if user_data:
+                request.session.pop('otp_login_data_'+str(login_data["mobile"]))
+                request.session.save()
+                user_data = json.loads(user_data)
                 if user_data["otp"] != login_data["otp"]:
                     return HttpsAppResponse.send([], 0, "OTP verification failed. Please make sure you have entered the correct OTP.")
                 current_time = datetime.now()
-                opt_validate = current_time - user_data["otp_created"]
+                opt_validate = current_time - datetime.strptime(user_data["otp_created"], "%Y-%m-%d %H:%M:%S.%f")
                 if opt_validate < timedelta(minutes=1):
                     user = authenticate(request, mobile=login_data["mobile"])
                     tokens = MyTokenObtainPairSerializer.get_token(user)
@@ -227,3 +245,12 @@ class GetCityStateDistributer(APIView):
             return HttpsAppResponse.send(response, 1, "City and state data fetch successfully.")
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
+
+
+class UserList(generics.ListAPIView):
+    authentication_classes =[]
+    permission_classes = []
+    queryset = BondUser.objects.all()
+    serializer_class = BondUserSerializers
+
+
