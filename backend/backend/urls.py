@@ -23,5 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include("account.urls", namespace="welcome_account")),
     path('account/',include("account.urls", namespace="account")),
+    path('qr_admin/',include("qradmin.urls", namespace="qr_admin")),
+    path('qr_app/',include("qrapp.urls", namespace="qr_app")),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

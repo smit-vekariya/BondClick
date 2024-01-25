@@ -17,10 +17,7 @@ from django.db.models.functions import Concat
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import update_last_login
-from rest_framework import generics
 from account.models import MainMenu,UserToken, City, State, Distributor
-
-from manager import manager
 
 
 # Create your views here.
@@ -238,12 +235,5 @@ class GetCityStateDistributer(APIView):
             return HttpsAppResponse.send(response, 1, "City and state data fetch successfully.")
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
-
-
-class UserList(generics.ListAPIView):
-    authentication_classes =[]
-    permission_classes = []
-    queryset = BondUser.objects.all()
-    serializer_class = BondUserSerializers
 
 
