@@ -6,8 +6,6 @@ from manager import manager
 # Create your views here.
 
 class ScanQRCode(APIView):
-    authentication_classes =[]
-    permission_classes = []
     def get(self, request):
         try:
             data = request.data
