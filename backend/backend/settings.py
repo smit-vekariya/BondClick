@@ -40,7 +40,7 @@ ALLOWED_HOSTS = ["panelprime.pythonanywhere.com","*"]
 
 
 AUTH_USER_MODEL = 'account.BondUser'
-AUTHENTICATION_BACKENDS = ['account.backends.MobileNumberBackend','django.contrib.auth.backends.ModelBackend']
+AUTHENTICATION_BACKENDS = ['account.backends.MobileNumberBackend','account.backends.AdminLoginBackend','django.contrib.auth.backends.ModelBackend']
 # CACHES = {
 #     'default': {
 #         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
@@ -62,6 +62,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'account',
     'manager',
+    'qradmin',
+    'qrapp'
 ]
 
 MIDDLEWARE = [
@@ -222,3 +224,5 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+POINT_PER_AMOUNT=5
