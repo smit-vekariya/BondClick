@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 def upload_location(instance, filename):
@@ -97,7 +99,15 @@ class BondUser(AbstractBaseUser, PermissionsMixin):
         return self.mobile
 
 
+@receiver(post_save, sender=BondUser)
+def Bond_user_post_save_receiver(sender, instance, created, **kwargs):
+    if created:
+        from qrapp.models import BondUserWallet
+        BondUserWallet.objects.create(user=instance)
+
+
 class UserToken(models.Model):
     user = models.ForeignKey(BondUser, on_delete=models.CASCADE)
     access_token = models.CharField(max_length=400)
     is_allowed = models.BooleanField(default=True)
+

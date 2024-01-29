@@ -8,6 +8,7 @@ from manager.models import ErrorBase
 from django.http import HttpResponse
 import json
 import random
+import uuid
 
 
 
@@ -66,6 +67,13 @@ class Util(object):
     def send_otp_to_mobile(mobile_no):
         otp = random.randint(100000, 999999)
         return 343434
+
+    @staticmethod
+    def create_unique_qr_code(batch_number):
+        uuid_code = str(uuid.uuid4())
+        uuid_upper = uuid_code.replace("-","")
+        qr_code = f"QR-{batch_number}-{uuid_upper.upper()}"
+        return qr_code
 
 
 

@@ -1,6 +1,8 @@
 from django.db import models
 import logging
 from django.utils.translation import gettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
+from account.models import BondUser
 
 # Create your models here.
 LOG_LEVELS = (
@@ -18,3 +20,19 @@ class ErrorBase(models.Model):
     message = models.TextField()
     traceback = models.TextField(blank=True, null=True)
     created_on = models.DateTimeField(auto_now_add=True)
+
+
+action_types =(
+    ("insert", "Insert"),
+    ("update", "Update"),
+    ("delete", "Delete"),
+    ("error", "Error")
+)
+class History(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
+    object_id =  models.IntegerField(null=True, blank=True)
+    action = models.TextField()
+    action_type = models.CharField(max_length=100, choices=action_types, null=True, blank=True)
+    ip_addr = models.CharField(default="", max_length=45)
+    action_on = models.DateTimeField(auto_now=True)
+    action_by = models.ForeignKey(BondUser, on_delete=models.PROTECT)
