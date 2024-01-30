@@ -4,7 +4,7 @@ from manager.manager import HttpsAppResponse, Util
 from manager import manager
 from account.models import BondUser
 from qradmin.models import QRBatch, QRCode
-from qrapp.models import BondUserWallet
+from qrapp.models import BondUserWallet, Transaction
 from datetime import datetime
 from django.db import transaction
 from django.db.models import F, Q
@@ -27,8 +27,12 @@ class ScanQRCode(APIView):
                         if qr_details:
                             if not qr_details.is_used:
                                 point = qr_details.point
-                                QRCode.objects.filter(qr_code=qr_code).update(is_used=True, used_on=datetime.now(), used_by_id=user_id)
-                                BondUserWallet.objects.filter(user_id=user_id).update(point=F('point') + point)
+                                qr_details.is_used = True
+                                qr_details.used_on = datetime.now()
+                                qr_details.used_by_id = user_id
+                                qr_details.save()
+                                wallet_id = BondUserWallet.objects.filter(user_id=user_id).values("id").first()
+                                Transaction.objects.create(wallet_id=wallet_id["id"], description=f"Scan '{qr_code}'", tran_type="credit", point=point, tran_by_id=user_id)
                                 msg = f"Congratulations on successfully scanning the QR Code! You've earned {point} points. Well done!"
                             else:
                                 msg = "This token has been used."
