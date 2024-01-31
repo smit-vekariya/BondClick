@@ -126,8 +126,8 @@ class VerifyRegisterUser(APIView):
     def post(self,request):
         try:
             verify_data = request.data
-            manager.create_from_text(str(verify_data))
             user_data = request.session.get('otp_register_user_data_'+str(verify_data["mobile"]))
+            manager.create_from_text("calling verify register.....=>"+str(user_data)+":verify data===>"+str(verify_data))
             if user_data:
                 request.session.pop('otp_register_user_data_'+str(verify_data["mobile"]))
                 request.session.save()
