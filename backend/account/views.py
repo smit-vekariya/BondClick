@@ -166,7 +166,6 @@ class LoginBondUser(APIView):
                 login_data["otp"] = otp
                 login_data["otp_created"] = str(datetime.now())
                 login_data["mobile"] = mobile_no
-                manager.create_from_text(json.dumps(login_data))
                 request.session['otp_login_data_'+str(mobile_no)] = json.dumps(login_data)
                 return HttpsAppResponse.send([], 1, "Otp has been send to mobile number successfully")
             else:
@@ -181,7 +180,6 @@ class VerifyLoginBondUser(APIView):
     def post(self,request):
         try:
             login_data = request.data
-            manager.create_from_text(json.dumps(login_data))
             user_data = request.session.get('otp_login_data_'+str(login_data["mobile"]))
             if user_data:
                 request.session.pop('otp_login_data_'+str(login_data["mobile"]))
