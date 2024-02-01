@@ -10,4 +10,4 @@ class MainMenuQRCode(admin.ModelAdmin):
 
 @admin.register(QRBatch)
 class MainMenuQRBatch(admin.ModelAdmin):
-    list_display = ("batch_number","total_qr_code","total_amount", "total_point","point_per_amount", "point_per_qr","is_used")
+    list_display = ("batch_number","total_amount", "total_point","point_per_amount", "point_per_qr")

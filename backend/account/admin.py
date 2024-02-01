@@ -1,5 +1,5 @@
 from django.contrib import admin
-from account.models import MainMenu, Company, Distributor, BondUser, State, City, UserToken
+from account.models import MainMenu, Company, Distributor, BondUser, State, City, UserToken, AuthOTP
 
 
 # Register your models here.
@@ -38,3 +38,8 @@ class CityAdmin(admin.ModelAdmin):
 @admin.register(UserToken)
 class UserTokenAdmin(admin.ModelAdmin):
     list_display = ("user", "access_token", "is_allowed")
+
+
+@admin.register(AuthOTP)
+class AuthOTPAdmin(admin.ModelAdmin):
+    list_display =('key','value', 'otp', 'expire_on', 'created_on', 'is_used')

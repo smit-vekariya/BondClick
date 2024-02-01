@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from account.serializers import BondUserSerializers
+from account.serializers import BondUserListSerializers
 from qradmin.serializers import QRBatchSerializers, QRCodeSerializers
 from account.models import BondUser
 from manager.manager import HttpsAppResponse, Util
@@ -9,16 +9,26 @@ from qradmin.models import QRBatch, QRCode
 from django.conf import settings
 from django.db import transaction
 from manager import manager
+from rest_framework import filters
 import logging
+from rest_framework.pagination import PageNumberPagination
 
 
 # Create your views here.
+class CustomPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param= "page_size"
+    max_page_size = 1000
+
 
 class UserList(generics.ListAPIView):
     authentication_classes =[]
     permission_classes = []
     queryset = BondUser.objects.all()
-    serializer_class = BondUserSerializers
+    filter_backends = [filters.OrderingFilter]
+    serializer_class = BondUserListSerializers
+    pagination_class = CustomPagination
+
 
 
 class CreateQRBatch(APIView):

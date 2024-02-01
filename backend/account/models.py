@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from datetime import timedelta
 
 
 def upload_location(instance, filename):
@@ -111,3 +112,15 @@ class UserToken(models.Model):
     access_token = models.CharField(max_length=400)
     is_allowed = models.BooleanField(default=True)
 
+
+class AuthOTP(models.Model):
+    key = models.CharField(max_length=100, unique = True)
+    value = models.TextField(null=True, blank=True)
+    otp = models.CharField(max_length=20)
+    expire_on = models.DateTimeField(null=True, blank=True)
+    created_on = models.DateTimeField(null=True, blank=True)
+    is_used = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        self.expire_on = self.created_on + timedelta(minutes=1)
+        super(AuthOTP, self).save(*args, **kwargs)
