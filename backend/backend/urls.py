@@ -25,5 +25,5 @@ urlpatterns = [
     path('account/',include("account.urls", namespace="account")),
     path('qr_admin/',include("qradmin.urls", namespace="qr_admin")),
     path('qr_app/',include("qrapp.urls", namespace="qr_app")),
-]
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
