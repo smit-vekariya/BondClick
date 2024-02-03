@@ -17,7 +17,6 @@ from account.models import BondUser ,City
 #         return User
 
 class BondUserSerializers(serializers.ModelSerializer):
-    city = serializers.CharField(source='city.name', read_only=True)
     class Meta:
         model = BondUser
         fields = '__all__'

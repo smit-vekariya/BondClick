@@ -19,35 +19,32 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
 )
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-di-p=wlzad=(z38btnh0fr+60=3cz#h!9q(&f_69d7*ojzqu82'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
 
-
-ALLOWED_HOSTS = ["panelprime.pythonanywhere.com","*"]
-
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
 AUTH_USER_MODEL = 'account.BondUser'
 AUTHENTICATION_BACKENDS = ['account.backends.MobileNumberBackend','account.backends.AdminLoginBackend','django.contrib.auth.backends.ModelBackend']
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
         'LOCATION': 'django_cache',
     }
 }
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -69,7 +66,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    # 'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -77,6 +73,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
+# 'account.middleware.JWTAuthenticationMiddleware', #this is custom middleware for jwt authentication
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -99,29 +96,18 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+# Database (https://docs.djangoproject.com/en/4.2/ref/settings/#databases)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+DATABASES = {"default": {
+    "ENGINE": env("ENGINE"),
+    "NAME": env("NAME"),
+    "USER": env("USER"),
+    "PASSWORD": env("PASSWORD"),
+    "HOST": env("HOST"),
+    "PORT": env("PORT")}
 }
-# DATABASES = {"default": {
-#     "ENGINE": env("ENGINE"),
-#     "NAME": env("NAME"),
-#     "USER": env("USER"),
-#     "PASSWORD": env("PASSWORD"),
-#     "HOST": env("HOST"),
-#     "PORT": env("PORT")}
-# }
 
-
-
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
+# Password validation (https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators)
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -137,45 +123,26 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
-# TIME_ZONE = 'UTC'
-TIME_ZONE =  'Asia/Kolkata'
-
-
+TIME_ZONE = 'UTC'
 USE_I18N = True
-
 USE_TZ = False
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = env("STATIC_URL")
+STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / 'static/'
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# STATICFILES_DIRS = [BASE_DIR / "static/",]
 
-MEDIA_URL = env("MEDIA_URL")
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
 
+CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST")
+
+POINT_PER_AMOUNT=env("POINT_PER_AMOUNT")
 
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Panel Prime change start from here
-
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
-)
-# documentation fo JWT (https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html#jwk-url)
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -187,6 +154,10 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100,
 }
 
+# Default primary key field type (https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field)
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# documentation fo JWT (https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html#jwk-url)
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=12),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
@@ -226,5 +197,3 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
-
-POINT_PER_AMOUNT=5
