@@ -32,7 +32,7 @@ class Transaction(models.Model):
     @transaction.atomic
     def save(self, *args, **kwargs):
         if self.pk is None:
-            point_per_amount = settings.POINT_PER_AMOUNT
+            point_per_amount = int(settings.POINT_PER_AMOUNT)
             amount = self.point / point_per_amount
             if self.tran_type == "credit":
                 self.wallet.balance = F('balance') + amount

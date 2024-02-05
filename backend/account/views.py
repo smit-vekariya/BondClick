@@ -3,7 +3,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 import json
 from rest_framework.views import APIView, View
-from account.serializers import BondUserSerializers
+from account.serializers import BondUserSerializers, BondUserListSerializers
 from datetime import datetime, timedelta
 from account.models import BondUser
 from django.contrib.auth import authenticate
@@ -27,6 +27,16 @@ class Welcome(View):
     template_name = "welcome.html"
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
+
+
+class UserProfile(APIView):
+    def get(self, request):
+        try:
+            user_id = request.user.id
+            user_data = BondUserListSerializers(BondUser.objects.filter(id=user_id), many=True).data
+            return HttpsAppResponse.send([user_data], 1, "User Profile data get successfully.")
+        except Exception as e:
+            return HttpsAppResponse.exception(str(e))
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

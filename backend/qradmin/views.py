@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from account.serializers import BondUserListSerializers
-from qradmin.serializers import QRBatchSerializers, QRCodeSerializers
+from qradmin.serializers import QRBatchSerializers, QRCodeSerializers, QRBatchListSerializers, QRCodeListSerializers
 from account.models import BondUser
 from manager.manager import HttpsAppResponse, Util
 from rest_framework import generics
@@ -15,39 +15,58 @@ from rest_framework.pagination import PageNumberPagination
 
 
 # Create your views here.
+class CompanyDashboard(APIView):
+    def get(self, request):
+        try:
+            total_bond_user = BondUser.objects.count()
+            total_qr_batch = QRBatch.objects.count()
+            total_qr_code = QRCode.objects.count()
+            response = {"total_bond_user":total_bond_user,"total_qr_batch":total_qr_batch,"total_qr_code":total_qr_code}
+            return HttpsAppResponse.send(response, 0, "Dashboard data get successfully")
+        except Exception as e:
+            return HttpsAppResponse.exception(str(e))
+
 class CustomPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param= "page_size"
     max_page_size = 1000
 
-
 class UserList(generics.ListAPIView):
-    authentication_classes =[]
-    permission_classes = []
     queryset = BondUser.objects.all()
     filter_backends = [filters.OrderingFilter]
     serializer_class = BondUserListSerializers
     pagination_class = CustomPagination
 
+class QRBatchList(generics.ListAPIView):
+    queryset = QRBatch.objects.all()
+    filter_backends = [filters.OrderingFilter]
+    serializer_class = QRBatchListSerializers
+    pagination_class = CustomPagination
 
+class QRCodeList(generics.ListAPIView):
+    queryset = QRCode.objects.all()
+    filter_backends = [filters.OrderingFilter]
+    serializer_class = QRCodeListSerializers
+    pagination_class = CustomPagination
 
 class CreateQRBatch(APIView):
-    def get(self, request):
+    def post(self, request):
         try:
             with transaction.atomic():
                 data = request.data
-                total_qr_code = data.get("quantity",None)
-                total_amount = data.get("amount",None)
-                if total_amount > 0 and total_qr_code > 0:
+                total_qr_code = data.get("total_qr_code")
+                point_per_qr = data.get("point_per_qr")
+                if point_per_qr > 0 and total_qr_code > 0:
                     batch_number = QRBatch.objects.values("batch_number").last()
                     batch_number = "BATCH-10000" if not batch_number else f"BATCH-{int(batch_number['batch_number'].split('-')[1])+1}"
-                    point_per_amount = settings.POINT_PER_AMOUNT
-                    total_point = point_per_amount * total_amount
-                    point_per_qr = total_point / total_qr_code
+                    point_per_amount = data.get("point_per_amount")
+                    total_point = data.get("total_point")
+                    total_amount = data.get("total_amount")
+                    amount_per_qr = data.get("amount_per_qr")
 
                     batch_data={"batch_number":batch_number,"total_qr_code":total_qr_code,"total_amount":total_amount,
                                 "point_per_amount":point_per_amount,"total_point":total_point,"point_per_qr":point_per_qr,
-                                "created_by_id":request.user,"expire_on":None}
+                                "amount_per_qr":amount_per_qr,"created_by_id":request.user,"expire_on":None}
 
                     serializer = QRBatchSerializers(data=batch_data)
                     if serializer.is_valid():
@@ -86,3 +105,43 @@ class CreateQRCode(APIView):
             logging.exception("Something went wrong.")
             manager.create_from_exception(e)
             return False
+
+
+# class CreateQRBatch(APIView):
+#     def get(self, request):
+#         try:
+#             with transaction.atomic():
+#                 data = request.data
+#                 total_qr_code = data.get("quantity",None)
+#                 point_per_qr = data.get("point_per_qr",None)
+#                 if point_per_qr > 0 and total_qr_code > 0:
+#                     batch_number = QRBatch.objects.values("batch_number").last()
+#                     batch_number = "BATCH-10000" if not batch_number else f"BATCH-{int(batch_number['batch_number'].split('-')[1])+1}"
+#                     point_per_amount = int(settings.POINT_PER_AMOUNT)
+#                     total_point = total_qr_code * point_per_qr
+#                     total_amount = total_point / point_per_amount
+#                     amount_per_qr = total_amount / total_qr_code
+
+#                     batch_data={"batch_number":batch_number,"total_qr_code":total_qr_code,"total_amount":total_amount,
+#                                 "point_per_amount":point_per_amount,"total_point":total_point,"point_per_qr":point_per_qr,
+#                                 "amount_per_qr":amount_per_qr,"created_by_id":request.user,"expire_on":None}
+
+#                     serializer = QRBatchSerializers(data=batch_data)
+#                     if serializer.is_valid():
+#                         is_created = CreateQRCode.create_qr_code(batch_number,total_qr_code,point_per_qr)
+#                         if is_created:
+#                             qr_serializer = QRCodeSerializers(data=is_created, many=True)
+#                             if qr_serializer.is_valid():
+#                                 serializer.save()
+#                                 qr_serializer.save()
+#                                 return HttpsAppResponse.send([], 1, "QR Batch has been create successfully.")
+#                             else:
+#                                 return HttpsAppResponse.send([], 0, qr_serializer.errors)
+#                         else:
+#                             return HttpsAppResponse.send([], 0, "Something went wrong when create qr code")
+#                     else:
+#                         return HttpsAppResponse.send([], 0, serializer.errors)
+#                 else:
+#                     return HttpsAppResponse.send([], 0, "Amount and quantity must be grater then 0.")
+#         except Exception as e:
+#             return HttpsAppResponse.exception(str(e))
