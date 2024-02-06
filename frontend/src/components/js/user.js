@@ -1,25 +1,27 @@
 import { Table } from 'antd';
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAxios from "../../utils/useAxios";
 import '../component.css';
 
 export default function User(){
-    const api = useAxios()
+    const api = useRef(useAxios())
     const [users, setUsers] = useState([])
     const [totalRecord , setTotalRecord] = useState(0)
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-    useEffect(()=>{
-        getUserData(1, 10)
-    }, [])
 
-    let getUserData = async (page, pageSize) =>{
-        await api.get(`/qr_admin/user_list/?page=${page}&page_size=${pageSize}&ordering=-id`)
+    let getUserData = useCallback(async (page, pageSize) =>{
+        await api.current.get(`/qr_admin/user_list/?page=${page}&page_size=${pageSize}&ordering=-id`)
             .then((res)=>{
                 setTotalRecord(res.data.count)
                 setUsers(res.data.results)
         })
-    }
+    },[])
+
+    useEffect(()=>{
+        getUserData(1, 10);
+    }, [getUserData])
+
 
     const columns = [
         {title:"Name",dataIndex:"full_name"},
@@ -41,6 +43,7 @@ export default function User(){
         console.log("pagination", pagination);
 
     }
+
 
     return(
     <>

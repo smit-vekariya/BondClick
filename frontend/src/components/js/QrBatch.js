@@ -1,12 +1,12 @@
 import { Button, Form, Input, Modal, Table } from 'antd';
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import useAxios from '../../utils/useAxios';
 import '../component.css';
 
 const point_per_amount = process.env.REACT_APP_POINT_PER_AMOUNT
 export default function QrBatch(){
-    const api = useAxios()
+    const api = useRef(useAxios())
     const {messageApi} = useContext(AuthContext)
     const [batch, setBatch] = useState([])
     const [totalRecord , setTotalRecord] = useState(0)
@@ -44,17 +44,18 @@ export default function QrBatch(){
         }
     }
 
-    useEffect(()=>{
-        getQrBatchData(1, 10)
-    },[])
-
-    let getQrBatchData  = async(page,pageSize) =>{
-        await api.get(`/qr_admin/qr_batch_list/?page=${page}&page_size=${pageSize}&ordering=-id`)
+    let getQrBatchData  = useCallback(async(page,pageSize) =>{
+        await api.current.get(`/qr_admin/qr_batch_list/?page=${page}&page_size=${pageSize}&ordering=-id`)
         .then((res)=>{
             setTotalRecord(res.data.count)
             setBatch(res.data.results)
         })
-    }
+    },[])
+
+    useEffect(()=>{
+        getQrBatchData(1, 10)
+    },[getQrBatchData])
+
     const columns = [
         {title:"Batch Number",dataIndex:"batch_number"},
         {title:"Total QR Code",dataIndex:"total_qr_code"},

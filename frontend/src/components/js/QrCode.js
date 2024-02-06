@@ -1,26 +1,27 @@
 import { Table } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAxios from "../../utils/useAxios";
 
 export default function QrCode(){
-    const api = useAxios()
+    const api = useRef(useAxios())
     const [QRCode , setQRCode] = useState([])
     const [totalRecord , setTotalRecord] = useState(0)
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
 
-    useEffect(()=>{
-        getQRCodeData(1, 10)
-    },[])
-
-    let getQRCodeData= async(page, pageSize)=>{
-        await api.get(`/qr_admin/qr_code_list/?page=${page}&page_size=${pageSize}&ordering=-id`)
+    let getQRCodeData = useCallback(async(page, pageSize)=>{
+        await api.current.get(`/qr_admin/qr_code_list/?page=${page}&page_size=${pageSize}&ordering=-id`)
         .then((res)=>{
             setTotalRecord(res.data.count)
             setQRCode(res.data.results)
 
         })
-    }
+    },[])
+
+    useEffect(()=>{
+        getQRCodeData(1, 10)
+    },[getQRCodeData])
+
 
     const onSelectChange =(newSelectedRowKeys)=>{
         setSelectedRowKeys(newSelectedRowKeys)

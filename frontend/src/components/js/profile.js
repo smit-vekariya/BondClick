@@ -1,30 +1,31 @@
 import { Form, Input } from 'antd';
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import useAxios from "../../utils/useAxios";
 import '../component.css';
 
 export default function Profile(){
-    const api = useAxios()
+    const api = useRef(useAxios())
     const [profile, setProfile] = useState({})
     const {messageApi} = useContext(AuthContext)
 
-    useEffect(()=>{
-        getProfileData()
-    },[])
-
-    const getProfileData = async() =>{
-        await api.get('/account/user_profile/')
+    const getProfileData = useCallback(async() =>{
+        console.log("async");
+        await api.current.get('/account/user_profile/')
         .then((res)=>{
             if(res.data.status === 1){
                 setProfile(res.data.data[0][0])
-                console.log("res.data.data", res.data.data[0][0]);
             }
             else{
                 messageApi.open({type: 'error',content: res.data.message})
             }
         })
-    }
+    },[messageApi])
+
+    useEffect(()=>{
+        getProfileData()
+    },[getProfileData])
+
 
 
     return (

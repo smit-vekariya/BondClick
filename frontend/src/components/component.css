@@ -77,7 +77,7 @@ a{
 .title_tab{
     display: flex;
     padding: 5px;
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.2), 0 1px 28px 0 rgba(0, 0, 0, -2.81);
+    border-bottom: 2px solid #FF9966;
     text-align: center;
     margin: 5px;
     border-radius: 5px;

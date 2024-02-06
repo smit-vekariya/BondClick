@@ -1,22 +1,24 @@
 import { Card, Col, Progress, Row } from 'antd';
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import useAxios from '../../utils/useAxios';
 
 
 export default function CompanyDashBoard(){
-    const api = useAxios()
+    const api = useRef(useAxios())
     const [dashboard, setDashBoard] = useState({})
 
-    useEffect(()=>{
-        getDashBoardData()
-    },[])
 
-    const getDashBoardData = async() =>{
-        await api.get('/qr_admin/company_dashboard/')
+    const getDashBoardData = useCallback(async() =>{
+        await api.current.get('/qr_admin/company_dashboard/')
         .then((res)=>{
             setDashBoard(res.data.data)
         })
-    }
+    },[])
+
+
+    useEffect(()=>{
+        getDashBoardData()
+    },[getDashBoardData])
 
     return(
         <>

@@ -1,7 +1,7 @@
-import Icon, { LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Dropdown, Flex, Layout, Menu, theme } from 'antd';
 import 'font-awesome/css/font-awesome.min.css';
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Link, Outlet } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 import useAxios from '../../utils/useAxios';
@@ -20,7 +20,7 @@ function getItem(label, key, icon, children) {
   };
 }
 const Dashboard = () => {
-  const api = useAxios()
+  const api = useRef(useAxios())
   const [collapsed, setCollapsed] = useState(false);
   const [menuData, setMenuData] = useState(()=>localStorage.getItem("main_menu") ? JSON.parse(localStorage.getItem("main_menu")):{});
   const {user,logoutUser} = useContext(AuthContext)
@@ -31,17 +31,18 @@ const Dashboard = () => {
   //     }
   // },[menuData])
 
-  useEffect(() => {
-      getMainMenu()
-  },[])
-
-  let getMainMenu = async () =>{
-      await api.get("/account/main_menu/")
+  let getMainMenu = useCallback(async () =>{
+      await api.current.get("/account/main_menu/")
         .then((res)=>{
           setMenuData(res["data"])
           localStorage.setItem("main_menu", JSON.stringify(res["data"]))
         })
-  }
+  },[])
+
+  useEffect(() => {
+      getMainMenu()
+  },[getMainMenu])
+
 
   var new_list = []
   var nested_list = []
@@ -91,7 +92,6 @@ const Dashboard = () => {
       </Sider>
       <Layout>
         <Header style={{padding: 0, background: colorBgContainer}}>
-            <Icon type="message" style={{ fontSize: '16px', color: '#08c' }} theme="outlined" />
             <Flex gap="small" wrap="wrap" style={{float: "right", marginRight:"10px"}}>
                 <Dropdown.Button menu={{items}} style={{margin: "9px 0px 5px 1px"}} placement="bottomLeft" icon={<UserOutlined />}>{user && user.full_name}</Dropdown.Button>
             </Flex>

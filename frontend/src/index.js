@@ -1,15 +1,15 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import './components/component.css';
 import CompanyDashBoard from './components/js/CompanyDashBoard';
+import Profile from './components/js/Profile';
 import QrBatch from './components/js/QrBatch';
 import QrCode from './components/js/QrCode';
 import Dashboard from './components/js/dashboard';
 import Home from './components/js/home';
 import Login from './components/js/login';
-import Profile from './components/js/profile';
 import Register from './components/js/register';
 import User from './components/js/user';
 import AuthProvider from './context/AuthContext';
