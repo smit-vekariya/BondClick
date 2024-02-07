@@ -1,5 +1,5 @@
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
-import { Dropdown, Flex, Layout, Menu, theme } from 'antd';
+import { Dropdown, Flex, Layout, Menu, Spin, theme } from 'antd';
 import 'font-awesome/css/font-awesome.min.css';
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Link, Outlet } from "react-router-dom";
@@ -23,7 +23,7 @@ const Dashboard = () => {
   const api = useRef(useAxios())
   const [collapsed, setCollapsed] = useState(false);
   const [menuData, setMenuData] = useState(()=>localStorage.getItem("main_menu") ? JSON.parse(localStorage.getItem("main_menu")):{});
-  const {user,logoutUser} = useContext(AuthContext)
+  const {user,logoutUser, loading} = useContext(AuthContext)
 
   // useEffect(() => {
   //   if(Object.keys(menuData).length === 0){
@@ -97,7 +97,9 @@ const Dashboard = () => {
             </Flex>
         </Header>
         <Content className='content_class'>
-          <Outlet/>
+          <Spin spinning={loading}>
+            <Outlet/>
+          </Spin>
         </Content>
         <Footer style={{textAlign: 'center'}}>
         </Footer>

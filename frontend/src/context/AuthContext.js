@@ -11,17 +11,17 @@ export default function AuthProvider(){
     let navigate = useNavigate()
     let [authTokens, setAuthTokens] = useState(()=> localStorage.getItem("authTokens") ? JSON.parse(localStorage.getItem("authTokens")):null)
     let [user, setUser] = useState(() => localStorage.getItem("access") ? jwtDecode(localStorage.getItem("access")):null)
-    let [loading, setLoading] = useState(true)
+    let [loading_, setLoading_] = useState(true)
+    let [loading, setLoading] = useState(false)
     const [messageApi, contextHolder] = message.useMessage();
 
-    let loginUser = async (e) => {
-        e.preventDefault()
+    let loginUser = async (values) => {
         let response = await fetch(`${baseURL}/account/admin_login/`,{
             method:"POST",
             headers:{
                 'Content-Type':"application/json"
             },
-            body:JSON.stringify({"mobile":e.target.username.value,"password":e.target.password.value})
+            body:JSON.stringify({"mobile":values.mobile,"password":values.password})
         })
         let data = await response.json()
         if (data.status === 1){
@@ -48,8 +48,8 @@ export default function AuthProvider(){
         if(authTokens){
             setUser(jwtDecode(authTokens.access))
         }
-        setLoading(false)
-    }, [authTokens, loading])
+        setLoading_(false)
+    }, [authTokens, loading_])
 
     let contextData={
         "loginUser":loginUser,
@@ -59,12 +59,14 @@ export default function AuthProvider(){
         setUser:setUser,
         setAuthTokens:setAuthTokens,
         messageApi:messageApi,
+        setLoading:setLoading,
+        loading:loading
     }
     return(
         <>
         {contextHolder}
         <AuthContext.Provider value={contextData}>
-            {loading ? null:<Outlet  />}
+            {loading_ ? null:<Outlet  />}
             {/* <Outlet  /> */}
         </AuthContext.Provider>
         </>

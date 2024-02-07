@@ -18,7 +18,7 @@ from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, Bl
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import update_last_login
 from account.models import MainMenu,UserToken, City, State, Distributor, AuthOTP
-
+from rest_framework import viewsets
 
 
 # Create your views here.
@@ -29,12 +29,24 @@ class Welcome(View):
         return render(request, self.template_name)
 
 
-class UserProfile(APIView):
-    def get(self, request):
+class UserProfile(viewsets.ViewSet):
+    def retrieve(self, request, pk=None):
         try:
             user_id = request.user.id
             user_data = BondUserListSerializers(BondUser.objects.filter(id=user_id), many=True).data
             return HttpsAppResponse.send([user_data], 1, "User Profile data get successfully.")
+        except Exception as e:
+            return HttpsAppResponse.exception(str(e))
+
+    def put(self, request, pk=None):
+        try:
+            serializer = BondUserListSerializers(BondUser.objects.get(pk=pk), data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return HttpsAppResponse.send([], 1, "User Profile Updated.")
+            else:
+                error_messages = ", ".join(value[0] for key, value in serializer.errors.items())
+                return HttpsAppResponse.send([], 0, error_messages)
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
 

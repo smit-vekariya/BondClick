@@ -13,6 +13,7 @@ export default function QrBatch(){
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [openConfirm, setOpenConfirm] = useState(false);
+    const [buttonDisabled, setButtonDisabled] = useState(false);
     var batch_details = {
         "total_qr_code":0,
         "point_per_qr":0,
@@ -24,8 +25,9 @@ export default function QrBatch(){
     const [batchPreview, setBatchPreview] = useState(batch_details);
 
     const calculateBatch = (e) => {
-        var total_qr = document.getElementById("total_qr").value
-        var point_qr = document.getElementById("point_qr").value
+        setBatchPreview({...batchPreview, [e.target.name]:parseInt(e.target.value)})
+        var total_qr = e.target.name === "total_qr_code" ? parseInt(e.target.value) : batchPreview.total_qr_code
+        var point_qr = e.target.name === "point_per_qr" ? parseInt(e.target.value) : batchPreview.point_per_qr
         if(total_qr > 0 && point_qr > 0 ){
             var total_point = total_qr * point_qr
             var total_amount = total_point / parseInt(point_per_amount)
@@ -39,9 +41,9 @@ export default function QrBatch(){
                 "amount_per_qr":parseFloat(amount_per_qr.toFixed(2))
             })
         }
-        else{
-            setBatchPreview(batch_details)
-        }
+        // else{
+        //     setBatchPreview(batch_details)
+        // }
     }
 
     let getQrBatchData  = useCallback(async(page,pageSize) =>{
@@ -74,20 +76,26 @@ export default function QrBatch(){
         console.log("pagination", pagination);
     }
     const createBatch = () =>{
+        setBatchPreview(batch_details)
         setIsModalOpen(true)
     }
 
     const handleOk= () =>{
+        if ((!batchPreview.total_qr_code > 0) || (!batchPreview.point_per_qr > 0)){
+            messageApi.open({type: 'error',content: "Total QR Code and Point Per QR must be grater then 0."})
+            return
+        }
         setOpenConfirm(true)
     }
 
     const handleConfirmOk = async () =>{
-        await api.post(`/qr_admin/create_qr_batch/`,batchPreview)
+        setOpenConfirm(false)
+        setIsModalOpen(false)
+        await api.current.post(`/qr_admin/create_qr_batch/`,batchPreview)
         .then((res)=>{
-            setOpenConfirm(false)
             if(res.data.status === 1){
                 messageApi.open({type: 'success',content: res.data.message})
-                setIsModalOpen(false)
+                getQrBatchData(1, 10)
             }else{
                 messageApi.open({type: 'error',content: res.data.message})
             }
@@ -116,13 +124,15 @@ export default function QrBatch(){
                 }}
                 scroll={{y: 500}}
                 size="small"/>
-            <Modal title="Create Batch" open={isModalOpen} okText="Create" onOk={(handleOk)} onCancel={()=>setIsModalOpen(false)}>
-                <Form.Item label="Total QR Code">
-                    <Input type='number' min={0} defaultValue={0} id="total_qr" onChange={calculateBatch}></Input>
-                </Form.Item>
-                <Form.Item label="Point Per QR">
-                    <Input type='number' min={0} defaultValue={0} id="point_qr" onChange={calculateBatch}></Input>
-                </Form.Item>
+            <Modal title="Create Batch" open={isModalOpen} okText="Create" onOk={handleOk} onCancel={()=>setIsModalOpen(false)}>
+                <Form  labelCol={{flex: '110px'}} labelAlign="left">
+                    <Form.Item label="Total QR Code">
+                        <Input type='number' min={0}  defaultValue={0} name="total_qr_code" value={batchPreview.total_qr_code} onChange={calculateBatch} required></Input>
+                    </Form.Item>
+                    <Form.Item label="Point Per QR">
+                        <Input type='number' min={0} defaultValue={0} name="point_per_qr" value={batchPreview.point_per_qr} onChange={calculateBatch} required></Input>
+                    </Form.Item>
+                </Form>
                 <div className='batch_details'>
                     <b>Batch Preview:</b>
                     <table style={{width:'100%'}}>

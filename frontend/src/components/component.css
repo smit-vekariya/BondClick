@@ -14,7 +14,8 @@ body:has(.main_div) {
 }
 .login_div {
     margin: auto;
-    width: 35%;
+    width: 500px;
+    text-align: center;
     padding: 15px;
     border-radius: 10px;
     opacity: 10px;
@@ -102,4 +103,12 @@ a{
 }
 .main_tab{
     margin: 8px 4px 0px 4px;
+}
+
+
+/* css of ant */
+
+.login_card .ant-card-head{
+    border-bottom: 3px solid #FF9966 !important;
+    border-radius: 0px 0px 5px 4px !important;
 }

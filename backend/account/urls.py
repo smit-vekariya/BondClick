@@ -26,6 +26,7 @@ urlpatterns = [
 
     #adminpanel api
     path('admin_login/', AdminLogin.as_view(), name='admin_login'),
-    path('user_profile/', UserProfile.as_view(), name="user_profile" )
+    path('user_profile/', UserProfile.as_view({'get': 'retrieve'}), name="user_profile"),
+    path('edit_profile/<int:pk>', UserProfile.as_view({'get': 'put'}), name="edit_profile")
 
 ]

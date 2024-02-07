@@ -3,7 +3,7 @@ from account.serializers import BondUserListSerializers
 from qradmin.serializers import QRBatchSerializers, QRCodeSerializers, QRBatchListSerializers, QRCodeListSerializers
 from account.models import BondUser
 from manager.manager import HttpsAppResponse, Util
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from rest_framework.views import APIView
 from qradmin.models import QRBatch, QRCode
 from django.conf import settings
@@ -12,17 +12,27 @@ from manager import manager
 from rest_framework import filters
 import logging
 from rest_framework.pagination import PageNumberPagination
+from django.db.models import Case, Count, F, Q ,When, IntegerField
 
 
 # Create your views here.
-class CompanyDashboard(APIView):
-    def get(self, request):
+class CompanyDashboard(viewsets.ViewSet):
+    queryset  = QRCode.objects.all()
+    user_queryset = BondUser.objects.all()
+
+    def list(self, request):
         try:
-            total_bond_user = BondUser.objects.count()
-            total_qr_batch = QRBatch.objects.count()
-            total_qr_code = QRCode.objects.count()
-            response = {"total_bond_user":total_bond_user,"total_qr_batch":total_qr_batch,"total_qr_code":total_qr_code}
-            return HttpsAppResponse.send(response, 0, "Dashboard data get successfully")
+            total_bond_user = self.user_queryset.count()
+            dashboard = self.queryset.aggregate(
+                total_qr_code = Count(F('id')),
+                total_qr_batch = Count(F('batch'), distinct=True),
+                total_used_qr = Count(Case(When(is_used=True, then=1),output_field=IntegerField())),
+                total_remain_qr = Count(Case(When(is_used=False, then=1),output_field=IntegerField()))
+            )
+            used_in_percentage = (dashboard["total_used_qr"]) * 100 / dashboard["total_qr_code"]
+            dashboard.update({"used_in_percentage":round(used_in_percentage,2)})
+            dashboard.update({"total_bond_user":total_bond_user})
+            return HttpsAppResponse.send(dashboard, 0, "Dashboard data get successfully")
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
 
@@ -48,7 +58,7 @@ class QRCodeList(generics.ListAPIView):
     filter_backends = [filters.OrderingFilter]
     serializer_class = QRCodeListSerializers
     pagination_class = CustomPagination
-
+import time
 class CreateQRBatch(APIView):
     def post(self, request):
         try:
@@ -84,7 +94,7 @@ class CreateQRBatch(APIView):
                     else:
                         return HttpsAppResponse.send([], 0, serializer.errors)
                 else:
-                    return HttpsAppResponse.send([], 0, "Amount and quantity must be grater then 0.")
+                    return HttpsAppResponse.send([], 0, "Total QR Code and Point Per QR must be grater then 0.")
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
 

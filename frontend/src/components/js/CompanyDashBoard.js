@@ -12,6 +12,7 @@ export default function CompanyDashBoard(){
         await api.current.get('/qr_admin/company_dashboard/')
         .then((res)=>{
             setDashBoard(res.data.data)
+            console.log("res.data.data", res.data.data);
         })
     },[])
 
@@ -40,12 +41,13 @@ export default function CompanyDashBoard(){
             <Row >
                 <Card title="Used QR Code" bordered={true}>
                     <div style={{display:'Flex'}}>
-                        <div><Progress type="circle" percent={90} strokeColor={{'0%': '#108ee9','100%': '#87d068'}} /></div>
+                        <div><Progress type="circle" percent={dashboard.used_in_percentage} strokeColor={{'0%': '#108ee9','100%': '#87d068'}} /></div>
                         <div style={{padding: '12px 7px 0px 58px'}}>
                             <table><tbody>
-                                    <tr><td><b></b></td><td>Used token</td></tr>
-                                    <tr><td><b></b></td><td>Remain token</td></tr>
-                                    <tr><td><b></b></td><td>Total token</td></tr>
+                                    <tr><td><b>{dashboard.total_used_qr}</b></td><td>Used code</td></tr>
+                                    <tr><td><b>{dashboard.total_remain_qr}</b></td><td>Remain code</td></tr>
+                                    <tr><td colspan="2"><hr></hr></td></tr>
+                                    <tr><td><b>{dashboard.total_qr_code}</b></td><td>Total code</td></tr>
                             </tbody></table>
                         </div>
                     </div>

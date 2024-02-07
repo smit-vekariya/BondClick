@@ -1,6 +1,5 @@
+import { Button, Col, Form, Row } from 'antd';
 import React, { useState } from "react";
-import { Col, Form, Row } from 'react-bootstrap';
-import Button from 'react-bootstrap/Button';
 import { Link, useNavigate } from "react-router-dom";
 import logo from './logo-no-background.png';
 

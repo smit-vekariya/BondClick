@@ -7,7 +7,6 @@ import CompanyDashBoard from './components/js/CompanyDashBoard';
 import QrBatch from './components/js/QrBatch';
 import QrCode from './components/js/QrCode';
 import Dashboard from './components/js/dashboard';
-import Home from './components/js/home';
 import Login from './components/js/login';
 import Profile from './components/js/profile';
 import Register from './components/js/register';
@@ -36,7 +35,6 @@ root.render(
             <Route path="/login" element={<Login />} />
           </Route>
           <Route path="/register" element={<Register />} />
-          <Route path="/home" element={<Home/>}/>
         </Route>
       </Routes>
   </BrowserRouter>
