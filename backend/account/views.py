@@ -111,7 +111,8 @@ class RegisterUser(APIView):
                 serializer.save()
                 return HttpsAppResponse.send([], 1, "Registration successfully")
             else:
-                return HttpsAppResponse.send([], 0, serializer.errors)
+                error_messages = ", ".join(value[0] for key, value in serializer.errors.items())
+                return HttpsAppResponse.send([], 0, error_messages)
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
 
@@ -131,7 +132,8 @@ class RegisterBondUser(APIView):
                 return HttpsAppResponse.send([], 0, "City is not available in selected state.")
             serializer = BondUserSerializers(data=register_user_data)
             if not serializer.is_valid():
-                return HttpsAppResponse.send([], 0, serializer.errors)
+                error_messages = ", ".join(value[0] for key, value in serializer.errors.items())
+                return HttpsAppResponse.send([], 0, error_messages)
             otp = Util.send_otp_to_mobile(mobile_no)
             register_user_data["mobile"] = mobile_no
             AuthOTP.objects.update_or_create(key=f"register_{mobile_no}",defaults={"otp":otp,"created_on":datetime.now(),"value":json.dumps(register_user_data),"is_used":False})
@@ -162,7 +164,8 @@ class VerifyRegisterUser(APIView):
                         tokens = MyTokenObtainPairSerializer.get_token(user)
                         return HttpsAppResponse.send(tokens, 1, "Registration successfully")
                     else:
-                        return HttpsAppResponse.send([], 0, serializer.errors)
+                        error_messages = ", ".join(value[0] for key, value in serializer.errors.items())
+                        return HttpsAppResponse.send([], 0, error_messages)
                 else:
                     return HttpsAppResponse.send([], 0, "Your OTP has expired. Please request a new OTP.")
             return HttpsAppResponse.send([], 0, "You need to register your self.")

@@ -63,6 +63,13 @@ class Company(models.Model):
     def __str__(self):
         return self.name
 
+@receiver(post_save, sender=Company)
+def Company_wallet_on_company_post_save(sender, instance, created, **kwargs):
+    if created:
+        from qradmin.models import CompanyWallet
+        CompanyWallet.objects.create(company=instance)
+
+
 
 class Distributor(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
@@ -101,7 +108,7 @@ class BondUser(AbstractBaseUser, PermissionsMixin):
 
 
 @receiver(post_save, sender=BondUser)
-def Bond_user_post_save_receiver(sender, instance, created, **kwargs):
+def Bond_user_wallet_on_user_post_save(sender, instance, created, **kwargs):
     if created:
         from qrapp.models import BondUserWallet
         BondUserWallet.objects.create(user=instance)

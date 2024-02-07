@@ -1,21 +1,18 @@
 import { Button, Form, Input } from 'antd';
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import useAxios from "../../utils/useAxios";
 import '../component.css';
 
 export default function Profile(){
-    const api = useAxios()
+    const api = useRef(useAxios())
     const [profile, setProfile] = useState({})
     const {messageApi} = useContext(AuthContext)
     const[disabled, setDisabled] = useState(true)
 
-    useEffect(()=>{
-        getProfileData()
-    },[])
 
-    const getProfileData = async() =>{
-        await api.get('/account/user_profile/')
+    const getProfileData = useCallback(async() =>{
+        await api.current.get('/account/user_profile/')
         .then((res)=>{
             if(res.data.status === 1){
                 setProfile(res.data.data[0][0])
@@ -24,7 +21,14 @@ export default function Profile(){
                 messageApi.open({type: 'error',content: res.data.message})
             }
         })
-    }
+        .catch((error)=>{
+            messageApi.open({type: 'error',content: error.message})
+        })
+    },[messageApi])
+
+    useEffect(()=>{
+        getProfileData()
+    },[getProfileData])
 
     const editProfile=(e)=>{
         setProfile({...profile,[e.target.name]:e.target.value})
@@ -39,6 +43,9 @@ export default function Profile(){
                 else{
                     messageApi.open({type: 'error',content: res.data.message})
                 }
+            })
+            .catch((error)=>{
+                messageApi.open({type: 'error',content: error.message})
             })
     }
 

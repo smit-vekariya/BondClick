@@ -1,4 +1,6 @@
+import { PrinterOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Table } from 'antd';
+
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import useAxios from '../../utils/useAxios';
@@ -13,7 +15,7 @@ export default function QrBatch(){
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [openConfirm, setOpenConfirm] = useState(false);
-    const [buttonDisabled, setButtonDisabled] = useState(false);
+
     var batch_details = {
         "total_qr_code":0,
         "point_per_qr":0,
@@ -41,9 +43,6 @@ export default function QrBatch(){
                 "amount_per_qr":parseFloat(amount_per_qr.toFixed(2))
             })
         }
-        // else{
-        //     setBatchPreview(batch_details)
-        // }
     }
 
     let getQrBatchData  = useCallback(async(page,pageSize) =>{
@@ -52,7 +51,11 @@ export default function QrBatch(){
             setTotalRecord(res.data.count)
             setBatch(res.data.results)
         })
-    },[])
+        .catch((error)=>{
+            messageApi.open({type: 'error',content: error.message})
+        })
+
+    },[messageApi])
 
     useEffect(()=>{
         getQrBatchData(1, 10)
@@ -66,6 +69,10 @@ export default function QrBatch(){
         {title:"Total Point",dataIndex:"total_point"},
         {title:"Point Per QR",dataIndex:"point_per_qr"},
         {title:"Amount Per QR",dataIndex:"amount_per_qr"},
+        {title:"Print Batch",
+            dataIndex:"id",
+            render:()=><Button type='primary' size='small' icon={< PrinterOutlined />} >Print</Button>
+        },
     ]
     const onSelectChange =(newSelectedRowKeys)=>{
         setSelectedRowKeys(newSelectedRowKeys)

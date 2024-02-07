@@ -23,7 +23,7 @@ const Dashboard = () => {
   const api = useRef(useAxios())
   const [collapsed, setCollapsed] = useState(false);
   const [menuData, setMenuData] = useState(()=>localStorage.getItem("main_menu") ? JSON.parse(localStorage.getItem("main_menu")):{});
-  const {user,logoutUser, loading} = useContext(AuthContext)
+  const {user,logoutUser, loading, messageApi} = useContext(AuthContext)
 
   // useEffect(() => {
   //   if(Object.keys(menuData).length === 0){
@@ -37,7 +37,10 @@ const Dashboard = () => {
           setMenuData(res["data"])
           localStorage.setItem("main_menu", JSON.stringify(res["data"]))
         })
-  },[])
+        .catch((error)=>{
+            messageApi.open({type: 'error',content: error.message})
+        })
+  },[messageApi])
 
   useEffect(() => {
       getMainMenu()

@@ -1,20 +1,23 @@
 import { Card, Col, Progress, Row } from 'antd';
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { AuthContext } from '../../context/AuthContext';
 import useAxios from '../../utils/useAxios';
 
 
 export default function CompanyDashBoard(){
     const api = useRef(useAxios())
     const [dashboard, setDashBoard] = useState({})
-
+    const {messageApi} = useContext(AuthContext)
 
     const getDashBoardData = useCallback(async() =>{
         await api.current.get('/qr_admin/company_dashboard/')
         .then((res)=>{
             setDashBoard(res.data.data)
-            console.log("res.data.data", res.data.data);
         })
-    },[])
+        .catch((error)=>{
+            messageApi.open({type: 'error',content: error.message})
+        })
+    },[messageApi])
 
 
     useEffect(()=>{
