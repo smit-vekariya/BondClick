@@ -46,7 +46,7 @@ export default function CompanyDashBoard(){
                             <table><tbody>
                                     <tr><td><b>{dashboard.total_used_qr}</b></td><td>Used code</td></tr>
                                     <tr><td><b>{dashboard.total_remain_qr}</b></td><td>Remain code</td></tr>
-                                    <tr><td colspan="2"><hr></hr></td></tr>
+                                    <tr><td colSpan="2"><hr></hr></td></tr>
                                     <tr><td><b>{dashboard.total_qr_code}</b></td><td>Total code</td></tr>
                             </tbody></table>
                         </div>

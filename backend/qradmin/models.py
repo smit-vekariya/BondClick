@@ -1,7 +1,16 @@
 from django.db import models
-from account.models import BondUser
+from account.models import BondUser, Company
 
 # Create your models here.
+class CompanyWallet(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
+    amount_limit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_point =  models.IntegerField(null=True, blank=True, default=0)
+    total_user_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_user_point = models.IntegerField(null=True, blank=True, default=0)
+    total_withdraw_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_withdraw_point = models.IntegerField(null=True, blank=True, default=0)
 
 class QRBatch(models.Model):
     batch_number = models.CharField(unique=True, max_length=20)
