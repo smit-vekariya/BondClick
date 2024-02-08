@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.db import transaction
 from django.db.models import F
+from decimal import Decimal
 # Create your models here.
 
 
@@ -25,28 +26,35 @@ class Transaction(models.Model):
     description = models.TextField()
     tran_type = models.CharField(max_length=100, choices=transaction_types)
     point = models.IntegerField(null=True, blank=True,default=0)
+    total_point = models.IntegerField(null=True, blank=True,default=0)
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     tran_on = models.DateTimeField(auto_now=True)
     tran_by = models.ForeignKey(BondUser, on_delete=models.PROTECT)
 
-    @transaction.atomic
     def save(self, *args, **kwargs):
-        if self.pk is None:
-            point_per_amount = int(settings.POINT_PER_AMOUNT)
-            amount = self.point / point_per_amount
-            if self.tran_type == "credit":
-                self.wallet.balance = F('balance') + amount
-                self.wallet.point = F('point') + self.point
-            if self.tran_type == "debit":
-                self.wallet.balance = F('balance') - amount
-                self.wallet.point = F('point') - self.point
-                self.wallet.withdraw_balance = F('withdraw_balance') + amount
-                self.wallet.withdraw_point = F('withdraw_point') + self.point
-            self.amount = amount
-            self.wallet.save()
-            super(Transaction, self).save(*args, **kwargs)
-        else:
+        if self.pk is not None:
             print('Update is not possible after transaction')
+            return
+
+        point_per_amount = Decimal(settings.POINT_PER_AMOUNT)  # Convert to Decimal
+        amount = Decimal(self.point) / point_per_amount
+        wallet = self.wallet  # Fetch the wallet once
+        with transaction.atomic():
+            if self.tran_type == "credit":
+                wallet.balance += amount
+                wallet.point += self.point
+            elif self.tran_type == "debit":
+                wallet.balance -= amount
+                wallet.point -= self.point
+                wallet.withdraw_balance += amount
+                wallet.withdraw_point += self.point
+            wallet.save()
+
+            self.amount = amount
+            self.total_point = wallet.point  # Assign value directly
+            self.total_amount = wallet.balance  # Assign value directly
+            super().save(*args, **kwargs)
 
 
 wallet_action_types = (

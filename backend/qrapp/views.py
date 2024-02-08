@@ -63,7 +63,7 @@ class WithdrawAmount(APIView):
                     if BondUser.objects.filter(mobile=mobile, id=user_id).exists():
                         wallet = BondUserWallet.objects.filter(user_id=user_id).first()
                         if wallet:
-                            if wallet.point > point:
+                            if wallet.point >= point:
                                 Transaction.objects.create(wallet_id=wallet.id, description=f"Withdrawal point", tran_type="debit", point=point, tran_by_id=user_id)
                                 msg = f"Congratulations on successfully Withdrawal the point."
                                 return HttpsAppResponse.send([{"point":point}], 1, msg)

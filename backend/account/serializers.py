@@ -26,9 +26,9 @@ class BondUserSerializers(serializers.ModelSerializer):
 
 
 class BondUserListSerializers(serializers.ModelSerializer):
-    city = serializers.CharField(source='city.name', read_only=True)
-    state = serializers.CharField(source='state.name' ,read_only=True)
-    distributor = serializers.CharField(source='distributor.name' ,read_only=True)
+    city__name = serializers.CharField(source='city.name', read_only=True)
+    state__name = serializers.CharField(source='state.name' ,read_only=True)
+    distributor__name = serializers.CharField(source='distributor.name' ,read_only=True)
     class Meta:
         model = BondUser
-        fields = ["id","full_name", "mobile", "address", "pin_code", "city", "state", "distributor"]
+        fields = ["id","full_name", "mobile", "address", "pin_code", "city__name", "state__name", "distributor__name"]

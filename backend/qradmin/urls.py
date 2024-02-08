@@ -11,5 +11,7 @@ urlpatterns = [
     path("user_list/", UserList.as_view(), name="user_list"),
     path("qr_batch_list/", QRBatchList.as_view(), name="qr_batch_list"),
     path("qr_code_list/", QRCodeList.as_view(), name="qr_code_list"),
-    path("create_qr_batch/", CreateQRBatch.as_view(), name="create_qr_batch")
+    path("create_qr_batch/", CreateQRBatch.as_view(), name="create_qr_batch"),
+    path('user_wallet/', UserWallet.as_view(), name="user_wallet"),
+
 ]

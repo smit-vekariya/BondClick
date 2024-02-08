@@ -8,7 +8,7 @@ class MainMenuBondUserWallet(admin.ModelAdmin):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('wallet', 'description', 'tran_type', 'point', 'amount', 'tran_on', 'tran_by')
+    list_display = ('wallet', 'description', 'tran_type', 'point','total_point', 'amount','total_amount', 'tran_on', 'tran_by')
 
 @admin.register(WalletHistory)
 class WalletHistoryAdmin(admin.ModelAdmin):

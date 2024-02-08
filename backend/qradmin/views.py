@@ -12,7 +12,10 @@ from manager import manager
 from rest_framework import filters
 import logging
 from rest_framework.pagination import PageNumberPagination
-from django.db.models import Case, Count, F, Q ,When, IntegerField
+from django.db.models import Case, Count, F, Q ,When, IntegerField ,CharField
+from django.db.models.functions import Cast
+from qrapp.models import BondUserWallet, Transaction
+from qrapp.serializers import TransactionSerializers
 
 
 # Create your views here.
@@ -43,9 +46,11 @@ class CustomPagination(PageNumberPagination):
 
 class UserList(generics.ListAPIView):
     queryset = BondUser.objects.all()
-    filter_backends = [filters.OrderingFilter]
+    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     serializer_class = BondUserListSerializers
+    search_fields =["full_name", "mobile"]
     pagination_class = CustomPagination
+
 
 class QRBatchList(generics.ListAPIView):
     queryset = QRBatch.objects.all()
@@ -58,7 +63,7 @@ class QRCodeList(generics.ListAPIView):
     filter_backends = [filters.OrderingFilter]
     serializer_class = QRCodeListSerializers
     pagination_class = CustomPagination
-import time
+
 class CreateQRBatch(APIView):
     def post(self, request):
         try:
@@ -116,6 +121,20 @@ class CreateQRCode(APIView):
             manager.create_from_exception(e)
             return False
 
+class UserWallet(APIView):
+    def post(self, request):
+        try:
+            with transaction.atomic():
+                user_id= request.data["id"]
+                if BondUser.objects.filter(id=user_id).exists():
+                    wallet= dict(BondUserWallet.objects.filter(user_id=user_id).values("id","user__mobile","user__full_name").annotate(balance = Cast(F('balance'), CharField()),point = Cast(F('point'), CharField()), withdraw_balance= Cast(F('withdraw_balance'),CharField()),withdraw_point=Cast(F('withdraw_point'),CharField())).first())
+                    wallet["transaction"] = TransactionSerializers(Transaction.objects.filter(wallet_id=wallet["id"]), many=True).data
+                    return HttpsAppResponse.send([wallet], 1, "Data fetch successfully.")
+                else:
+                    msg = "User Does not match."
+                return HttpsAppResponse.send([], 0, msg)
+        except Exception as e:
+            return HttpsAppResponse.exception(str(e))
 
 # class CreateQRBatch(APIView):
 #     def get(self, request):

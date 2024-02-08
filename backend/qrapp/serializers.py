@@ -15,4 +15,4 @@ class TransactionSerializers(serializers.ModelSerializer):
     tran_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
     class Meta:
         model = Transaction
-        fields= ["description","tran_type","point","amount","tran_on"]
+        fields= ["description","tran_type","point","amount","total_point","total_amount","tran_on"]
