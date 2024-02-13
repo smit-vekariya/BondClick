@@ -105,6 +105,17 @@ a{
     margin: 8px 4px 0px 4px;
 }
 
+.wallet_div {
+    padding: 15px;
+    border-radius: 7px;
+    color: white;
+    background-image: linear-gradient(to bottom right, rgb(0, 0, 41), rgb(1, 110, 255));
+}
+
+.wallet_div>div:first-child {
+    display: flex;
+    justify-content: space-between;
+}
 
 /* css of ant */
 

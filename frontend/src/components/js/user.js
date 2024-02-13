@@ -1,20 +1,21 @@
-import { Button, Modal, Table } from 'antd';
+import { Button, Table } from 'antd';
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 import useAxios from "../../utils/useAxios";
 import '../component.css';
 
+
 export default function User(){
     const api = useRef(useAxios())
+    let navigate = useNavigate()
     const [users, setUsers] = useState([])
     const [totalRecord , setTotalRecord] = useState(0)
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-    const [isWalletOpen, setIsWalletOpen] =useState(false)
     const {messageApi} = useContext(AuthContext)
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [orderBy, setOrderBy] = useState("-id");
-    const [walletDetails, setWalletDetails] = useState([]);
 
 
     let getUserData = useCallback(async () =>{
@@ -50,33 +51,23 @@ export default function User(){
     const onSelectChange =(newSelectedRowKeys)=>{
         setSelectedRowKeys(newSelectedRowKeys)
     }
+    const viewWallet =()=>{
+        if(selectedRowKeys.length !== 1){
+            messageApi.open({type: 'error',content: "Please select one user."});
+            return
+        }
+        else{
+            navigate(`/user_wallet/${selectedRowKeys}`)
+            // navigate(`/user_wallet/${selectedRowKeys}`, {state:{selectedRowKeys:selectedRowKeys}})
+            // this value can get using useLocation()
+        }
+    }
 
     const onTableChange = (pagination, filters, sorter) =>{
         setPage(pagination.current);
         setPageSize(pagination.pageSize)
         var order_by = sorter.order ? (sorter.order === "ascend"? "":"-") + sorter.field : "-id"
         setOrderBy(order_by)
-    }
-
-    const viewWallet = async() =>{
-        if(selectedRowKeys.length !== 1){
-            messageApi.open({type: 'error',content: "Please select one user."});
-            return
-        }
-        await api.current.post('/qr_admin/user_wallet/',{"id":selectedRowKeys[0]})
-            .then((res)=>{
-                if(res.data.status === 1){
-                    console.log(res.data.data[0])
-                    setWalletDetails(res.data.data)
-                    setIsWalletOpen(true)
-                }else{
-                    messageApi.open({type: 'error',content: res.data.message})
-                }
-            })
-            .catch((error)=>{
-                messageApi.open({type: 'error',content: error.message})
-            })
-
     }
 
     return(
@@ -100,29 +91,6 @@ export default function User(){
             scroll={{y: 500}}
             size="small"/>
         </div>
-        <Modal title="User Wallet" width={1200} open={isWalletOpen} okText="Ok" onOk={()=>setIsWalletOpen(false)} onCancel={()=>setIsWalletOpen(false)}>
-                {walletDetails.map(data =>
-                <div key={data.id}>
-                    <p>Full Name: {data.user__full_name}</p>
-                    <p>Mobile Number: {data.user__mobile}</p>
-                    <p>Balance: {data.balance}</p>
-                    <p>Points: {data.point}</p>
-                    <p>Withdraw Balance: {data.withdraw_balance}</p>
-                    <p>Withdraw Points: {data.withdraw_point}</p>
-                    <h2>Transaction:</h2>
-                    {(data.transaction).map((tran, index) => <div key={index}>
-                        <p>Description: {tran.description}</p>
-                        <p>amount: {tran.amount}</p>
-                        <p>point: {tran.point}</p>
-                        <p>total_point: {tran.total_point}</p>
-                        <p>total_amount: {tran.total_amount}</p>
-                        <p>tran_on: {tran.tran_on}</p>
-                        <p>tran_type: {tran.tran_type}</p>
-                    </div>)}
-                </div>
-                )}
-
-        </Modal>
     </>
     )
 }
