@@ -60,7 +60,8 @@ INSTALLED_APPS = [
     'account',
     'manager',
     'qradmin',
-    'qrapp'
+    'qrapp',
+    'qr_code'
 ]
 
 MIDDLEWARE = [

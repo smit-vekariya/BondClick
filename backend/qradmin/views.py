@@ -16,6 +16,10 @@ from django.db.models import Case, Count, F, Q ,When, IntegerField ,CharField
 from django.db.models.functions import Cast
 from qrapp.models import BondUserWallet, Transaction
 from qrapp.serializers import TransactionSerializers
+from xhtml2pdf import pisa
+from io import BytesIO
+from django.template.loader import render_to_string
+from django.http import HttpResponse
 
 
 # Create your views here.
@@ -133,6 +137,22 @@ class UserWallet(APIView):
                 else:
                     msg = "User Does not match."
                 return HttpsAppResponse.send([], 0, msg)
+        except Exception as e:
+            return HttpsAppResponse.exception(str(e))
+
+
+class PrintBatch(APIView):
+    template_name = "qr_batch.html"
+    def post(self, request):
+        try:
+            data = request.data
+            qr_code_list = list(QRCode.objects.filter(batch_id=data["batch_id"]).values_list("qr_code", flat=True))
+            html_content =render_to_string(self.template_name, {"data":qr_code_list},request)
+            result = BytesIO()
+            pdf = pisa.pisaDocument(BytesIO(html_content.encode("ISO-8859-1")), result)
+            if not pdf.err:
+                return HttpResponse(result.getvalue(),status=200, content_type='application/pdf')
+            return HttpResponse(None, status=500)
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
 

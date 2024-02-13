@@ -7,6 +7,7 @@ import useAxios from '../../utils/useAxios';
 import '../component.css';
 
 const point_per_amount = process.env.REACT_APP_POINT_PER_AMOUNT
+
 export default function QrBatch(){
     const api = useRef(useAxios())
     const {messageApi} = useContext(AuthContext)
@@ -15,6 +16,8 @@ export default function QrBatch(){
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [openConfirm, setOpenConfirm] = useState(false);
+    const [isIframeOpen, setIsIframeOpen] = useState(false)
+    const [qrBatchSrc, setQrBatchSrc] = useState()
 
     var batch_details = {
         "total_qr_code":0,
@@ -61,6 +64,25 @@ export default function QrBatch(){
         getQrBatchData(1, 10)
     },[getQrBatchData])
 
+    const printQRBatch =useCallback(async(batch_id, batch_number)=>{
+        await api.current.post(`/qr_admin/print_batch/`,{"batch_id":batch_id})
+        .then((res)=>{
+            var blob =new Blob([res.data],{ type: 'application/pdf'})
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${batch_number}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+
+        })
+        .catch((error)=>{
+            messageApi.open({type:'error', content:error.message})
+        })
+    },[messageApi])
+
     const columns = [
         {title:"Batch Number",dataIndex:"batch_number"},
         {title:"Total QR Code",dataIndex:"total_qr_code"},
@@ -71,7 +93,7 @@ export default function QrBatch(){
         {title:"Amount Per QR",dataIndex:"amount_per_qr"},
         {title:"Print Batch",
             dataIndex:"id",
-            render:()=><Button type='primary' size='small' icon={< PrinterOutlined />} >Print</Button>
+            render:(id, record, index)=><Button type='primary' size='small' icon={< PrinterOutlined />} onClick={()=>printQRBatch(id, record.batch_number)}>Print</Button>
         },
     ]
     const onSelectChange =(newSelectedRowKeys)=>{

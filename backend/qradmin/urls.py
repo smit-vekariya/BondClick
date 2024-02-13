@@ -13,5 +13,6 @@ urlpatterns = [
     path("qr_code_list/", QRCodeList.as_view(), name="qr_code_list"),
     path("create_qr_batch/", CreateQRBatch.as_view(), name="create_qr_batch"),
     path('user_wallet/', UserWallet.as_view(), name="user_wallet"),
+    path("print_batch/", PrintBatch.as_view(), name="print_batch")
 
 ]
