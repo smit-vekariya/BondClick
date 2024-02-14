@@ -121,7 +121,6 @@ export default function UserWallet(){
             <Table columns={tran_columns}
                 dataSource={transactions} rowKey="id"
                 size="small"
-                scroll={{y: 400}}
             />
             )}
             <Modal

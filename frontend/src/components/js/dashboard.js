@@ -4,6 +4,7 @@ import 'font-awesome/css/font-awesome.min.css';
 import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Link, Outlet } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
+import "../CustomAntd.css";
 import "../component.css";
 import logo_char from './logo-char.png';
 import logo from './logo-no-background.png';
@@ -82,7 +83,9 @@ const Dashboard = () => {
   return (
     <Layout style={{minHeight: '100vh'}}>
       <SideBar collapsed={collapsed} menuItems={menu_items} current={current} onCollapse={useCallback((value)=>setCollapsed(value),[])}/>
-      <Layout>
+      <Layout style={{
+          marginLeft: 200,
+        }}>
         <HeaderBar logoutUser={logoutUser} user={user}/>
         <Content className='content_class'>
           <DashboardContext.Provider value={{setLoading:setLoading}}>
@@ -102,7 +105,7 @@ export default Dashboard;
 
 const SideBar = memo(({collapsed, menuItems, onCollapse, current}) =>{
   return (
-    <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
+    <Sider collapsible collapsed={collapsed} onCollapse={onCollapse} className="custom_sidebar">
       <Menu theme="dark" defaultSelectedKeys={[current]} mode="inline" items={menuItems} />
     </Sider>
   )
@@ -116,7 +119,7 @@ const HeaderBar = memo(({logoutUser, user})=>{
   ];
 
   return (
-      <Header style={{padding: 0, background: "#ffffff"}}>
+      <Header className='custom_header'>
           <Flex gap="small" wrap="wrap" style={{float: "right", marginRight:"10px"}}>
               <Dropdown.Button menu={{items}} style={{margin: "9px 0px 5px 1px"}} placement="bottomLeft" icon={<UserOutlined />}>{user && user.full_name}</Dropdown.Button>
           </Flex>

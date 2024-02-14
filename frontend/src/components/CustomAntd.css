@@ -1,0 +1,22 @@
+.login_card .ant-card-head {
+    border-bottom: 3px solid #FF9966 !important;
+    border-radius: 0px 0px 5px 4px !important;
+}
+
+.custom_sidebar{
+    overflow: auto !important;
+    height: 100vh !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+}
+.custom_header{
+    padding: 0 !important;
+    background: #ffffff !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1 !important;
+    width: 100% !important;
+    align-items: center !important;
+}

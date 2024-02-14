@@ -119,10 +119,6 @@ a{
 
 /* css of ant */
 
-.login_card .ant-card-head{
-    border-bottom: 3px solid #FF9966 !important;
-    border-radius: 0px 0px 5px 4px !important;
-}
 
 .title_tab_div * {
     margin-right: 2px;

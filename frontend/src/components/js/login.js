@@ -1,6 +1,7 @@
 import { Button, Card, Form, Input } from 'antd';
 import React, { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import '../CustomAntd.css';
 import logo from './logo-no-background.png';
 
 export default function  Login(){
@@ -21,7 +22,7 @@ export default function  Login(){
                             <Form.Item label="Password" name="password" rules={[{required: true, message: 'Please input your password!',},]}>
                                 <Input.Password />
                             </Form.Item>
-                            <Form.Item style={{ margin: '2px 95px'}}>
+                            <Form.Item style={{ margin: '2px 188px'}}>
                                 <Button type="primary" htmlType="submit">Submit</Button>
                             </Form.Item>
                         </Form>
