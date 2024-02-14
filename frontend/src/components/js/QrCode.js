@@ -1,21 +1,22 @@
 import { QrcodeOutlined } from "@ant-design/icons";
-import { Button, Modal, QRCode, Table } from "antd";
+import { Button, Input, Modal, QRCode, Table } from "antd";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import useAxios from "../../utils/useAxios";
 
-
 export default function QrCode(){
     const api = useRef(useAxios())
+    const { Search } = Input;
     const [QRCodeData , setQRCodeData] = useState([])
     const [totalRecord , setTotalRecord] = useState(0)
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const {messageApi} = useContext(AuthContext)
+    const [dataList, setDataList] =useState({page:1,pageSize:10,orderBy:"-id",search:""})
 
 
 
-    let getQRCodeData = useCallback(async(page, pageSize)=>{
-        await api.current.get(`/qr_admin/qr_code_list/?page=${page}&page_size=${pageSize}&ordering=-id`)
+    let getQRCodeData = useCallback(async()=>{
+        await api.current.get(`/qr_admin/qr_code_list/?page=${dataList.page}&page_size=${dataList.pageSize}&ordering=${dataList.orderBy}&search=${dataList.search}`)
         .then((res)=>{
             setTotalRecord(res.data.count)
             setQRCodeData(res.data.results)
@@ -23,10 +24,10 @@ export default function QrCode(){
         .catch((error)=>{
                 messageApi.open({type: 'error',content: error.message})
         })
-    },[messageApi])
+    },[dataList, messageApi])
 
     useEffect(()=>{
-        getQRCodeData(1, 10)
+        getQRCodeData()
     },[getQRCodeData])
 
 
@@ -35,9 +36,8 @@ export default function QrCode(){
     }
 
     const onTableChange = (pagination, filters, sorter) =>{
-        console.log("sorter", sorter);
-        console.log("filters", filters);
-        console.log("pagination", pagination);
+        var orderBy = sorter.order ? (sorter.order === "ascend"? "":"-") + sorter.field : "-id"
+        setDataList({...dataList,page:pagination.current,pageSize:pagination.pageSize,orderBy:orderBy})
     }
     const openQRCode = (qr_code) =>{
          Modal.info({
@@ -49,16 +49,12 @@ export default function QrCode(){
     }
 
     const columns = [
-        {title:"QR Number",dataIndex:"qr_number"},
-        {
-            title:"QR Code",
-            dataIndex:"qr_code",
-            width: '30%',
-        },
-        {title:"Batch Number",dataIndex:"batch"},
-        {title:"Point",dataIndex:"point"},
-        {title:"Used On",dataIndex:"used_on"},
-        {title:"Used By",dataIndex:"used_by"},
+        {title:"QR Number",dataIndex:"qr_number",sorter: true},
+        {title:"QR Code",dataIndex:"qr_code", width: '30%',sorter: true},
+        {title:"Batch Number",dataIndex:"batch__batch_number",sorter: true},
+        {title:"Point",dataIndex:"point",sorter: true},
+        {title:"Used On",dataIndex:"used_on",sorter: true},
+        {title:"Used By",dataIndex:"used_by__mobile",sorter: true},
         {title:"View QR",
             dataIndex:"qr_code",
             render:(qr_code)=>(<Button type='primary'
@@ -70,6 +66,9 @@ export default function QrCode(){
         <>
         <div className='title_tab'>
             <div className='title_tab_title'>QR Code</div>
+            <div className="title_tab_div">
+              <Search placeholder="Search by Qr Number, Batch number" allowClear={true} onChange={(e)=> {if(e.target.value===""){setDataList({...dataList, search:""})}}} onSearch={(value) => setDataList({...dataList, search:value})} style={{ width: 200 }} />
+            </div>
         </div>
         <div className='main_tab'>
             <Table
@@ -80,9 +79,6 @@ export default function QrCode(){
                 pagination={{total: totalRecord,
                     defaultPageSize: 10, showSizeChanger: true,
                     pageSizeOptions: ['10', '20', '50', '100'],
-                    onChange: (page, pageSize) => {
-                        getQRCodeData(page, pageSize);
-                    }
                 }}
                 scroll={{y: 500}}
                 size="small"/>

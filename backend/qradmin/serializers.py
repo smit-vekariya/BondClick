@@ -31,9 +31,9 @@ class QRBatchListSerializers(serializers.ModelSerializer):
 
 
 class QRCodeListSerializers(serializers.ModelSerializer):
-    batch = serializers.CharField(source='batch.batch_number', read_only=True)
-    used_by = serializers.CharField(source='used_by.mobile', read_only=True)
+    batch__batch_number = serializers.CharField(source='batch.batch_number', read_only=True)
+    used_by__mobile = serializers.CharField(source='used_by.mobile', read_only=True)
     used_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
     class Meta:
         model = QRCode
-        fields = '__all__'
+        fields = ["id","qr_number","qr_code","batch__batch_number","point","used_on","used_by__mobile"]

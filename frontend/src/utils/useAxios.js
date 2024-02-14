@@ -2,13 +2,14 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { jwtDecode } from "jwt-decode";
 import { useContext } from "react";
+import { DashboardContext } from "../components/js/dashboard";
 import { AuthContext } from "../context/AuthContext";
-
 
 const baseURL = process.env.REACT_APP_BASE_URL
 
 const useAxios = () =>{
-    const {authTokens, setAuthTokens, setUser, setLoading} = useContext(AuthContext)
+    const {authTokens, setAuthTokens, setUser} = useContext(AuthContext)
+    const {setLoading} = useContext(DashboardContext)
     const axiosInstance = axios.create(
     {
         baseURL,

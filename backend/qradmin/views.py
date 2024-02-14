@@ -64,8 +64,9 @@ class QRBatchList(generics.ListAPIView):
 
 class QRCodeList(generics.ListAPIView):
     queryset = QRCode.objects.all()
-    filter_backends = [filters.OrderingFilter]
+    filter_backends = [filters.OrderingFilter,filters.SearchFilter]
     serializer_class = QRCodeListSerializers
+    search_fields =["qr_number", "batch__batch_number"]
     pagination_class = CustomPagination
 
 class CreateQRBatch(APIView):

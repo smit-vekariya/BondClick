@@ -97,8 +97,11 @@ class MainMenuView(APIView):
     authentication_classes =[]
     permission_classes = []
     def get(self, request):
-        menu = list(MainMenu.objects.values().order_by("sequence"))
-        return HttpResponse(json.dumps(menu))
+        try:
+            menu = list(MainMenu.objects.values().order_by("sequence"))
+            return HttpsAppResponse.send(menu, 1, "Get Main Menu data successfully.")
+        except Exception as e:
+            return HttpsAppResponse.exception(str(e))
 
 
 class RegisterUser(APIView):

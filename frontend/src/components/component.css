@@ -123,3 +123,17 @@ a{
     border-bottom: 3px solid #FF9966 !important;
     border-radius: 0px 0px 5px 4px !important;
 }
+
+.title_tab_div * {
+    margin-right: 2px;
+}
+
+.manage_checkbox * {
+    margin-right: 10px;
+}
+
+textarea {
+    border-color: #9d9d9d;
+    border-radius: 2px;
+    padding: 5px
+}

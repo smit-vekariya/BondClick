@@ -1,4 +1,4 @@
-import { Button, Table, Tag } from 'antd';
+import { Button, Modal, Table, Tag } from 'antd';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
@@ -11,8 +11,9 @@ export default function UserWallet(){
     const { user_id } = useParams();
     const api = useRef(useAxios())
     const {messageApi} = useContext(AuthContext)
-    const [walletDetails, setWalletDetails] = useState([]);
-    const [transactions, setTransactions] = useState([])
+    const [walletDetails, setWalletDetails] = useState(null);
+    const [transactions, setTransactions] = useState(null)
+    const [openManage, setOpenManage] = useState(false)
 
 
     const getUserWallet = useCallback(async() =>{
@@ -29,7 +30,7 @@ export default function UserWallet(){
                 messageApi.open({type: 'error',content: error.message})
             })
 
-    },[user_id, messageApi])
+    },[user_id,messageApi])
 
     useEffect(()=>{
         getUserWallet()
@@ -84,37 +85,63 @@ export default function UserWallet(){
         }
     ]
 
+    const handleOnSave =()=>{
+        console.log("On save function calll")
+    }
     return (
-    <>
+        <>
         <div className='title_tab'>
             <div className='title_tab_title'>User Wallet</div>
             <div className="title_tab_div">
-               <Link to="/user"><Button type="primary">Back</Button></Link>
+               <Link to="/user"><Button type="primary">Back to users</Button></Link>
+               <Button type="primary" onClick={()=> setOpenManage(true)}>Manage Account</Button>
             </div>
         </div>
         <div className='main_tab'>
-            <div className='wallet_div'>
-                <div>
+            {walletDetails && (
+                <div className='wallet_div'>
                     <div>
-                        <h2 style={{margin: '15px 0px -10px 0px'}}>{walletDetails.user__full_name}</h2>
-                        <p>Mo: {walletDetails.user__mobile}</p>
+                        <div>
+                            <h2 style={{margin: '15px 0px -10px 0px'}}>{walletDetails.user__full_name}</h2>
+                            <p>Mo: {walletDetails.user__mobile}</p>
+                        </div>
+                        <div>
+                            <h1>&#8377; {walletDetails.balance}</h1>
+                        </div>
                     </div>
                     <div>
-                        <h1>&#8377; {walletDetails.balance}</h1>
+                        <p>Points: {walletDetails.point}</p>
+                        <p>Withdraw Balance: {walletDetails.withdraw_balance}</p>
+                        <p>Withdraw Points: {walletDetails.withdraw_point}</p>
                     </div>
                 </div>
-                <div>
-                    <p>Points: {walletDetails.point}</p>
-                    <p>Withdraw Balance: {walletDetails.withdraw_balance}</p>
-                    <p>Withdraw Points: {walletDetails.withdraw_point}</p>
-                </div>
-            </div>
+            )}
             <h2>Transaction History</h2>
+            {transactions && (
             <Table columns={tran_columns}
                 dataSource={transactions} rowKey="id"
                 size="small"
                 scroll={{y: 400}}
             />
+            )}
+            <Modal
+                title="Manage Account"
+                open={openManage}
+                onOk={handleOnSave}
+                okText="Save"
+                onCancel={()=>setOpenManage(false)}
+            >
+                <h3>Deactivate</h3>
+                <div className='manage_checkbox'>
+                    <label><input type='checkbox' />Account</label>
+                    <label><input type='checkbox' />Wallet</label>
+                    <label><input type='checkbox' />Credit Transaction</label>
+                    <label><input type='checkbox' />Debit Transaction</label>
+                </div><br></br>
+                <div>
+                    <textarea placeholder='Reason of deactivate' style={{ width: '450px', height: '80px'}}></textarea>
+                </div>
+            </Modal>
         </div>
     </>
     )
