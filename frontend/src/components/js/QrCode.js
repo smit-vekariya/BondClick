@@ -67,6 +67,10 @@ export default function QrCode(){
         <div className='title_tab'>
             <div className='title_tab_title'>QR Code</div>
             <div className="title_tab_div">
+              <div style={{fontSize: 'medium'}}>
+                <label><input type="checkbox"/>Used Code</label>
+                <label><input type="checkbox"/>Unused Code</label>
+              </div>
               <Search placeholder="Search by Qr Number, Batch number" allowClear={true} onChange={(e)=> {if(e.target.value===""){setDataList({...dataList, search:""})}}} onSearch={(value) => setDataList({...dataList, search:value})} style={{ width: 200 }} />
             </div>
         </div>

@@ -87,6 +87,9 @@ a{
 .title_tab_div{
     width: 100%;
     text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 .title_tab_title{
     padding: 3px 0px 0px 0px;
@@ -116,8 +119,6 @@ a{
     display: flex;
     justify-content: space-between;
 }
-
-/* css of ant */
 
 
 .title_tab_div * {
