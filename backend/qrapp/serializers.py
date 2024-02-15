@@ -16,3 +16,9 @@ class TransactionSerializers(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields= ["id", "description","tran_type","point","amount","total_point","total_amount","tran_on"]
+
+class UserWalletReportListSerializers(serializers.ModelSerializer):
+    user__mobile = serializers.CharField(source='user.mobile')
+    class Meta:
+        model = BondUserWallet
+        fields = ["id","user__mobile","balance","withdraw_balance","point","withdraw_point"]

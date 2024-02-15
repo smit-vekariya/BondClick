@@ -15,7 +15,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Case, Count, F, Q ,When, IntegerField ,CharField
 from django.db.models.functions import Cast
 from qrapp.models import BondUserWallet, Transaction
-from qrapp.serializers import TransactionSerializers
+from qrapp.serializers import TransactionSerializers, UserWalletReportListSerializers
 from xhtml2pdf import pisa
 from io import BytesIO
 from django.template.loader import render_to_string
@@ -58,7 +58,8 @@ class UserList(generics.ListAPIView):
 
 class QRBatchList(generics.ListAPIView):
     queryset = QRBatch.objects.all()
-    filter_backends = [filters.OrderingFilter]
+    filter_backends = [filters.OrderingFilter,filters.SearchFilter]
+    search_fields =["batch_number"]
     serializer_class = QRBatchListSerializers
     pagination_class = CustomPagination
 
@@ -157,41 +158,10 @@ class PrintBatch(APIView):
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
 
-# class CreateQRBatch(APIView):
-#     def get(self, request):
-#         try:
-#             with transaction.atomic():
-#                 data = request.data
-#                 total_qr_code = data.get("quantity",None)
-#                 point_per_qr = data.get("point_per_qr",None)
-#                 if point_per_qr > 0 and total_qr_code > 0:
-#                     batch_number = QRBatch.objects.values("batch_number").last()
-#                     batch_number = "BATCH-10000" if not batch_number else f"BATCH-{int(batch_number['batch_number'].split('-')[1])+1}"
-#                     point_per_amount = int(settings.POINT_PER_AMOUNT)
-#                     total_point = total_qr_code * point_per_qr
-#                     total_amount = total_point / point_per_amount
-#                     amount_per_qr = total_amount / total_qr_code
 
-#                     batch_data={"batch_number":batch_number,"total_qr_code":total_qr_code,"total_amount":total_amount,
-#                                 "point_per_amount":point_per_amount,"total_point":total_point,"point_per_qr":point_per_qr,
-#                                 "amount_per_qr":amount_per_qr,"created_by_id":request.user,"expire_on":None}
-
-#                     serializer = QRBatchSerializers(data=batch_data)
-#                     if serializer.is_valid():
-#                         is_created = CreateQRCode.create_qr_code(batch_number,total_qr_code,point_per_qr)
-#                         if is_created:
-#                             qr_serializer = QRCodeSerializers(data=is_created, many=True)
-#                             if qr_serializer.is_valid():
-#                                 serializer.save()
-#                                 qr_serializer.save()
-#                                 return HttpsAppResponse.send([], 1, "QR Batch has been create successfully.")
-#                             else:
-#                                 return HttpsAppResponse.send([], 0, qr_serializer.errors)
-#                         else:
-#                             return HttpsAppResponse.send([], 0, "Something went wrong when create qr code")
-#                     else:
-#                         return HttpsAppResponse.send([], 0, serializer.errors)
-#                 else:
-#                     return HttpsAppResponse.send([], 0, "Amount and quantity must be grater then 0.")
-#         except Exception as e:
-#             return HttpsAppResponse.exception(str(e))
+class UsersWalletReport(generics.ListAPIView):
+    queryset = BondUserWallet.objects.all()
+    filter_backends = [filters.OrderingFilter,filters.SearchFilter]
+    serializer_class = UserWalletReportListSerializers
+    search_fields =["user__mobile"]
+    pagination_class = CustomPagination

@@ -1,4 +1,4 @@
-import { Button, Table } from 'antd';
+import { Button, Input, Table } from 'antd';
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
@@ -8,21 +8,17 @@ import '../component.css';
 
 export default function User(){
     const api = useRef(useAxios())
+    const { Search } = Input;
     let navigate = useNavigate()
     const [users, setUsers] = useState([])
     const [totalRecord , setTotalRecord] = useState(0)
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const {messageApi} = useContext(AuthContext)
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const [orderBy, setOrderBy] = useState("-id");
+    const [filterDict, setFilterDict] =useState({page:1,pageSize:10,orderBy:"-id",search:""})
 
 
     let getUserData = useCallback(async () =>{
-        await api.current.get(`/qr_admin/user_list/?page=${page}&page_size=${pageSize}&ordering=${orderBy}`,
-            // {
-            //     params:{"full_name":"tester"}
-            // }
+        await api.current.get(`/qr_admin/user_list/?page=${filterDict.page}&page_size=${filterDict.pageSize}&ordering=${filterDict.orderBy}&search=${filterDict.search}`,
             )
             .then((res)=>{
                 setTotalRecord(res.data.count)
@@ -31,7 +27,7 @@ export default function User(){
             .catch((error)=>{
                 messageApi.open({type: 'error',content: error.message})
             })
-    },[page, pageSize, orderBy,messageApi])
+    },[filterDict, messageApi])
 
     useEffect(()=>{
         getUserData();
@@ -64,10 +60,8 @@ export default function User(){
     }
 
     const onTableChange = (pagination, filters, sorter) =>{
-        setPage(pagination.current);
-        setPageSize(pagination.pageSize)
-        var order_by = sorter.order ? (sorter.order === "ascend"? "":"-") + sorter.field : "-id"
-        setOrderBy(order_by)
+        var orderBy = sorter.order ? (sorter.order === "ascend"? "":"-") + sorter.field : "-id"
+        setFilterDict({...filterDict,page:pagination.current,pageSize:pagination.pageSize,orderBy:orderBy})
     }
 
     return(
@@ -75,7 +69,8 @@ export default function User(){
        <div className='title_tab'>
             <div className='title_tab_title'>Bond Users</div>
             <div className="title_tab_div">
-               <Button type="primary" onClick={viewWallet}>View Wallet</Button>
+                <Search placeholder="Search by mobile, name" allowClear={true} onChange={(e)=> {if(e.target.value===""){setFilterDict({...filterDict, search:""})}}} onSearch={(value) => setFilterDict({...filterDict, search:value})} style={{ width: 200 }} />
+                <Button type="primary" onClick={viewWallet}>View Wallet</Button>
             </div>
         </div>
         <div className='main_tab'>
@@ -88,6 +83,7 @@ export default function User(){
                 defaultPageSize: 10, showSizeChanger: true,
                 pageSizeOptions: ['10', '20', '50', '100'],
             }}
+            footer={() => ( <div style={{textAlign:'right'}}>Selected Records ({selectedRowKeys.length} of {totalRecord})</div>)}
             scroll={{y: 500}}
             size="small"/>
         </div>

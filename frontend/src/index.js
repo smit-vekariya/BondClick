@@ -7,6 +7,7 @@ import CompanyDashBoard from './components/js/CompanyDashBoard';
 import QrBatch from './components/js/QrBatch';
 import QrCode from './components/js/QrCode';
 import UserWallet from './components/js/UserWallet';
+import UsersWalletReport from './components/js/UsersWalletReport';
 import Dashboard from './components/js/dashboard';
 import Login from './components/js/login';
 import Profile from './components/js/profile';
@@ -32,6 +33,7 @@ root.render(
                     <Route path="qr_batch" element={<QrBatch/>}/>
                     <Route path="qr_code" element={<QrCode/>}/>
                     <Route path="user_wallet/:user_id" element={<UserWallet/>}/>
+                    <Route path="users_wallet_report/" element={<UsersWalletReport/>}/>
               </Route>
             </Route>
             <Route path="/login" element={<Login />} />

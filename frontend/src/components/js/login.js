@@ -2,7 +2,7 @@ import { Button, Card, Form, Input } from 'antd';
 import React, { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import '../CustomAntd.css';
-import logo from './logo-no-background.png';
+import logo from '../images/logo-no-background.png';
 
 export default function  Login(){
     const {loginUser} = useContext(AuthContext)

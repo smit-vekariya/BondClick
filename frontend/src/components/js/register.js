@@ -1,7 +1,7 @@
 import { Button, Col, Form, Row } from 'antd';
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from './logo-no-background.png';
+import logo from "../images/logo-no-background.png";
 
 export default function Register(){
     let navigate = useNavigate()

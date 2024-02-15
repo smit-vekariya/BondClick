@@ -20,3 +20,19 @@
     width: 100% !important;
     align-items: center !important;
 }
+
+.ant-btn-primary {
+    margin: 0px 4px 0px 4px !important;
+}
+
+.ant-layout-sider-children::after {
+    content: "Powered by PanelPrime" !important;
+    display: block !important;
+    text-align: center !important;
+    margin: 20px 4px !important;
+    color: dimgray !important;
+}
+
+.ant-menu-item-selected{
+        border-radius: 4px !important
+}

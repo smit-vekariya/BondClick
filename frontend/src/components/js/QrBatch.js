@@ -1,6 +1,5 @@
 import { PrinterOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Table } from 'antd';
-
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import useAxios from '../../utils/useAxios';
@@ -10,14 +9,14 @@ const point_per_amount = process.env.REACT_APP_POINT_PER_AMOUNT
 
 export default function QrBatch(){
     const api = useRef(useAxios())
+    const { Search } = Input;
     const {messageApi} = useContext(AuthContext)
     const [batch, setBatch] = useState([])
     const [totalRecord , setTotalRecord] = useState(0)
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [openConfirm, setOpenConfirm] = useState(false);
-    const [isIframeOpen, setIsIframeOpen] = useState(false)
-    const [qrBatchSrc, setQrBatchSrc] = useState()
+    const [filterDict, setFilterDict] =useState({page:1,pageSize:10,orderBy:"-id",search:""})
 
     var batch_details = {
         "total_qr_code":0,
@@ -48,8 +47,8 @@ export default function QrBatch(){
         }
     }
 
-    let getQrBatchData  = useCallback(async(page,pageSize) =>{
-        await api.current.get(`/qr_admin/qr_batch_list/?page=${page}&page_size=${pageSize}&ordering=-id`)
+    let getQrBatchData  = useCallback(async() =>{
+        await api.current.get(`/qr_admin/qr_batch_list/?page=${filterDict.page}&page_size=${filterDict.pageSize}&ordering=${filterDict.orderBy}&search=${filterDict.search}`)
         .then((res)=>{
             setTotalRecord(res.data.count)
             setBatch(res.data.results)
@@ -58,7 +57,7 @@ export default function QrBatch(){
             messageApi.open({type: 'error',content: error.message})
         })
 
-    },[messageApi])
+    },[filterDict,messageApi])
 
     useEffect(()=>{
         getQrBatchData(1, 10)
@@ -84,13 +83,13 @@ export default function QrBatch(){
     },[messageApi])
 
     const columns = [
-        {title:"Batch Number",dataIndex:"batch_number"},
-        {title:"Total QR Code",dataIndex:"total_qr_code"},
-        {title:"Total Amount",dataIndex:"total_amount"},
-        {title:"Point Per Amount",dataIndex:"point_per_amount"},
-        {title:"Total Point",dataIndex:"total_point"},
-        {title:"Point Per QR",dataIndex:"point_per_qr"},
-        {title:"Amount Per QR",dataIndex:"amount_per_qr"},
+        {title:"Batch Number",dataIndex:"batch_number",sorter: true},
+        {title:"Total QR Code",dataIndex:"total_qr_code",sorter: true},
+        {title:"Total Amount",dataIndex:"total_amount",sorter: true},
+        {title:"Point Per Amount",dataIndex:"point_per_amount",sorter: true},
+        {title:"Total Point",dataIndex:"total_point",sorter: true},
+        {title:"Point Per QR",dataIndex:"point_per_qr",sorter: true},
+        {title:"Amount Per QR",dataIndex:"amount_per_qr",sorter: true},
         {title:"Print Batch",
             dataIndex:"id",
             render:(id, record, index)=><Button type='primary' size='small' icon={< PrinterOutlined />} onClick={()=>printQRBatch(id, record.batch_number)}>Print</Button>
@@ -100,9 +99,8 @@ export default function QrBatch(){
         setSelectedRowKeys(newSelectedRowKeys)
     }
     const onTableChange = (pagination, filters, sorter) =>{
-        console.log("sorter", sorter);
-        console.log("filters", filters);
-        console.log("pagination", pagination);
+        var orderBy = sorter.order ? (sorter.order === "ascend"? "":"-") + sorter.field : "-id"
+        setFilterDict({...filterDict,page:pagination.current,pageSize:pagination.pageSize,orderBy:orderBy})
     }
     const createBatch = () =>{
         setBatchPreview(batch_details)
@@ -135,6 +133,7 @@ export default function QrBatch(){
         <div className='title_tab'>
             <div className='title_tab_title'>QR Batch</div>
             <div className="title_tab_div">
+               <Search placeholder="Search by batch number" allowClear={true} onChange={(e)=> {if(e.target.value===""){setFilterDict({...filterDict, search:""})}}} onSearch={(value) => setFilterDict({...filterDict, search:value})} style={{ width: 200 }} />
                <Button type="primary" onClick={createBatch}>Create Batch</Button>
             </div>
         </div>
@@ -147,10 +146,8 @@ export default function QrBatch(){
                 pagination={{total: totalRecord,
                     defaultPageSize: 10, showSizeChanger: true,
                     pageSizeOptions: ['10', '20', '50', '100'],
-                    onChange: (page, pageSize) => {
-                        getQrBatchData(page, pageSize);
-                    }
                 }}
+                footer={() => ( <div style={{textAlign:'right'}}>Selected Records ({selectedRowKeys.length} of {totalRecord})</div>)}
                 scroll={{y: 500}}
                 size="small"/>
             <Modal title="Create Batch" open={isModalOpen} okText="Create" onOk={handleOk} onCancel={()=>setIsModalOpen(false)}>

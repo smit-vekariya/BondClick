@@ -6,8 +6,8 @@ import { Link, Outlet } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 import "../CustomAntd.css";
 import "../component.css";
-import logo_char from './logo-char.png';
-import logo from './logo-no-background.png';
+import logo_char from '../images/logo-char.png';
+import logo from "../images/logo-no-background.png";
 
 export const DashboardContext = createContext();
 const baseURL = process.env.REACT_APP_BASE_URL

@@ -11,12 +11,10 @@ export default function QrCode(){
     const [totalRecord , setTotalRecord] = useState(0)
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const {messageApi} = useContext(AuthContext)
-    const [dataList, setDataList] =useState({page:1,pageSize:10,orderBy:"-id",search:""})
-
-
+    const [filterDict, setFilterDict] =useState({page:1,pageSize:10,orderBy:"-id",search:""})
 
     let getQRCodeData = useCallback(async()=>{
-        await api.current.get(`/qr_admin/qr_code_list/?page=${dataList.page}&page_size=${dataList.pageSize}&ordering=${dataList.orderBy}&search=${dataList.search}`)
+        await api.current.get(`/qr_admin/qr_code_list/?page=${filterDict.page}&page_size=${filterDict.pageSize}&ordering=${filterDict.orderBy}&search=${filterDict.search}`)
         .then((res)=>{
             setTotalRecord(res.data.count)
             setQRCodeData(res.data.results)
@@ -24,7 +22,7 @@ export default function QrCode(){
         .catch((error)=>{
                 messageApi.open({type: 'error',content: error.message})
         })
-    },[dataList, messageApi])
+    },[filterDict, messageApi])
 
     useEffect(()=>{
         getQRCodeData()
@@ -37,7 +35,7 @@ export default function QrCode(){
 
     const onTableChange = (pagination, filters, sorter) =>{
         var orderBy = sorter.order ? (sorter.order === "ascend"? "":"-") + sorter.field : "-id"
-        setDataList({...dataList,page:pagination.current,pageSize:pagination.pageSize,orderBy:orderBy})
+        setFilterDict({...filterDict,page:pagination.current,pageSize:pagination.pageSize,orderBy:orderBy})
     }
     const openQRCode = (qr_code) =>{
          Modal.info({
@@ -67,12 +65,14 @@ export default function QrCode(){
         <div className='title_tab'>
             <div className='title_tab_title'>QR Code</div>
             <div className="title_tab_div">
+              <Search placeholder="Search by Qr Number, Batch number" allowClear={true} onChange={(e)=> {if(e.target.value===""){setFilterDict({...filterDict, search:""})}}} onSearch={(value) => setFilterDict({...filterDict, search:value})} style={{ width: 200 }} />
+            </div>
+        </div>
+        <div className='report_tab'>
               <div style={{fontSize: 'medium'}}>
                 <label><input type="checkbox"/>Used Code</label>
                 <label><input type="checkbox"/>Unused Code</label>
               </div>
-              <Search placeholder="Search by Qr Number, Batch number" allowClear={true} onChange={(e)=> {if(e.target.value===""){setDataList({...dataList, search:""})}}} onSearch={(value) => setDataList({...dataList, search:value})} style={{ width: 200 }} />
-            </div>
         </div>
         <div className='main_tab'>
             <Table
@@ -84,6 +84,7 @@ export default function QrCode(){
                     defaultPageSize: 10, showSizeChanger: true,
                     pageSizeOptions: ['10', '20', '50', '100'],
                 }}
+                footer={() => ( <div style={{textAlign:'right'}}>Selected Records ({selectedRowKeys.length} of {totalRecord})</div>)}
                 scroll={{y: 500}}
                 size="small"/>
         </div>
