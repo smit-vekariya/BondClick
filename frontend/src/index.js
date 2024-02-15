@@ -2,6 +2,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import './components/CustomAntd.css';
+import "./components/CustomHtml.css";
 import './components/component.css';
 import CompanyDashBoard from './components/js/CompanyDashBoard';
 import QrBatch from './components/js/QrBatch';

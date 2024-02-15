@@ -2,7 +2,6 @@ import { Button, Input, Table } from "antd";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import useAxios from "../../utils/useAxios";
-import "../CustomHtml.css";
 
 
 export default function UsersWalletReport(){

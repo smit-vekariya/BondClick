@@ -3,7 +3,6 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import { Link, useParams } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 import useAxios from "../../utils/useAxios";
-import '../component.css';
 
 
 

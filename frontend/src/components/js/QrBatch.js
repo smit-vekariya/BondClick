@@ -3,7 +3,6 @@ import { Button, Form, Input, Modal, Table } from 'antd';
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import useAxios from '../../utils/useAxios';
-import '../component.css';
 
 const point_per_amount = process.env.REACT_APP_POINT_PER_AMOUNT
 
@@ -153,10 +152,10 @@ export default function QrBatch(){
             <Modal title="Create Batch" open={isModalOpen} okText="Create" onOk={handleOk} onCancel={()=>setIsModalOpen(false)}>
                 <Form  labelCol={{flex: '110px'}} labelAlign="left">
                     <Form.Item label="Total QR Code">
-                        <Input type='number' min={0}  defaultValue={0} name="total_qr_code" value={batchPreview.total_qr_code} onChange={calculateBatch} required></Input>
+                        <input type='number' min={0}  defaultValue={0} name="total_qr_code" value={batchPreview.total_qr_code} onChange={calculateBatch} required></input>
                     </Form.Item>
                     <Form.Item label="Point Per QR">
-                        <Input type='number' min={0} defaultValue={0} name="point_per_qr" value={batchPreview.point_per_qr} onChange={calculateBatch} required></Input>
+                        <input type='number' min={0} defaultValue={0} name="point_per_qr" value={batchPreview.point_per_qr} onChange={calculateBatch} required></input>
                     </Form.Item>
                 </Form>
                 <div className='batch_details'>
