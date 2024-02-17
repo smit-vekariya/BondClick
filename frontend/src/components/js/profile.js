@@ -34,7 +34,7 @@ export default function Profile(){
         setProfile({...profile,[e.target.name]:e.target.value})
     }
     const saveProfile = async() =>{
-        await api.put(`/account/edit_profile/${profile.id}`,profile)
+        await api.current.put(`/account/edit_profile/${profile.id}`,profile)
             .then((res)=>{
                 if(res.data.status ===1){
                     setDisabled(true)

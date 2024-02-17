@@ -57,16 +57,18 @@ class WithdrawAmount(APIView):
             with transaction.atomic():
                 data = request.data
                 mobile = data["mobile"]
-                point = data["point"]
+                amount = data["amount"]
+                if "." in str(amount):
+                    return HttpsAppResponse.send([], 0, "The amount cannot contain decimal values.")
                 user_id = request.user.id
                 if data:
                     if BondUser.objects.filter(mobile=mobile, id=user_id).exists():
                         wallet = BondUserWallet.objects.filter(user_id=user_id).first()
                         if wallet:
-                            if wallet.point >= point:
-                                Transaction.objects.create(wallet_id=wallet.id, description=f"Withdrawal point", tran_type="debit", point=point, tran_by_id=user_id)
-                                msg = f"Congratulations on successfully Withdrawal the point."
-                                return HttpsAppResponse.send([{"point":point}], 1, msg)
+                            if wallet.balance >= amount:
+                                Transaction.objects.create(wallet_id=wallet.id, description=f"Withdrawal amount", tran_type="debit", amount=amount, tran_by_id=user_id)
+                                msg = f"Congratulations on successfully Withdrawal the amount."
+                                return HttpsAppResponse.send([{"amount":amount}], 1, msg)
                             else:
                                 msg="Not enough point balance to withdraw."
                         else:

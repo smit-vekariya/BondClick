@@ -38,20 +38,20 @@ class Transaction(models.Model):
             return
 
         point_per_amount = Decimal(settings.POINT_PER_AMOUNT)  # Convert to Decimal
-        amount = Decimal(self.point) / point_per_amount
+        point = Decimal(self.amount) * point_per_amount
         wallet = self.wallet  # Fetch the wallet once
         with transaction.atomic():
             if self.tran_type == "credit":
-                wallet.balance += amount
-                wallet.point += self.point
+                wallet.point += point
+                wallet.balance += self.amount
             elif self.tran_type == "debit":
-                wallet.balance -= amount
-                wallet.point -= self.point
-                wallet.withdraw_balance += amount
-                wallet.withdraw_point += self.point
+                wallet.balance -= self.amount
+                wallet.point -= point
+                wallet.withdraw_balance += self.amount
+                wallet.withdraw_point += point
             wallet.save()
 
-            self.amount = amount
+            self.point = point
             self.total_point = wallet.point  # Assign value directly
             self.total_amount = wallet.balance  # Assign value directly
             super().save(*args, **kwargs)
