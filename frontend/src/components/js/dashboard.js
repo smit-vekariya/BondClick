@@ -83,9 +83,7 @@ const Dashboard = () => {
   return (
     <Layout style={{minHeight: '100vh'}}>
       <SideBar collapsed={collapsed} menuItems={menu_items} current={current} onCollapse={useCallback((value)=>setCollapsed(value),[])}/>
-      <Layout style={{
-          marginLeft: 200,
-        }}>
+      <Layout>
         <HeaderBar logoutUser={logoutUser} user={user}/>
         <Content className='content_class'>
           <DashboardContext.Provider value={{setLoading:setLoading}}>
