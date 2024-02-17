@@ -11,10 +11,11 @@ export default function QrCode(){
     const [totalRecord , setTotalRecord] = useState(0)
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const {messageApi} = useContext(AuthContext)
-    const [filterDict, setFilterDict] =useState({page:1,pageSize:10,orderBy:"-id",search:""})
+    const [filterDict, setFilterDict] = useState({page:1,pageSize:10,orderBy:"-id",search:"",is_used:""})
+    const [isUsed, setIsUsed] = useState({used:true, un_used:true})
 
     let getQRCodeData = useCallback(async()=>{
-        await api.current.get(`/qr_admin/qr_code_list/?page=${filterDict.page}&page_size=${filterDict.pageSize}&ordering=${filterDict.orderBy}&search=${filterDict.search}`)
+        await api.current.get(`/qr_admin/qr_code_list/?page=${filterDict.page}&page_size=${filterDict.pageSize}&ordering=${filterDict.orderBy}&search=${filterDict.search}&is_used=${filterDict.is_used}`)
         .then((res)=>{
             setTotalRecord(res.data.count)
             setQRCodeData(res.data.results)
@@ -45,6 +46,13 @@ export default function QrCode(){
         })
 
     }
+    const onCheckUsed= (e) =>{
+        let used = document.getElementById("used").checked
+        let un_used = document.getElementById("un_used").checked
+        var is_used = (un_used && !used) ? "False" : (!un_used && used) ? "True" : "";
+        setIsUsed({...isUsed,[e.target.id]:e.target.checked,is_used:is_used})
+        setFilterDict({...filterDict,page:1,is_used:is_used})
+    }
 
     const columns = [
         {title:"QR Number",dataIndex:"qr_number",sorter: true},
@@ -70,8 +78,8 @@ export default function QrCode(){
         </div>
         <div className='report_tab'>
               <div style={{fontSize: 'medium'}}>
-                <label><input type="checkbox"/>Used Code</label>
-                <label><input type="checkbox"/>Unused Code</label>
+                <label><input type="checkbox" id="used" onChange={onCheckUsed} checked={isUsed.used}/>Used Code</label>&nbsp;
+                <label><input type="checkbox" id="un_used" onChange={onCheckUsed} checked={isUsed.un_used}/>Unused Code</label>
               </div>
         </div>
         <div className='main_tab'>
@@ -81,7 +89,9 @@ export default function QrCode(){
                 onChange={onTableChange}
                 rowSelection={{selectedRowKeys,onChange: onSelectChange}}
                 pagination={{total: totalRecord,
-                    defaultPageSize: 10, showSizeChanger: true,
+                    defaultPageSize: filterDict.pageSize,
+                    current: filterDict.page,
+                    showSizeChanger: true,
                     pageSizeOptions: ['10', '20', '50', '100'],
                 }}
                 footer={() => ( <div style={{textAlign:'right'}}>Selected Records ({selectedRowKeys.length} of {totalRecord})</div>)}

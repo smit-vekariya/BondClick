@@ -3,7 +3,6 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from "rea
 import { AuthContext } from "../../context/AuthContext";
 import useAxios from "../../utils/useAxios";
 
-
 export default function UsersWalletReport(){
     const api = useRef(useAxios())
     const { Search } = Input;
@@ -11,10 +10,12 @@ export default function UsersWalletReport(){
     const [totalRecord , setTotalRecord] = useState(0)
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const {messageApi} = useContext(AuthContext)
-    const [filterDict, setFilterDict] =useState({page:1,pageSize:10,orderBy:"-balance",search:""})
+    const filter_dict = {page:1,pageSize:10,orderBy:"-balance",search:"",top:0}
+    const [filterDict, setFilterDict] =useState(filter_dict)
 
     const getUsersWalletData = useCallback(async() =>{
-        await api.current.get(`/qr_admin/users_wallet_report/?page=${filterDict.page}&page_size=${filterDict.pageSize}&ordering=${filterDict.orderBy}&search=${filterDict.search}`)
+        await api.current.get(`/qr_admin/users_wallet_report/?page=${filterDict.page}&page_size=${filterDict.pageSize}&ordering=${filterDict.orderBy}&search=${filterDict.search}&top=${filterDict.top}`,
+        )
         .then((res)=>{
             setTotalRecord(res.data.count)
             setWalletData(res.data.results)
@@ -37,6 +38,28 @@ export default function UsersWalletReport(){
         {title:"Withdraw Point", dataIndex:"withdraw_point", sorter: true}
     ]
 
+    const LoadFilter = ()=>{
+       var top = document.getElementById("top_id").value
+       var select_value = document.getElementById("select_value").value
+       var orderBy = "-balance"
+       if(select_value === "highest_balance"){
+            orderBy = "-balance"
+       }else if(select_value === "lowest_balance"){
+            orderBy = "balance"
+       }else if(select_value === "highest_withdraw"){
+            orderBy = "-withdraw_balance"
+       }else if(select_value === "Lowest_withdraw"){
+            orderBy = "withdraw_balance"
+       }
+       setFilterDict({...filterDict,top:top,orderBy:orderBy})
+    }
+
+    const onReset =()=>{
+        document.getElementById("top_id").value = 0
+        document.getElementById("select_value").value = "highest_balance"
+        setFilterDict(filter_dict)
+    }
+
     const onSelectChange =(newSelectedRowKeys)=>{
         setSelectedRowKeys(newSelectedRowKeys)
     }
@@ -55,18 +78,20 @@ export default function UsersWalletReport(){
             </div>
             <div className='report_tab'>
                 <div>
-                    <label>Top <input type="number" min={0} placeholder="" />
-                        <select name="balance" id="balance">
+                    <label>Top <input type="number" id="top_id" min={0} defaultValue="0" placeholder="" />
+                        <select name="balance" id="select_value">
                             <option value="highest_balance">Highest Balance</option>
+                            <option value="lowest_balance">Lowest Balance</option>
                             <option value="highest_withdraw">Highest Withdraw</option>
+                            <option value="Lowest_withdraw">Lowest Withdraw</option>
                         </select>
                     </label>
-                   <Button type="primary">Load</Button>
-                   <Button>Reset</Button>
+                   <Button type="primary" onClick={LoadFilter}>Load</Button>
+                   <Button onClick={onReset}>Reset</Button>
                 </div>
-                <div>
+                {/* <div>
                    <Button type="primary">Export</Button>
-                </div>
+                </div> */}
             </div>
             <div className='main_tab'>
                 <Table

@@ -22,6 +22,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 
 
+
 # Create your views here.
 class CompanyDashboard(viewsets.ViewSet):
     queryset  = QRCode.objects.all()
@@ -69,6 +70,14 @@ class QRCodeList(generics.ListAPIView):
     serializer_class = QRCodeListSerializers
     search_fields =["qr_number", "batch__batch_number"]
     pagination_class = CustomPagination
+
+    def get_queryset(self):
+        is_used = self.request.GET["is_used"]
+        if is_used:
+            queryset = self.queryset.filter(is_used=is_used)
+            return queryset
+        return super().get_queryset()
+
 
 class CreateQRBatch(APIView):
     def post(self, request):
@@ -161,7 +170,13 @@ class PrintBatch(APIView):
 
 class UsersWalletReport(generics.ListAPIView):
     queryset = BondUserWallet.objects.all()
-    filter_backends = [filters.OrderingFilter,filters.SearchFilter]
+    filter_backends = [filters.SearchFilter]
     serializer_class = UserWalletReportListSerializers
     search_fields =["user__mobile"]
     pagination_class = CustomPagination
+
+    def get_queryset(self):
+        top = int(self.request.GET["top"])
+        ordering = self.request.GET["ordering"]
+        queryset = self.queryset.order_by(ordering)[:top] if top > 0 else self.queryset.order_by(ordering)
+        return queryset
