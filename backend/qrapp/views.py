@@ -70,7 +70,7 @@ class WithdrawAmount(APIView):
                                 msg = f"Congratulations on successfully Withdrawal the amount."
                                 return HttpsAppResponse.send([{"amount":amount}], 1, msg)
                             else:
-                                msg="Not enough point balance to withdraw."
+                                msg="Not enough balance to withdraw."
                         else:
                             msg="Your account wallet is not found."
                     else:

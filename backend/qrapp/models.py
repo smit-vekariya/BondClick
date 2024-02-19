@@ -37,23 +37,28 @@ class Transaction(models.Model):
             print('Update is not possible after transaction')
             return
 
-        point_per_amount = Decimal(settings.POINT_PER_AMOUNT)  # Convert to Decimal
-        point = Decimal(self.amount) * point_per_amount
-        wallet = self.wallet  # Fetch the wallet once
         with transaction.atomic():
             if self.tran_type == "credit":
-                wallet.point += point
-                wallet.balance += self.amount
+                point_per_amount = Decimal(settings.POINT_PER_AMOUNT)
+                amount = Decimal(self.point) / point_per_amount
+                wallet = self.wallet
+                wallet.balance += amount
+                wallet.point += self.point
+                wallet.save()
+                self.amount = amount
             elif self.tran_type == "debit":
+                point_per_amount = Decimal(settings.POINT_PER_AMOUNT)
+                point = Decimal(self.amount) * point_per_amount
+                wallet = self.wallet
                 wallet.balance -= self.amount
                 wallet.point -= point
                 wallet.withdraw_balance += self.amount
                 wallet.withdraw_point += point
-            wallet.save()
+                wallet.save()
+                self.point = point
 
-            self.point = point
-            self.total_point = wallet.point  # Assign value directly
-            self.total_amount = wallet.balance  # Assign value directly
+            self.total_point = wallet.point
+            self.total_amount = wallet.balance
             super().save(*args, **kwargs)
 
 
