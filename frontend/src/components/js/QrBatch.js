@@ -83,9 +83,10 @@ export default function QrBatch(){
 
     const columns = [
         {title:"Batch Number",dataIndex:"batch_number",sorter: true},
-        {title:"Total QR Code",dataIndex:"total_qr_code",sorter: true},
+        {title:"Total QR",dataIndex:"total_qr_code",sorter: true},
+        {title:"Total Used QR",dataIndex:"total_used_qr_code",sorter: true},
         {title:"Total Amount",dataIndex:"total_amount",sorter: true},
-        {title:"Point Per Amount",dataIndex:"point_per_amount",sorter: true},
+        {title:"Point Per Amount",dataIndex:"point_per_amount",sorter: true, width:150},
         {title:"Total Point",dataIndex:"total_point",sorter: true},
         {title:"Point Per QR",dataIndex:"point_per_qr",sorter: true},
         {title:"Amount Per QR",dataIndex:"amount_per_qr",sorter: true},
