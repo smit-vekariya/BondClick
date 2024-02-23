@@ -27,23 +27,26 @@ class ScanQRCode(APIView):
                     if BondUser.objects.filter(mobile=mobile, id=user_id).exists():
                         qr_details= QRCode.objects.filter(qr_code=qr_code, is_deleted=False, batch__is_deleted=False).all().first()
                         if qr_details:
-                            if not qr_details.is_used:
-                                wallet_id = BondUserWallet.objects.filter(user_id=user_id).values("id").first()
-                                if wallet_id:
-                                    point = qr_details.point
-                                    qr_details.is_used = True
-                                    qr_details.batch.total_used_qr_code += 1
-                                    qr_details.used_on = timezone.now()
-                                    qr_details.used_by_id = user_id
-                                    qr_details.batch.save()
-                                    qr_details.save()
-                                    Transaction.objects.create(wallet_id=wallet_id["id"], description=f"Scan '{qr_code}'", tran_type="credit", point=point, tran_by_id=user_id)
-                                    msg = f"Congratulations on successfully scanning the QR Code! You've earned {point} points. Well done!"
-                                    return HttpsAppResponse.send([{"point":point}], 1, msg)
+                            if not qr_details.is_disabled:
+                                if not qr_details.is_used:
+                                    wallet_id = BondUserWallet.objects.filter(user_id=user_id).values("id").first()
+                                    if wallet_id:
+                                        point = qr_details.point
+                                        qr_details.is_used = True
+                                        qr_details.batch.total_used_qr_code += 1
+                                        qr_details.used_on = timezone.now()
+                                        qr_details.used_by_id = user_id
+                                        qr_details.batch.save()
+                                        qr_details.save()
+                                        Transaction.objects.create(wallet_id=wallet_id["id"], description=f"Scan '{qr_code}'", tran_type="credit", point=point, tran_by_id=user_id)
+                                        msg = f"Congratulations on successfully scanning the QR Code! You've earned {point} points. Well done!"
+                                        return HttpsAppResponse.send([{"point":point}], 1, msg)
+                                    else:
+                                        msg = f"Your account wallet is not found."
                                 else:
-                                    msg = f"Your account wallet is not found."
+                                    msg = "This token has been used."
                             else:
-                                msg = "This token has been used."
+                                return HttpsAppResponse.send([{"point":0}], 1, "We appreciate your effort! Better luck next time!")
                         else:
                             msg = "This token not found."
                     else:

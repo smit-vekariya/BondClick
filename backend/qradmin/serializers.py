@@ -36,4 +36,4 @@ class QRCodeListSerializers(serializers.ModelSerializer):
     used_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
     class Meta:
         model = QRCode
-        fields = ["id","qr_number","qr_code","batch__batch_number","point","used_on","used_by__mobile"]
+        fields = ["id","qr_number","qr_code","batch__batch_number","is_disabled", "point","used_on","used_by__mobile"]

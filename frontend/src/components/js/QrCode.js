@@ -10,6 +10,7 @@ export default function QrCode(){
     const [QRCodeData , setQRCodeData] = useState([])
     const [totalRecord , setTotalRecord] = useState(0)
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    const [selectedRows ,setSelectedRows] = useState([])
     const {messageApi} = useContext(AuthContext)
     const [filterDict, setFilterDict] = useState({page:1,pageSize:10,orderBy:"-id",search:"",is_used:""})
     const [isUsed, setIsUsed] = useState({used:true, un_used:true})
@@ -21,7 +22,7 @@ export default function QrCode(){
             setQRCodeData(res.data.results)
         })
         .catch((error)=>{
-                messageApi.open({type: 'error',content: error.message})
+            messageApi.open({type: 'error',content: error.message})
         })
     },[filterDict, messageApi])
 
@@ -30,7 +31,8 @@ export default function QrCode(){
     },[getQRCodeData])
 
 
-    const onSelectChange =(newSelectedRowKeys)=>{
+    const onSelectChange =(newSelectedRowKeys, selectedRows)=>{
+        setSelectedRows(selectedRows)
         setSelectedRowKeys(newSelectedRowKeys)
     }
 
@@ -58,7 +60,14 @@ export default function QrCode(){
         {title:"QR Number",dataIndex:"qr_number",sorter: true},
         {title:"QR Code",dataIndex:"qr_code", width: '30%',sorter: true},
         {title:"Batch Number",dataIndex:"batch__batch_number",sorter: true},
-        {title:"Point",dataIndex:"point",sorter: true},
+        {title:"Point",dataIndex:"point",sorter: true, width: 100},
+        {
+            title:"Disabled",
+            dataIndex:"is_disabled",
+            sorter: true,
+            width: 100,
+            render:(is_disabled)=>{return is_disabled ? <i className="fa fa-check"></i> :""}
+        },
         {title:"Used On",dataIndex:"used_on",sorter: true},
         {title:"Used By",dataIndex:"used_by__mobile",sorter: true},
         {title:"View QR",
@@ -68,12 +77,38 @@ export default function QrCode(){
         }
     ]
 
+    const enableDisableQR = async(status)=>{
+        if(selectedRowKeys.length <= 0){
+            messageApi.open({type: 'error',content: "Please select at lease one qr code."});
+            return
+        }
+        else{
+            if (status === "disable"){
+                var un_used = selectedRows.filter((item) => item.used_on != null)
+                if (un_used.length > 0){
+                    messageApi.open({type: 'error',content: "Used QR code can not be disable."})
+                    return
+                }
+            }
+            await api.current.post(`/qr_admin/disable_qr_code/`,{selectedRowKeys:selectedRowKeys,status:status})
+            .then((res)=>{
+                getQRCodeData()
+                setSelectedRowKeys([]);
+                messageApi.open({type: 'success',content: res.data.message})
+            })
+            .catch((error)=>{
+                messageApi.open({type: 'error',content: error.message})
+            })
+        }
+    }
     return(
         <>
         <div className='title_tab'>
             <div className='title_tab_title'>QR Code</div>
             <div className="title_tab_div">
               <Search placeholder="Search by Qr Number, Batch number" allowClear={true} onChange={(e)=> {if(e.target.value===""){setFilterDict({...filterDict, search:""})}}} onSearch={(value) => setFilterDict({...filterDict, search:value})} style={{ width: 200 }} />
+               <Button type="primary" onClick={()=>enableDisableQR("disable")}>Disable QR</Button>
+               <Button type="primary" onClick={()=>enableDisableQR("enable")}>Enable QR</Button>
             </div>
         </div>
         <div className='report_tab'>

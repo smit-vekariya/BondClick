@@ -142,7 +142,10 @@ class UserWallet(APIView):
             with transaction.atomic():
                 user_id= request.data["id"]
                 if BondUser.objects.filter(id=user_id).exists():
-                    wallet= dict(BondUserWallet.objects.filter(user_id=user_id).values("id","user__mobile","user__full_name").annotate(balance = Cast(F('balance'), CharField()),point = Cast(F('point'), CharField()), withdraw_balance= Cast(F('withdraw_balance'),CharField()),withdraw_point=Cast(F('withdraw_point'),CharField())).first())
+                    wallet= dict(BondUserWallet.objects.filter(user_id=user_id).values("id","user__mobile","user__full_name")
+                                 .annotate(balance = Cast(F('balance'), CharField()),point = Cast(F('point'), CharField()),
+                                           total_earning_amount = Cast(F('total_earning_amount'), CharField()),total_earning_point = Cast(F('total_earning_point'), CharField()),
+                                            withdraw_balance= Cast(F('withdraw_balance'),CharField()),withdraw_point=Cast(F('withdraw_point'),CharField())).first())
                     wallet["transaction"] = TransactionSerializers(Transaction.objects.filter(wallet_id=wallet["id"]), many=True).data
                     return HttpsAppResponse.send([wallet], 1, "Data fetch successfully.")
                 else:
@@ -180,3 +183,15 @@ class UsersWalletReport(generics.ListAPIView):
         ordering = self.request.GET["ordering"]
         queryset = self.queryset.order_by(ordering)[:top] if top > 0 else self.queryset.order_by(ordering)
         return queryset
+
+class DisableQRCode(APIView):
+    def post(self, request):
+        try:
+            with transaction.atomic():
+                qr_ids = request.data["selectedRowKeys"]
+                status = request.data["status"]
+                is_disabled = True if status == "disable" else False
+                QRCode.objects.filter(id__in=qr_ids, used_on=None).update(is_disabled=is_disabled)
+                return HttpsAppResponse.send([], 1, f"QR code {status} successfully.")
+        except Exception as e:
+            return HttpsAppResponse.exception(str(e))

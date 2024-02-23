@@ -10,10 +10,16 @@ from decimal import Decimal
 
 class BondUserWallet(models.Model):
     user = models.ForeignKey(BondUser, on_delete=models.CASCADE)
+    total_earning_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_earning_point = models.IntegerField(default=0, null=True, blank=True)
     point = models.IntegerField(default=0, null=True, blank=True)
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     withdraw_point = models.IntegerField(default=0, null=True, blank=True)
     withdraw_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    wallet_disabled = models.BooleanField(default=False)
+    credit_disabled = models.BooleanField(default=False)
+    debit_disabled = models.BooleanField(default=False)
+    reason_disabled = models.TextField(null=True, blank=True)
 
 
     def __str__(self):
@@ -44,6 +50,8 @@ class Transaction(models.Model):
                 wallet = self.wallet
                 wallet.balance += amount
                 wallet.point += self.point
+                wallet.total_earning_amount += amount
+                wallet.total_earning_point += self.point
                 wallet.save()
                 self.amount = amount
             elif self.tran_type == "debit":

@@ -15,4 +15,5 @@ urlpatterns = [
     path('user_wallet/', UserWallet.as_view(), name="user_wallet"),
     path("print_batch/", PrintBatch.as_view(), name="print_batch"),
     path("users_wallet_report/", UsersWalletReport.as_view(), name="users_wallet_report"),
+    path("disable_qr_code/", DisableQRCode.as_view(), name="disable_qr_code")
 ]

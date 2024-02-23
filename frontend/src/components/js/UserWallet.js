@@ -1,4 +1,4 @@
-import { Button, Modal, Table, Tag } from 'antd';
+import { Button, Card, Col, Modal, Row, Table, Tag } from 'antd';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
@@ -93,7 +93,7 @@ export default function UserWallet(){
             <div className='title_tab_title'>User Wallet</div>
             <div className="title_tab_div">
                <Link to="/user"><Button type="primary">Back to users</Button></Link>
-               <Button type="primary" onClick={()=> setOpenManage(true)}>Manage Account</Button>
+               {/* <Button type="primary" onClick={()=> setOpenManage(true)}>Manage Account</Button> */}
             </div>
         </div>
         <div className='main_tab'>
@@ -109,9 +109,49 @@ export default function UserWallet(){
                         </div>
                     </div>
                     <div>
-                        <p>Points: {walletDetails.point}</p>
-                        <p>Withdraw Balance: {walletDetails.withdraw_balance}</p>
-                        <p>Withdraw Points: {walletDetails.withdraw_point}</p>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Card title="Amount" className='wallet_card'>
+                                    <table style={{width: '50%'}}>
+                                        <tr>
+                                            <td>Total Earning</td>
+                                            <td>&#8377; {walletDetails.total_earning_amount}</td>
+                                        </tr>
+                                         <tr>
+                                            <td>Withdraw</td>
+                                            <td>&#8377; {walletDetails.withdraw_balance}</td>
+                                        </tr>
+                                         <tr>
+                                            <td>Available</td>
+                                            <td>&#8377; {walletDetails.balance}</td>
+                                        </tr>
+                                    </table>
+                                </Card>
+                            </Col>
+                            <Col span={12}>
+                                <Card title="Points" className='wallet_card'>
+                                     <table style={{width: '50%'}}>
+                                        <tr>
+                                            <td>Total Earning</td>
+                                            <td>{walletDetails.total_earning_point}</td>
+                                        </tr>
+                                         <tr>
+                                            <td>Withdraw</td>
+                                            <td>{walletDetails.withdraw_point}</td>
+                                        </tr>
+                                         <tr>
+                                            <td>Available</td>
+                                            <td>{walletDetails.point}</td>
+                                        </tr>
+                                    </table> </Card>
+                            </Col>
+                            {/* <Col span={6}>
+                                <Card title="Total Points" className='wallet_card'>{walletDetails.point}</Card>
+                            </Col>
+                            <Col span={6}>
+                                <Card title="Withdraw Points" className='wallet_card'>{walletDetails.withdraw_point}</Card>
+                            </Col> */}
+                        </Row>
                     </div>
                 </div>
             )}
@@ -132,12 +172,15 @@ export default function UserWallet(){
                 <h3>Deactivate</h3>
                 <div className='manage_checkbox'>
                     <label><input type='checkbox' />Account</label>
+                </div>
+                <h3>Disabled</h3>
+                <div className='manage_checkbox'>
                     <label><input type='checkbox' />Wallet</label>
                     <label><input type='checkbox' />Credit Transaction</label>
                     <label><input type='checkbox' />Debit Transaction</label>
                 </div><br></br>
                 <div>
-                    <textarea placeholder='Reason of deactivate' style={{ width: '450px', height: '80px'}}></textarea>
+                    <textarea placeholder='Reason of disabled' style={{ width: '450px', height: '80px'}}></textarea>
                 </div>
             </Modal>
         </div>

@@ -33,6 +33,7 @@ const useAxios = () =>{
         setLoading(false)
     return response;
     }, function (error) {
+        setLoading(false)
         return Promise.reject(error);
     });
     return axiosInstance

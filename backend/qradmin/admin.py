@@ -5,7 +5,7 @@ from qradmin.models import QRCode, QRBatch, CompanyWallet
 
 @admin.register(QRCode)
 class QRCodeAdmin(admin.ModelAdmin):
-    list_display = ("qr_number","batch","point","qr_code","is_used","used_by")
+    list_display = ("qr_number","batch","point","qr_code","is_used","used_by","is_disabled")
 
 @admin.register(QRBatch)
 class QRBatchAdmin(admin.ModelAdmin):
