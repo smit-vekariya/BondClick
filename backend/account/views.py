@@ -19,6 +19,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import update_last_login
 from account.models import MainMenu,UserToken, City, State, Distributor, AuthOTP
 from rest_framework import viewsets
+from django.utils import timezone
 
 
 # Create your views here.
@@ -139,7 +140,7 @@ class RegisterBondUser(APIView):
                 return HttpsAppResponse.send([], 0, error_messages)
             otp = Util.send_otp_to_mobile(mobile_no)
             register_user_data["mobile"] = mobile_no
-            AuthOTP.objects.update_or_create(key=f"register_{mobile_no}",defaults={"otp":otp,"created_on":datetime.now(),"value":json.dumps(register_user_data),"is_used":False})
+            AuthOTP.objects.update_or_create(key=f"register_{mobile_no}",defaults={"otp":otp,"created_on":timezone.now(),"value":json.dumps(register_user_data),"is_used":False})
             return HttpsAppResponse.send([], 1, "Otp has been send to mobile number successfully")
         except Exception as e:
            return HttpsAppResponse.exception(str(e))
@@ -187,7 +188,7 @@ class LoginBondUser(APIView):
             if is_exit:
                 otp = Util.send_otp_to_mobile(mobile_no)
                 login_data["mobile"] = mobile_no
-                AuthOTP.objects.update_or_create(key=f"login_{mobile_no}",defaults={"otp":otp,"created_on":datetime.now(),"value":json.dumps(login_data),"is_used":False})
+                AuthOTP.objects.update_or_create(key=f"login_{mobile_no}",defaults={"otp":otp,"created_on":timezone.now(),"value":json.dumps(login_data),"is_used":False})
                 return HttpsAppResponse.send([], 1, "Otp has been send to mobile number successfully")
             else:
                 return HttpsAppResponse.send([], 0, "User not found.")
@@ -205,7 +206,7 @@ class VerifyLoginBondUser(APIView):
             if user_data:
                 if str(user_data.otp) != str(login_data["otp"]):
                     return HttpsAppResponse.send([], 0, "OTP verification failed. Please make sure you have entered the correct OTP.")
-                if user_data.expire_on > datetime.now():
+                if user_data.expire_on > timezone.now():
                     user = authenticate(request, mobile=login_data["mobile"])
                     tokens = MyTokenObtainPairSerializer.get_token(user)
                     user_data.is_used = True
