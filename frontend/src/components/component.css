@@ -108,6 +108,10 @@ body:has(.main_div) {
     margin: 8px 4px 0px 4px;
 }
 
+.main_tab .ant-card-body{
+    display: flex;
+}
+
 .wallet_div {
     padding: 15px;
     border-radius: 7px;

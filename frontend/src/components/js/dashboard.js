@@ -1,5 +1,5 @@
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
-import { Dropdown, Flex, Layout, Menu, Spin } from 'antd';
+import { Button, Dropdown, Flex, Layout, Menu, Spin } from 'antd';
 import 'font-awesome/css/font-awesome.min.css';
 import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Link, Outlet } from "react-router-dom";
@@ -118,6 +118,8 @@ const HeaderBar = memo(({logoutUser, user})=>{
 
   return (
       <Header className='custom_header'>
+          <a href='https://www.fast2sms.com/dashboard/transactional-history' target='blank' style={{marginLeft: '10px'}}><Button type="dashed">Go to Fast2sms</Button></a>
+          <a href='https://dashboard.razorpay.com/app/dashboard' target='blank' style={{marginLeft: '10px'}}><Button type="dashed">Go to Razorpay</Button></a>
           <Flex gap="small" wrap="wrap" style={{float: "right", marginRight:"10px"}}>
               <Dropdown.Button menu={{items}} style={{margin: "9px 0px 5px 1px"}} placement="bottomLeft" icon={<UserOutlined />}>{user && user.full_name}</Dropdown.Button>
           </Flex>

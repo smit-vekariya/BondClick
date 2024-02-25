@@ -9,7 +9,8 @@ from django.http import HttpResponse
 import json
 import random
 import uuid
-
+import requests
+from django.conf import settings
 
 
 def create_from_exception(self, url=None, exception=None, traceback=None, **kwargs):
@@ -65,8 +66,30 @@ class Util(object):
 
     @staticmethod
     def send_otp_to_mobile(mobile_no):
-        otp = random.randint(100000, 999999)
-        return 343434
+        try:
+            if mobile_no:
+                otp = random.randint(100000, 999999)
+                url = settings.FAST2SMS
+                api_key =  settings.FAST2SMS_API_KEY
+                querystring = {"authorization":api_key,"variables_values":str(otp),"route":"otp","numbers":mobile_no}
+                headers = { 'cache-control': "no-cache" }
+                response = requests.request("GET", url, headers=headers, params=querystring)
+                response = json.loads(response.text)
+                if response["return"]:
+                    return otp
+                else:
+                    create_from_text("Error in OTP sending", "Important", 10, f"response => {response}, info => mobile: '{mobile_no}' otp: '{otp}'")
+                    if response["status_code"] == 995:
+                        return "Sending multiple sms to same number is not allowed. Please try again later."
+                    else:
+                        return "We encountered an issue while sending the OTP. Please try again later."
+            else:
+                return "We encountered an issue while sending the OTP. Please try again later."
+            # return 343434
+        except Exception as e:
+            logging.exception("Something went wrong.")
+            create_from_exception(e)
+            return 0
 
     @staticmethod
     def create_unique_qr_code(batch_number):

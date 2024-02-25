@@ -20,6 +20,7 @@ from django.contrib.auth.models import update_last_login
 from account.models import MainMenu,UserToken, City, State, Distributor, AuthOTP
 from rest_framework import viewsets
 from django.utils import timezone
+from django.conf import settings
 
 
 # Create your views here.
@@ -139,6 +140,8 @@ class RegisterBondUser(APIView):
                 error_messages = ", ".join(value[0] for key, value in serializer.errors.items())
                 return HttpsAppResponse.send([], 0, error_messages)
             otp = Util.send_otp_to_mobile(mobile_no)
+            if len(str(otp)) > 6:
+                return HttpsAppResponse.send([], 0, otp)
             register_user_data["mobile"] = mobile_no
             AuthOTP.objects.update_or_create(key=f"register_{mobile_no}",defaults={"otp":otp,"created_on":timezone.now(),"value":json.dumps(register_user_data),"is_used":False})
             return HttpsAppResponse.send([], 1, "Otp has been send to mobile number successfully")
@@ -156,9 +159,9 @@ class VerifyRegisterUser(APIView):
             if user_data:
                 if str(user_data.otp) != str(verify_data["otp"]):
                     return HttpsAppResponse.send([], 0, "OTP verification failed. Please make sure you have entered the correct OTP.")
-                if user_data.expire_on > datetime.now():
+                if user_data.expire_on > timezone.now():
                     data = json.loads(user_data.value)
-                    data["company"] = 1
+                    data["company"] = int(settings.DEFAULT_COMPANY_ID)
                     serializer = BondUserSerializers(data=data)
                     if serializer.is_valid():
                         serializer.save()
@@ -187,6 +190,8 @@ class LoginBondUser(APIView):
             is_exit=  BondUser.objects.filter(mobile=mobile_no).exists()
             if is_exit:
                 otp = Util.send_otp_to_mobile(mobile_no)
+                if len(str(otp)) > 6:
+                    return HttpsAppResponse.send([], 0, otp)
                 login_data["mobile"] = mobile_no
                 AuthOTP.objects.update_or_create(key=f"login_{mobile_no}",defaults={"otp":otp,"created_on":timezone.now(),"value":json.dumps(login_data),"is_used":False})
                 return HttpsAppResponse.send([], 1, "Otp has been send to mobile number successfully")

@@ -2,6 +2,10 @@ import { Card, Col, Progress, Row } from 'antd';
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from '../../context/AuthContext';
 import useAxios from '../../utils/useAxios';
+import batch_img from "../images/batch.png";
+import qr_code_img from "../images/qr-code.png";
+import user_img from "../images/user.png";
+
 
 
 export default function CompanyDashBoard(){
@@ -32,13 +36,22 @@ export default function CompanyDashBoard(){
         <div className='main_tab'>
             <Row>
                 <Col span={8}>
-                    <Card title="Total User" bordered={true}>{dashboard.total_bond_user}</Card>
+                    <Card title="Total User" bordered={true}>
+                        <img src={user_img} alt="user.png" style={{width:"50px", marginRight: '15px' }}></img>
+                        <p><b>{dashboard.total_bond_user}</b></p>
+                    </Card>
                 </Col>
                 <Col span={8}>
-                    <Card title="Total Batch" bordered={true}>{dashboard.total_qr_batch}</Card>
+                    <Card title="Total Batch" bordered={true}>
+                        <img src={batch_img} alt="batch.png" style={{width:"50px", marginRight: '15px' }}></img>
+                        <p><b>{dashboard.total_qr_batch}</b></p>
+                    </Card>
                 </Col>
                 <Col span={8}>
-                    <Card title="Total QR Code" bordered={true}>{dashboard.total_qr_code}</Card>
+                    <Card title="Total QR Code" bordered={true}>
+                        <img src={qr_code_img} alt="qr-code.png" style={{width:"50px", marginRight: '15px' }}></img>
+                         <p><b>{dashboard.total_qr_code}</b></p>
+                    </Card>
                 </Col>
             </Row>
             <Row >
