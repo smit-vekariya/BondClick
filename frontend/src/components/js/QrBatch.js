@@ -148,7 +148,7 @@ export default function QrBatch(){
                     pageSizeOptions: ['10', '20', '50', '100'],
                 }}
                 footer={() => ( <div style={{textAlign:'right'}}>Selected Records ({selectedRowKeys.length} of {totalRecord})</div>)}
-                scroll={{y: 500}}
+                scroll={{ x: '75pc' }}
                 size="small"/>
             <Modal title="Create Batch" open={isModalOpen} okText="Create" onOk={handleOk} onCancel={()=>setIsModalOpen(false)}>
                 <Form  labelCol={{flex: '110px'}} labelAlign="left">

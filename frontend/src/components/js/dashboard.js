@@ -7,7 +7,7 @@ import { AuthContext } from '../../context/AuthContext';
 import "../CustomAntd.css";
 import "../component.css";
 import logo_char from '../images/logo-char.png';
-import logo from "../images/logo-no-background.png";
+// import logo from "../images/logo-no-background.png";
 
 export const DashboardContext = createContext();
 const baseURL = process.env.REACT_APP_BASE_URL
@@ -75,7 +75,8 @@ const Dashboard = () => {
         }
     }
 
-    let fixed_items = [getItem((<img src={logo} alt="logo-no-background.png" style={{width:"150px"}}></img>), '0', (collapsed ? <img src={logo_char} alt="logo-char.png" style={{width:"20px"}}></img>:""))]
+    // let fixed_items = [getItem((<img src={logo} alt="logo-no-background.png" style={{width:"150px"}}></img>), '0', (collapsed ? <img src={logo_char} alt="logo-char.png" style={{width:"20px"}}></img>:""))]
+    let fixed_items = [getItem(<h2 style={{fontFamily: 'FontAwesome', margin:'0px', fontSize: '23px', color:"sandybrown"}}>BOND CLICK</h2>, '0', (collapsed ? <img src={logo_char} alt="logo-char.png" style={{width:"20px"}}></img>:""))]
     let final_menu_items  =[...fixed_items,...new_list]
     return final_menu_items
   },[menuData,collapsed])

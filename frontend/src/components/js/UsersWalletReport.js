@@ -104,7 +104,7 @@ export default function UsersWalletReport(){
                         pageSizeOptions: ['10', '20', '50', '100'],
                     }}
                     footer={() => ( <div style={{textAlign:'right'}}>Selected Records ({selectedRowKeys.length} of {totalRecord})</div>)}
-                    scroll={{y: 500}}
+                    scroll={{ x: '75pc' }}
                     size="small"/>
             </div>
         </>
