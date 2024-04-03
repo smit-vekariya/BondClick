@@ -97,7 +97,7 @@ class WalletTransaction(APIView):
                 if BondUser.objects.filter(mobile=mobile, id=user_id).exists():
                     wallet= dict(BondUserWallet.objects.filter(user_id=user_id).values("id").annotate(balance = Cast(F('balance'), CharField()),point = Cast(F('point'), CharField()), withdraw_balance= Cast(F('withdraw_balance'),CharField()),withdraw_point=Cast(F('withdraw_point'),CharField())).first())
                     wallet["transaction"] = TransactionSerializers(Transaction.objects.filter(wallet_id=wallet["id"]), many=True).data
-                    return HttpsAppResponse.send([wallet], 1, "Data fetch successfully.")
+                    return HttpsAppResponse.send([wallet], 1, "Data fetched successfully.")
                 else:
                     msg = "User Does not match."
                 return HttpsAppResponse.send([], 0, msg)
