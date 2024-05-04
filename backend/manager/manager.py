@@ -1,16 +1,22 @@
-
+import datetime
+import json
 import logging
+import math
+import random
+import pytz
+import requests
 import sys
+import uuid
 import traceback as traceback_mod
 import warnings
+
+from dateutil import tz
+from django.conf import settings
+from django.core.cache import cache
+from django.db import connection
+from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from manager.models import ErrorBase
-from django.http import HttpResponse
-import json
-import random
-import uuid
-import requests
-from django.conf import settings
 
 
 def create_from_exception(self, url=None, exception=None, traceback=None, **kwargs):
@@ -98,10 +104,94 @@ class Util(object):
         qr_code = f"QR-{batch_number}-{uuid_upper.upper()}"
         return qr_code
 
+    @staticmethod
+    def set_cache(schemas, key, value, time=3600):
+        schemas_key = schemas + key
+        cache.set(schemas_key, value, time)
 
+    @staticmethod
+    def get_cache(schemas, key):
+        schemas_key = schemas + key
+        if schemas_key in cache:
+            return cache.get(schemas_key)
+        return None
 
+    @staticmethod
+    def clear_cache(schemas, key):
+        schemas_key = schemas + key
+        if schemas_key in cache:
+            cache.delete(schemas_key)
+            
+    @staticmethod
+    def get_local_time(utctime, showtime=False, time_format=None):
+        if utctime == "" or utctime is None or utctime == 0 or utctime == "-":
+            return ""
+        timezone_info = Util.get_timezone_info()
+        from_zone = tz.gettz("UTC")
+        to_zone = tz.gettz(timezone_info)
+        utctime = utctime.replace(tzinfo=from_zone)
+        new_time = utctime.astimezone(to_zone)
+        if showtime:
+            if time_format is None:
+                time_format = "%d/%m/%Y %H:%M"
+            return new_time.strftime(time_format)
+        else:
+            return new_time.strftime("%d/%m/%Y")
+        
+    @staticmethod
+    def convert_time_to_utc(timeobj, time_format=None):
+        local_timezone = Util.get_timezone_info()
+        timezone = pytz.timezone(local_timezone)
+        local_time = timezone.localize(timeobj)
+        to_zone = tz.gettz("UTC")
+        if time_format is None:
+            time_format = "%d/%m/%Y %H:%M"
+        utc_time = local_time.astimezone(to_zone).strftime(time_format)
+        return utc_time
 
+    @staticmethod
+    def get_utc_datetime(local_datetime, has_time, timezone):
+        naive_datetime = None
+        local_time = pytz.timezone(timezone)
 
+        if has_time:
+            naive_datetime = datetime.datetime.strptime(local_datetime, "%d/%m/%Y %H:%M")
+        else:
+            naive_datetime = datetime.datetime.strptime(local_datetime, "%d/%m/%Y")
+
+        local_datetime = local_time.localize(naive_datetime, is_dst=None)
+        utc_datetime = local_datetime.astimezone(pytz.utc)
+        return utc_datetime
+    
+    @staticmethod
+    def get_human_readable_time(minutes):
+        time = ""
+        cal_hrs = int(minutes / 60)
+        days = int(cal_hrs / 24)
+        hrs = cal_hrs - days * 24
+        mins = int(minutes - (cal_hrs * 60))
+        secs = int((minutes - mins - (hrs * 60) - (days * 24 * 60)) * 60)
+
+        if days != 0:
+            days = "%02d" % (days)
+            time += str(days) + "d"
+            if hrs != 0 or mins != 0 or secs != 0:
+                time += ":"
+        if hrs != 0:
+            spent_hours = "%02d" % (hrs)
+            time += str(spent_hours) + "h"
+            if mins != 0 or secs != 0:
+                time += ":"
+        if mins != 0:
+            mins = "%02d" % round(mins)
+            time += str(mins) + "m"
+            if secs != 0:
+                time += ":"
+        if secs != 0:
+            secs = "%02d" % round(secs)
+            time += str(secs) + "s"
+        return time
+    
 # def check_secret_key(function):
 #     @wraps(function)
 #     def decorator(request, *args, **kwrgs):
@@ -109,6 +199,6 @@ class Util(object):
 #         if key == settings.SECRET_KEY:
 #             return function(request, *args, **kwrgs)
 #         else:
-#           return HttpResponse(json.dumps({"data":{}, "status": 0, "message": "Secret key did not match!"}))
+#         return HttpResponse(json.dumps({"data":{}, "status": 0, "message": "Secret key did not match!"}))
 
 #     return decorator
