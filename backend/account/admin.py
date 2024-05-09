@@ -1,5 +1,5 @@
 from django.contrib import admin
-from account.models import MainMenu, Company, Distributor, BondUser, State, City, UserToken, AuthOTP
+from account.models import MainMenu, Company, Distributor, BondUser, State, City, UserToken, AuthOTP, PageGroup, AllPermissions, GroupPermission, SystemParameter
 
 
 # Register your models here.
@@ -34,7 +34,6 @@ class CityAdmin(admin.ModelAdmin):
     list_display = ('name', 'code', 'state', 'is_deleted')
 
 
-
 @admin.register(UserToken)
 class UserTokenAdmin(admin.ModelAdmin):
     list_display = ("user", "access_token", "is_allowed")
@@ -43,3 +42,23 @@ class UserTokenAdmin(admin.ModelAdmin):
 @admin.register(AuthOTP)
 class AuthOTPAdmin(admin.ModelAdmin):
     list_display =('key','value', 'otp', 'expire_on', 'created_on', 'is_used')
+
+
+@admin.register(PageGroup)
+class PageGroupAdmin(admin.ModelAdmin):
+    list_display = ('page_name','page_code','page_breadcrumbs')
+ 
+
+@admin.register(AllPermissions)
+class AllPermissionsAdmin(admin.ModelAdmin):
+    list_display = ('page_group','act_name', 'act_code')
+
+@admin.register(GroupPermission)
+class GroupPermissionAdmin(admin.ModelAdmin):
+    list_display = ('group','permissions', 'has_perm')
+
+
+
+@admin.register(SystemParameter)
+class SystemParameterAdmin(admin.ModelAdmin):
+    list_display = ('code', 'value', 'description')

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from account.models import BondUser ,City
+from account.models import BondUser ,City ,SystemParameter
 
 
 # class UserSerializers(serializers.ModelSerializer):
@@ -32,3 +32,12 @@ class BondUserListSerializers(serializers.ModelSerializer):
     class Meta:
         model = BondUser
         fields = ["id","full_name", "mobile", "address", "pin_code", "city__name", "state__name", "distributor__name"]
+
+
+class SystemParameterSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = SystemParameter
+        fields = '__all__'
+
+    # def create(self, validate):
+    #     SystemParameter.objects.create(*validate)

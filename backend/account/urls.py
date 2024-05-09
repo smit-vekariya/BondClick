@@ -1,17 +1,24 @@
 
-from django.urls import path
+from django.urls import path, include
 from .views import *
 from . import views
+from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
 app_name = "account"
+
+router = DefaultRouter()
+router.register(r'sys_parameter', SystemParameterView)
+
 urlpatterns = [
+    path('', include(router.urls)),
     path('', Welcome.as_view(), name="welcome_page"),
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', RegisterUser.as_view(), name='register'),
     path('main_menu/', MainMenuView.as_view(), name="main_menu"),
+    path('group_permission/', GroupPermissionView.as_view(), name="group_permission"),
 
     # bondclick api
     path("registration/", RegisterBondUser.as_view(), name="register_bond_user"),
@@ -28,5 +35,6 @@ urlpatterns = [
     path('admin_login/', AdminLogin.as_view(), name='admin_login'),
     path('user_profile/', UserProfile.as_view({'get': 'retrieve'}), name="user_profile"),
     path('edit_profile/<int:pk>', UserProfile.as_view({'get': 'put'}), name="edit_profile")
+
 
 ]

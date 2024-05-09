@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import timedelta
@@ -98,6 +98,7 @@ class BondUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True)
 
     USERNAME_FIELD = 'mobile'
     objects = CustomUserManager()
@@ -131,3 +132,45 @@ class AuthOTP(models.Model):
     def save(self, *args, **kwargs):
         self.expire_on = self.created_on + timedelta(minutes=1)
         super(AuthOTP, self).save(*args, **kwargs)
+
+
+# custom group based permisson 
+# add foreignkey to main menu model for page name (remain)
+class PageGroup(models.Model):
+    page_name = models.CharField(max_length=100)
+    page_code = models.CharField(max_length=100)
+    page_breadcrumbs = models.CharField(max_length=1000)
+
+    def __str__(self):
+        return self.page_name
+
+
+# set unique=True for act_code (remain)
+class AllPermissions(models.Model):
+    page_group = models.ForeignKey(PageGroup, on_delete=models.CASCADE)
+    act_name = models.CharField(max_length=100)
+    act_code = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = ('page_group', 'act_code')
+
+    def __str__(self):
+        return f"{self.page_group.page_name} - {self.act_name}"
+
+
+class GroupPermission(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    permissions = models.ForeignKey(AllPermissions, on_delete=models.CASCADE)
+    has_perm = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('group', 'permissions')
+
+
+class SystemParameter(models.Model):
+    code = models.CharField(max_length=500)
+    value = models.CharField(max_length=1000)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.code

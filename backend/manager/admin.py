@@ -10,3 +10,5 @@ class ErrorBaseAdmin(admin.ModelAdmin):
 class HistoryAdmin(admin.ModelAdmin):
     list_display = ('content_type', 'object_id', 'action', 'action_type', 'ip_addr', 'action_on', 'action_by')
 
+
+

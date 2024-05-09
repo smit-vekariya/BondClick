@@ -11,17 +11,17 @@
 
 
 
-import requests
+# import requests
 
-url = "https://www.fast2sms.com/dev/bulkV2"
+# url = "https://www.fast2sms.com/dev/bulkV2"
 
-payload = "variables_values=121212&route=otp&numbers=9510584817"
-headers = {
-    'authorization': "PBbi7C2nmYZOgvWXATLIFqQrpH1oys3GhjeDMcVSE0xU89lzk5hHKXMGB9NnU0dOqL1iQPw3DuSokZfx",
-    'Content-Type': "application/x-www-form-urlencoded",
-    'Cache-Control': "no-cache",
-    }
+# payload = "variables_values=121212&route=otp&numbers=9510584817"
+# headers = {
+#     'authorization': "PBbi7C2nmYZOgvWXATLIFqQrpH1oys3GhjeDMcVSE0xU89lzk5hHKXMGB9NnU0dOqL1iQPw3DuSokZfx",
+#     'Content-Type': "application/x-www-form-urlencoded",
+#     'Cache-Control': "no-cache",
+#     }
 
-response = requests.request("POST", url, data=payload, headers=headers)
+# response = requests.request("POST", url, data=payload, headers=headers)
 
-print(response.text)
+# print(response.text)

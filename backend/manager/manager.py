@@ -17,6 +17,7 @@ from django.db import connection
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from manager.models import ErrorBase
+from account.models import BondUser, GroupPermission
 
 
 def create_from_exception(self, url=None, exception=None, traceback=None, **kwargs):
@@ -69,6 +70,25 @@ class HttpsAppResponse:
 
 
 class Util(object):
+
+    @staticmethod
+    # clear cache on update role other store in cache permenets (remain), update cahce system from settings.py
+    def has_perm(user, act_code):
+        if user.is_superuser is False:
+            return True
+        else:
+            group_id = BondUser.objects.filter(id=user.id).values_list("group_id", flat=True)[0]
+            if Util.get_cache("public","perm" + str(group_id)) is None:
+                group_perm = list(GroupPermission.objects.filter(group=group_id).values("permissions__act_name","permissions__act_code","has_perm"))
+                Util.set_cache("public","perm" + str(group_id), group_perm ,3600)
+            else:
+                group_perm = Util.get_cache("public","perm" + str(group_id))
+            
+            for act in group_perm:
+                if act["permissions__act_code"] == act_code:
+                    has_permission = act["has_perm"]
+                    return has_permission
+        return False
 
     @staticmethod
     def send_otp_to_mobile(mobile_no):

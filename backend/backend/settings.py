@@ -39,12 +39,12 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 AUTH_USER_MODEL = 'account.BondUser'
 AUTHENTICATION_BACKENDS = ['account.backends.MobileNumberBackend','account.backends.AdminLoginBackend','django.contrib.auth.backends.ModelBackend']
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'django_cache',
-    }
-}
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+#         'LOCATION': 'django_cache',
+#     }
+# }
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -143,7 +143,9 @@ STATIC_ROOT = BASE_DIR / 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
 
-CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST")
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS")
+
 
 POINT_PER_AMOUNT = env("POINT_PER_AMOUNT")
 FAST2SMS = env("FAST2SMS")
