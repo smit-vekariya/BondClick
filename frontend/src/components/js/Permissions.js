@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from "rea
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 import useAxios from "../../utils/useAxios";
-import { Card, Col, Row, Checkbox, Button } from 'antd';
+import { Card, Col, Row, Checkbox, Button,Select } from 'antd';
 import "../component.css";
 
 
@@ -19,7 +19,6 @@ export default function Permissions(){
             }})
             .then((res) =>{
                 setPermission(res.data.data)
-                console.log("res.data.results", res.data.data);
             })
             .catch((error)=>{
                 messageApi.open({type: 'error',content: error.message})
@@ -55,8 +54,18 @@ export default function Permissions(){
             <div className='title_tab'>
                 <div className='title_tab_title'>Permissions</div>
                 <div className="title_tab_div">
-                <Button type="primary" onClick={savePermissions}>Save</Button>
+                    <Button type="primary" onClick={savePermissions}>Save</Button>
+                </div>
             </div>
+            <div className='report_tab'>
+                <div>
+                    <label>Select Group &nbsp;
+                        <select name="balance" id="select_value">
+                            <option value="1">Admin</option>
+                            <option value="2">Local</option>
+                        </select>
+                    </label>     
+                </div>
             </div>
             <div className='main_tab perm_card'>
                 {permissions.map((page, pageIndex) => (
