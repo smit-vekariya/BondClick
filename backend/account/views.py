@@ -112,10 +112,7 @@ class GroupPermissionView(APIView):
     permission_classes = []
     def get(self, request):
         try:
-            ppi = Util.has_perm(request.user,"can_view_wallet")
-            print(ppi)
-            
-            group_id = request.data["group_id"]
+            group_id = request.GET.get("group_id")
             pages = list(PageGroup.objects.values("id", "page_name", "page_code"))
             group_permission = []
             for page in pages:

@@ -72,6 +72,7 @@ class HttpsAppResponse:
 class Util(object):
 
     @staticmethod
+    # Util.has_perm(request.user,"can_view_wallet")
     # clear cache on update role other store in cache permenets (remain), update cahce system from settings.py
     def has_perm(user, act_code):
         if user.is_superuser is False:

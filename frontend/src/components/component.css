@@ -112,6 +112,10 @@ body:has(.main_div) {
     display: flex;
 }
 
+.perm_card .ant-card-body{
+    display: grid !important;
+}
+
 .wallet_div {
     padding: 15px;
     border-radius: 7px;

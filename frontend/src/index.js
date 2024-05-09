@@ -15,6 +15,7 @@ import Login from './components/js/login';
 import Profile from './components/js/profile';
 import Register from './components/js/register';
 import User from './components/js/user';
+import Permissions from './components/js/Permissions'
 import AuthProvider from './context/AuthContext';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
@@ -36,6 +37,7 @@ root.render(
                     <Route path="qr_code" element={<QrCode/>}/>
                     <Route path="user_wallet/:user_id" element={<UserWallet/>}/>
                     <Route path="users_wallet_report/" element={<UsersWalletReport/>}/>
+                    <Route path="permissions/" element={<Permissions/>}/>
               </Route>
             </Route>
             <Route path="/login" element={<Login />} />
