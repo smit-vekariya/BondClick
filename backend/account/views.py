@@ -22,14 +22,26 @@ from account.models import MainMenu,UserToken, City, State, Distributor, AuthOTP
 from rest_framework import viewsets
 from django.utils import timezone
 from django.conf import settings
+from rest_framework.response import Response
+from rest_framework.renderers import TemplateHTMLRenderer
 
 
 # Create your views here.
 
-class Welcome(View):
+class Welcome(APIView):
+    authentication_classes =[]
+    permission_classes = []
+    renderer_classes = [TemplateHTMLRenderer]
     template_name = "welcome.html"
+
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name)
+        if "details" in request.GET:
+            return Response({"intro":"THIS WEBSITE FOR TESTING API (PLEASE CONTACT TO CREATE API WITH PANELPRIME.DEV@GMAIL.COM)"})
+        else:
+            return Response({"intro":"WELCOME TO PANEL PRIME"})
+
+
+
 
 
 class UserProfile(viewsets.ViewSet):

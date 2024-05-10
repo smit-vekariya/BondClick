@@ -12,8 +12,8 @@ router = DefaultRouter()
 router.register(r'sys_parameter', SystemParameterView)
 
 urlpatterns = [
+    path('', Welcome.as_view(), name="welcome-page"),
     path('', include(router.urls)),
-    path('', Welcome.as_view(), name="welcome_page"),
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', RegisterUser.as_view(), name='register'),

@@ -34,9 +34,13 @@
           transform: translateY(0);
         }
       }
+      a{
+        color: white;
+        text-decoration: none;
+      }
     </style>
   </head>
   <body>
-    <div class="animation-text">WELCOME TO PANEL PRIME</div>
+    <div class="animation-text"><a href="{% url 'account:welcome-page' %}?details=True">{{intro}}</a></div>
   </body>
 </html>
