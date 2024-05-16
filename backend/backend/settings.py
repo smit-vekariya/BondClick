@@ -46,6 +46,7 @@ AUTHENTICATION_BACKENDS = ['account.backends.MobileNumberBackend','account.backe
 #     }
 # }
 
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'account',
+    'app',
     'manager',
     'qradmin',
     'qrapp',
@@ -143,7 +145,7 @@ STATIC_ROOT = BASE_DIR / 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
 
-CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
+CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST")
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS")
 
 

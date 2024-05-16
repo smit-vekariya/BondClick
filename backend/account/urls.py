@@ -12,13 +12,13 @@ router = DefaultRouter()
 router.register(r'sys_parameter', SystemParameterView)
 
 urlpatterns = [
-    path('', Welcome.as_view(), name="welcome-page"),
     path('', include(router.urls)),
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', RegisterUser.as_view(), name='register'),
     path('main_menu/', MainMenuView.as_view(), name="main_menu"),
-    path('group_permission/', GroupPermissionView.as_view(), name="group_permission"),
+    path('group_permission/', GroupPermissionView.as_view({"get":"get","post":"post"}), name="group_permission"),
+    path('user_groups/', GroupPermissionView.as_view({"get":"user_groups"}), name="user_groups"),
 
     # bondclick api
     path("registration/", RegisterBondUser.as_view(), name="register_bond_user"),

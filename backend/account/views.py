@@ -24,24 +24,11 @@ from django.utils import timezone
 from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.decorators import action
+from django.contrib.auth.models import Group
 
 
 # Create your views here.
-
-class Welcome(APIView):
-    authentication_classes =[]
-    permission_classes = []
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = "welcome.html"
-
-    def get(self, request, *args, **kwargs):
-        if "details" in request.GET:
-            return Response({"intro":"THIS WEBSITE FOR TESTING API (PLEASE CONTACT TO CREATE API WITH PANELPRIME.DEV@GMAIL.COM)"})
-        else:
-            return Response({"intro":"WELCOME TO PANEL PRIME"})
-
-
-
 
 
 class UserProfile(viewsets.ViewSet):
@@ -119,12 +106,19 @@ class MainMenuView(APIView):
             return HttpsAppResponse.exception(str(e))
 
 
-class GroupPermissionView(APIView):
+class GroupPermissionView(viewsets.ViewSet):
     authentication_classes =[]
     permission_classes = []
+
+    def user_groups(self, request):
+        user_groups = list(Group.objects.values("id","name"))
+        return HttpsAppResponse.send(user_groups, 1, "Get user group data successfully.")
+
     def get(self, request):
         try:
             group_id = request.GET.get("group_id")
+            if group_id is None:
+                return HttpsAppResponse.send([], 0, "Group id is required.")
             pages = list(PageGroup.objects.values("id", "page_name", "page_code"))
             group_permission = []
             for page in pages:

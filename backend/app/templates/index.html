@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{% endblock %}</title>
+    {% block custom_styles %}{% endblock %}
+    <link type="text/css" rel="stylesheet" href="{% static 'app/css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/bootstrap.min.css' %}">
+    <script src="{% static 'app/js/bootstrap.bundle.min.js' %}?"></script>
+
+  </head>
+  <body>
+    <div class="index_header">
+      <ul>
+            <li><a href="{% url 'app:home-page' %}">Home</a></li>
+            <li><a href="{% url 'app:contact-us-page' %}">Contact us</a></li>
+            <li><a href="{% url 'app:about-us-page' %}">About us</a></li>
+          </ul>
+    </div>
+    <div class="index_body">
+        {% block content %}
+        {% endblock %}
+    </div>
+  </body>
+</html>
+
