@@ -118,7 +118,9 @@ class GroupPermissionView(viewsets.ViewSet):
         try:
             group_id = request.GET.get("group_id")
             if group_id is None:
-                return HttpsAppResponse.send([], 0, "Group id is required.")
+                group_list = list(Group.objects.values("id","name"))
+                print("group_list", group_list)
+                return HttpsAppResponse.send(group_list, 1, "")
             pages = list(PageGroup.objects.values("id", "page_name", "page_code"))
             group_permission = []
             for page in pages:

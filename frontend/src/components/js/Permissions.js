@@ -1,8 +1,7 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 import useAxios from "../../utils/useAxios";
-import { Card, Col, Row, Checkbox, Button,Select } from 'antd';
+import { Card, Col,Checkbox, Button } from 'antd';
 import "../component.css";
 
 
@@ -10,12 +9,24 @@ export default function Permissions(){
     const api = useRef(useAxios())
     const {messageApi} = useContext(AuthContext)
     const [permissions ,setPermission] = useState([])
-    const [groupId ,setGroupId] = useState(1)
+    const [groupId ,setGroupId] = useState(0)
+    const [groups, setGroups] = useState([])
 
-    const getPermissions = useCallback(async() =>{
+    const getGroup = useCallback(async()=>{
+        await api.current.get('/account/group_permission/')
+        .then((res)=>{
+            setGroups(res.data.data)
+            getPermissions(res.data.data[0].id)
+        }).catch((error)=>{
+            messageApi.open({type: 'error',content: error.message})
+        })
+    },[messageApi])
+
+    const getPermissions = useCallback(async(group_id) =>{
+        setGroupId(group_id)
         await api.current.get(`/account/group_permission/`,
             {params: {
-                group_id:groupId
+                group_id:group_id
             }})
             .then((res) =>{
                 setPermission(res.data.data)
@@ -23,7 +34,7 @@ export default function Permissions(){
             .catch((error)=>{
                 messageApi.open({type: 'error',content: error.message})
             })
-    },[groupId, messageApi])
+    },[messageApi])
 
     const setPerm = (pageIndex, permIndex) =>{
         const updatedPermissions = [...permissions];
@@ -45,9 +56,10 @@ export default function Permissions(){
         })
     },[groupId, permissions, messageApi])
 
+
     useEffect(()=>{
-        getPermissions();
-    }, [getPermissions])
+        getGroup();
+    }, [getGroup])
 
     return (
         <>
@@ -60,9 +72,10 @@ export default function Permissions(){
             <div className='report_tab'>
                 <div>
                     <label>Select Group &nbsp;
-                        <select name="balance" id="select_value">
-                            <option value="1">Admin</option>
-                            <option value="2">Local</option>
+                        <select name="balance" id="select_value" onChange={(e)=>getPermissions(e.target.value)}>
+                            {groups.map((data)=>(
+                                <option key={data.id} value={data.id}>{data.name}</option>
+                            ))}
                         </select>
                     </label>     
                 </div>

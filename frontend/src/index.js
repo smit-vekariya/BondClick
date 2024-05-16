@@ -20,6 +20,7 @@ import AuthProvider from './context/AuthContext';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import PrivateRoute from './utils/PrivateRoute';
+import SystemParameter from './components/js/SystemParameter';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -38,6 +39,7 @@ root.render(
                     <Route path="user_wallet/:user_id" element={<UserWallet/>}/>
                     <Route path="users_wallet_report/" element={<UsersWalletReport/>}/>
                     <Route path="permissions/" element={<Permissions/>}/>
+                    <Route path="system_parameter/" element={<SystemParameter/>}/>
               </Route>
             </Route>
             <Route path="/login" element={<Login />} />
