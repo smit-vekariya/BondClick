@@ -3,6 +3,9 @@ import logging
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from account.models import BondUser
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import Group
 
 # Create your models here.
 LOG_LEVELS = (
@@ -36,3 +39,61 @@ class History(models.Model):
     ip_addr = models.CharField(default="", max_length=45)
     action_on = models.DateTimeField(auto_now=True)
     action_by = models.ForeignKey(BondUser, on_delete=models.PROTECT)
+
+
+#with group create all group permission is created with all permission
+@receiver(post_save, sender=Group)
+def add_group_to_group_permission(sender, instance,created, **kwargs):
+    if created:
+        add_perm = [GroupPermission(group=instance, permissions=all_perm_instance) for all_perm_instance in AllPermissions.objects.all()]
+        GroupPermission.objects.bulk_create(add_perm)
+
+
+# custom group based permisson 
+# add foreignkey to main menu model for page name (remain)
+class PageGroup(models.Model):
+    page_name = models.CharField(max_length=100)
+    page_code = models.CharField(max_length=100)
+    page_breadcrumbs = models.CharField(max_length=1000)
+
+    def __str__(self):
+        return self.page_name
+
+
+# set unique=True for act_code (remain)
+class AllPermissions(models.Model):
+    page_group = models.ForeignKey(PageGroup, on_delete=models.CASCADE)
+    act_name = models.CharField(max_length=100)
+    act_code = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = ('page_group', 'act_code')
+
+    def __str__(self):
+        return f"{self.page_group.page_name} - {self.act_name}"
+
+
+#add this permission to all grop with has_perm false
+@receiver(post_save, sender=AllPermissions)
+def add_permission_to_grop_permission(sender, instance,created, **kwargs):
+    if created:
+        add_perm = [GroupPermission(group=group_instance, permissions=instance) for group_instance in Group.objects.all()]
+        GroupPermission.objects.bulk_create(add_perm)
+
+
+class GroupPermission(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    permissions = models.ForeignKey(AllPermissions, on_delete=models.CASCADE)
+    has_perm = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('group', 'permissions')
+
+
+class SystemParameter(models.Model):
+    code = models.CharField(max_length=500)
+    value = models.CharField(max_length=1000)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.code

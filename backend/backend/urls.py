@@ -20,9 +20,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('explorer/', include('explorer.urls')),
     path('admin/', admin.site.urls),
     path('',include("app.urls", namespace="welcome_app")),
     path('account/',include("account.urls", namespace="account")),
+    path('manager/',include("manager.urls", namespace="manager")),
     path('qr_admin/',include("qradmin.urls", namespace="qr_admin")),
     path('qr_app/',include("qrapp.urls", namespace="qr_app")),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
