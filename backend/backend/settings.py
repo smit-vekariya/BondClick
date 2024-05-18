@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
+    'explorer',
     'corsheaders',
     'account',
     'app',
@@ -169,6 +170,11 @@ REST_FRAMEWORK = {
 
 # Default primary key field type (https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#Explorer settings
+EXPLORER_CONNECTIONS = { 'Default': 'default' }
+EXPLORER_DEFAULT_CONNECTION = 'default'
+
 
 # documentation fo JWT (https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html#jwk-url)
 SIMPLE_JWT = {

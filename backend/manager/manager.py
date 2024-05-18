@@ -16,8 +16,8 @@ from django.core.cache import cache
 from django.db import connection
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
-from manager.models import ErrorBase
-from account.models import BondUser, GroupPermission
+from manager.models import ErrorBase, GroupPermission
+from account.models import BondUser
 
 
 def create_from_exception(self, url=None, exception=None, traceback=None, **kwargs):
