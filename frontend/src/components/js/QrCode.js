@@ -79,7 +79,7 @@ export default function QrCode(){
 
     const enableDisableQR = async(status)=>{
         if(selectedRowKeys.length <= 0){
-            messageApi.open({type: 'error',content: "Please select at lease one qr code."});
+            messageApi.open({type: 'error',content: "Please select at least one qr code."});
             return
         }
         else{

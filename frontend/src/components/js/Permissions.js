@@ -13,7 +13,7 @@ export default function Permissions(){
     const [groups, setGroups] = useState([])
 
     const getGroup = useCallback(async()=>{
-        await api.current.get('/account/group_permission/')
+        await api.current.get('/manager/group_permission/')
         .then((res)=>{
             setGroups(res.data.data)
             getPermissions(res.data.data[0].id)
@@ -24,7 +24,7 @@ export default function Permissions(){
 
     const getPermissions = useCallback(async(group_id) =>{
         setGroupId(group_id)
-        await api.current.get(`/account/group_permission/`,
+        await api.current.get(`/manager/group_permission/`,
             {params: {
                 group_id:group_id
             }})
@@ -43,7 +43,7 @@ export default function Permissions(){
     }
 
     const savePermissions = useCallback(async()  => {
-        await api.current.post(`/account/group_permission/`,{"group_id":groupId, "data":permissions})
+        await api.current.post(`/manager/group_permission/`,{"group_id":groupId, "data":permissions})
         .then((res) =>{
             if(res.data.status === 1){
                 messageApi.open({type: 'success',content: res.data.message})

@@ -3,6 +3,9 @@ from manager.models import GroupPermission, AllPermissions, PageGroup, SystemPar
 from manager.serializers import SystemParameterSerializers
 from rest_framework import viewsets
 from django.http import HttpResponse
+from django.contrib.auth.models import Group
+from django.db import transaction
+from django.db.models import F
 from manager.manager import HttpsAppResponse, Util
 
 # Create your views here.
@@ -60,12 +63,12 @@ class SystemParameterView(viewsets.ModelViewSet):
 
     def create(self, request):
         try:
-            serializer = self.get_serializer(data=request.data)
+            serializer = self.get_serializer(data=request.data["form_data"])
             if serializer.is_valid():
                 self.perform_create(serializer)
                 return HttpsAppResponse.send([], 1, "Create system parameter sucessfully.")
             else:
-                return HttpsAppResponse.send([], 0, serializer.errors)
+                return HttpsAppResponse.send([], 0, str(serializer.errors))
         except Exception as e:
             return HttpsAppResponse.send([], 0, str(e))
 
@@ -73,18 +76,18 @@ class SystemParameterView(viewsets.ModelViewSet):
         try:
             instance = self.get_object()
             self.perform_destroy(instance)
-            return HttpsAppResponse.send([], 1, "Delete system parameter sucessfully.")
+            return HttpsAppResponse.send([], 1, "Delete system parameter successfully.")
         except Exception as e:
             return HttpsAppResponse.send([], 0, str(e))
 
     def update(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
-            serializer =self.get_serializer(instance, data=request.data)
+            serializer =self.get_serializer(instance, data=request.data["form_data"])
             if serializer.is_valid():
                 self.perform_update(serializer)
                 return HttpsAppResponse.send([], 1, "Update system parameter sucessfully.")
             else:
-                return HttpsAppResponse.send([], 0, serializer.errors)
+                return HttpsAppResponse.send([], 0, str(serializer.errors))
         except Exception as e:
             return HttpsAppResponse.send([], 0, str(e))
