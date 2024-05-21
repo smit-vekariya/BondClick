@@ -3,10 +3,10 @@ import logging
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from account.models import BondUser
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save,pre_delete
 from django.dispatch import receiver
 from django.contrib.auth.models import Group
-
+from django.contrib import messages
 # Create your models here.
 LOG_LEVELS = (
     (logging.INFO, _("info")),
@@ -68,7 +68,7 @@ class AllPermissions(models.Model):
 
     class Meta:
         unique_together = ('page_group', 'act_code')
-
+      
     def __str__(self):
         return f"{self.page_group.page_name} - {self.act_name}"
 
@@ -89,6 +89,15 @@ class GroupPermission(models.Model):
     class Meta:
         unique_together = ('group', 'permissions')
 
+    def save(self, *args, **kwargs):
+        from manager.manager import Util
+        Util.clear_cache("public","perm" + str(self.group.id))
+        if self.pk is not None:
+            print("You can not create group permission from here and update only 'has perm' field. if you want to update, delete that permission from all permission and create again.")
+            super().save(update_fields=['has_perm'])
+            
+    #for delete
+    #You can not delete group permission from here. if you want to delete group permission you have to delete permission from all permission model.
 
 class SystemParameter(models.Model):
     code = models.CharField(max_length=500)

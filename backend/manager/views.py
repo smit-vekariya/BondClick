@@ -22,7 +22,6 @@ class GroupPermissionView(viewsets.ViewSet):
             group_id = request.GET.get("group_id")
             if group_id is None:
                 group_list = list(Group.objects.values("id","name"))
-                print("group_list", group_list)
                 return HttpsAppResponse.send(group_list, 1, "")
             pages = list(PageGroup.objects.values("id", "page_name", "page_code"))
             group_permission = []
@@ -42,7 +41,6 @@ class GroupPermissionView(viewsets.ViewSet):
                 for data in perm_data["data"]:
                     for perm in data["permission"]:
                         GroupPermission.objects.filter(id=perm["id"],group_id=group_id).update(has_perm = perm["has_perm"])
-                Util.get_cache("public","perm" + str(group_id))
                 return HttpsAppResponse.send([], 1, "Group permission update successfully.")
                 
         except Exception as e:
@@ -51,18 +49,22 @@ class GroupPermissionView(viewsets.ViewSet):
 
 # All function is not require, write this function for customize response formate and learn (basically i overwrite those function to change response)
 class SystemParameterView(viewsets.ModelViewSet):
-    authentication_classes =[]
-    permission_classes = []
+    # authentication_classes =[]
+    # permission_classes = []
     queryset = SystemParameter.objects.all()
     serializer_class = SystemParameterSerializers
 
     def list(self, request):
+        if Util.has_perm(request.user,"can_view") is False:
+            return HttpsAppResponse.send([], 0, "You don't have permission to perform this action.")
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return HttpsAppResponse.send(serializer.data, 1, "Get system parameter sucessfully.")
 
     def create(self, request):
         try:
+            if Util.has_perm(request.user,"can_add_system_parameter") is False:
+                return HttpsAppResponse.send([], 0, "You don't have permission to perform this action.")
             serializer = self.get_serializer(data=request.data["form_data"])
             if serializer.is_valid():
                 self.perform_create(serializer)
@@ -91,3 +93,25 @@ class SystemParameterView(viewsets.ModelViewSet):
                 return HttpsAppResponse.send([], 0, str(serializer.errors))
         except Exception as e:
             return HttpsAppResponse.send([], 0, str(e))
+
+
+def bad_request(request,exception):
+    response = render(request,'manager/400.html')
+    response.status_code = 400
+    return response
+
+def permission_denied(request, exception):
+    response = render(request,'manager/403.html')
+    response.status_code = 403
+    return response
+
+def page_not_found(request, exception):
+    response = render(request,'manager/404.html')
+    response.status_code = 404
+    return response
+
+def server_error_view(request):
+    response = render(request,'manager/500.html')
+    response.status_code = 500
+    return response
+

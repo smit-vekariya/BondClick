@@ -13,7 +13,7 @@ class MessageView(APIView):
     authentication_classes =[]
     permission_classes = []
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = "message.html"
+    template_name = "app/message.html"
 
     def get(self, request, *args, **kwargs):
         return Response(status=200, template_name=self.template_name, data={"messages":request.GET.get("messages")})
@@ -22,7 +22,7 @@ class Welcome(APIView):
     authentication_classes =[]
     permission_classes = []
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = "welcome.html"
+    template_name = "app/welcome.html"
 
     def get(self, request, *args, **kwargs):
         return Response(status=200, template_name=self.template_name)
@@ -31,7 +31,7 @@ class Home(APIView):
     authentication_classes =[]
     permission_classes = []
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = "home.html"
+    template_name = "app/home.html"
 
     def get(self, request, *args, **kwargs):
         return Response(status=200, template_name=self.template_name)
@@ -40,7 +40,7 @@ class AboutUs(APIView):
     authentication_classes = []
     permission_classes = []
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = "about_us.html"
+    template_name = "app/about_us.html"
 
     def get(self, request, *args, **kwargs):
         return Response(status=200, template_name=self.template_name)   
@@ -50,7 +50,7 @@ class ContactUs(APIView):
     authentication_classes = []
     permission_classes = []
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = "contact_us.html"
+    template_name = "app/contact_us.html"
     serializer_class = ContactUsSerializers
 
     def get(self, request, *args, **kwargs):

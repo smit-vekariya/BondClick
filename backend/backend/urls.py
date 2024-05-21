@@ -19,6 +19,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+handler400 = "manager.views.bad_request"
+handler403 = "manager.views.permission_denied"
+handler404 = "manager.views.page_not_found"
+handler500 = "manager.views.server_error_view"
+
+
 urlpatterns = [
     path('explorer/', include('explorer.urls')),
     path('admin/', admin.site.urls),

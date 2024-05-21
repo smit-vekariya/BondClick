@@ -75,10 +75,10 @@ class Util(object):
     # Util.has_perm(request.user,"can_view_wallet")
     # clear cache on update role other store in cache permenets (remain), update cahce system from settings.py
     def has_perm(user, act_code):
-        if user.is_superuser is False:
+        if user.is_superuser:
             return True
         else:
-            group_id = BondUser.objects.filter(id=user.id).values_list("group_id", flat=True)[0]
+            group_id = BondUser.objects.filter(id=user.id).values_list("groups_id", flat=True)[0]
             if Util.get_cache("public","perm" + str(group_id)) is None:
                 group_perm = list(GroupPermission.objects.filter(group=group_id).values("permissions__act_name","permissions__act_code","has_perm"))
                 Util.set_cache("public","perm" + str(group_id), group_perm ,3600)
@@ -112,7 +112,6 @@ class Util(object):
                         return "We encountered an issue while sending the OTP. Please try again later."
             else:
                 return "We encountered an issue while sending the OTP. Please try again later."
-            # return 343434
         except Exception as e:
             logging.exception("Something went wrong.")
             create_from_exception(e)

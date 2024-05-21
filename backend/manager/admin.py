@@ -1,5 +1,6 @@
 from django.contrib import admin
 from manager.models import ErrorBase, History, PageGroup, AllPermissions, GroupPermission, SystemParameter
+from django.contrib import messages
 
 
 # Register your models here.
@@ -24,6 +25,14 @@ class AllPermissionsAdmin(admin.ModelAdmin):
 @admin.register(GroupPermission)
 class GroupPermissionAdmin(admin.ModelAdmin):
     list_display = ('group','permissions', 'has_perm')
+
+    def save_model(self, request, obj, form, change):
+        messages.add_message(request, messages.WARNING, 'You can not create group permission from here and update only "has perm" field. if you want to update, delete that permission from all permission and create again.')
+        super(GroupPermissionAdmin, self).save_model(request, obj, form, change)
+
+    def delete_queryset(self, request, queryset):
+        self.message_user(request, "You can not delete group permission from here. if you want to delete group permission you have to delete permission from all permission model.", level='warning')
+
 
 
 
