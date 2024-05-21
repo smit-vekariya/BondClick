@@ -7,6 +7,7 @@ from django.db.models.signals import post_save,pre_delete
 from django.dispatch import receiver
 from django.contrib.auth.models import Group
 from django.contrib import messages
+from account.models import MainMenu
 # Create your models here.
 LOG_LEVELS = (
     (logging.INFO, _("info")),
@@ -49,15 +50,13 @@ def add_group_to_group_permission(sender, instance,created, **kwargs):
         GroupPermission.objects.bulk_create(add_perm)
 
 
-# custom group based permisson 
-# add foreignkey to main menu model for page name (remain)
 class PageGroup(models.Model):
-    page_name = models.CharField(max_length=100)
+    page_name = models.ForeignKey(MainMenu,on_delete=models.PROTECT)
     page_code = models.CharField(max_length=100)
     page_breadcrumbs = models.CharField(max_length=1000)
 
     def __str__(self):
-        return self.page_name
+        return self.page_name.name
 
 
 # set unique=True for act_code (remain)
@@ -93,7 +92,7 @@ class GroupPermission(models.Model):
         from manager.manager import Util
         Util.clear_cache("public","perm" + str(self.group.id))
         if self.pk is not None:
-            print("You can not create group permission from here and update only 'has perm' field. if you want to update, delete that permission from all permission and create again.")
+            #  You can not create group permission from here and update only 'has perm' field. if you want to update, delete that permission from all permission and create again."
             super().save(update_fields=['has_perm'])
             
     #for delete

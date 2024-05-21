@@ -23,7 +23,7 @@ class GroupPermissionView(viewsets.ViewSet):
             if group_id is None:
                 group_list = list(Group.objects.values("id","name"))
                 return HttpsAppResponse.send(group_list, 1, "")
-            pages = list(PageGroup.objects.values("id", "page_name", "page_code"))
+            pages = list(PageGroup.objects.values("id", "page_name__name", "page_code"))
             group_permission = []
             for page in pages:
                 permission = list(GroupPermission.objects.select_related('permissions').filter(group_id=group_id, permissions__page_group=page["id"]).annotate(act_name = F("permissions__act_name"), act_code = F("permissions__act_code")).values("id","act_name","act_code","has_perm"))
@@ -40,7 +40,10 @@ class GroupPermissionView(viewsets.ViewSet):
                 group_id = perm_data["group_id"]
                 for data in perm_data["data"]:
                     for perm in data["permission"]:
-                        GroupPermission.objects.filter(id=perm["id"],group_id=group_id).update(has_perm = perm["has_perm"])
+                        set_perm = GroupPermission.objects.get(id=perm["id"],group_id=group_id)
+                        set_perm.has_perm = perm["has_perm"]
+                        set_perm.save()
+                        
                 return HttpsAppResponse.send([], 1, "Group permission update successfully.")
                 
         except Exception as e:
@@ -55,8 +58,6 @@ class SystemParameterView(viewsets.ModelViewSet):
     serializer_class = SystemParameterSerializers
 
     def list(self, request):
-        if Util.has_perm(request.user,"can_view") is False:
-            return HttpsAppResponse.send([], 0, "You don't have permission to perform this action.")
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return HttpsAppResponse.send(serializer.data, 1, "Get system parameter sucessfully.")
@@ -76,6 +77,8 @@ class SystemParameterView(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         try:
+            if Util.has_perm(request.user,"can_delete_system_parameter") is False:
+                return HttpsAppResponse.send([], 0, "You don't have permission to perform this action.")
             instance = self.get_object()
             self.perform_destroy(instance)
             return HttpsAppResponse.send([], 1, "Delete system parameter successfully.")
@@ -84,6 +87,8 @@ class SystemParameterView(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         try:
+            if Util.has_perm(request.user,"can_edit_system_parameter") is False:
+                return HttpsAppResponse.send([], 0, "You don't have permission to perform this action.")
             instance = self.get_object()
             serializer =self.get_serializer(instance, data=request.data["form_data"])
             if serializer.is_valid():
