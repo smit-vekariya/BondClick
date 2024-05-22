@@ -26,6 +26,7 @@ from rest_framework.response import Response
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.decorators import action
 from django.contrib.auth.models import Group
+from manager.models import GroupPermission
 
 
 # Create your views here.
@@ -96,11 +97,13 @@ class AdminLogin(APIView):
 
 
 class MainMenuView(APIView):
-    authentication_classes =[]
-    permission_classes = []
     def get(self, request):
         try:
-            menu = list(MainMenu.objects.values().order_by("sequence"))
+            if request.user.is_superuser is False:
+                can_view_page = GroupPermission.objects.select_related('permissions').filter(group=request.user.groups.id,has_perm=True,permissions__act_code='can_view').values_list("permissions__page_name_id", flat=True)
+                menu = list(MainMenu.objects.filter(id__in=can_view_page).values().order_by("sequence"))
+            else:
+                menu = list(MainMenu.objects.values().order_by("sequence"))
             return HttpsAppResponse.send(menu, 1, "Get Main Menu data successfully.")
         except Exception as e:
             return HttpsAppResponse.exception(str(e))

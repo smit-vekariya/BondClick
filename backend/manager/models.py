@@ -50,26 +50,18 @@ def add_group_to_group_permission(sender, instance,created, **kwargs):
         GroupPermission.objects.bulk_create(add_perm)
 
 
-class PageGroup(models.Model):
-    page_name = models.ForeignKey(MainMenu,on_delete=models.PROTECT)
-    page_code = models.CharField(max_length=100)
-    page_breadcrumbs = models.CharField(max_length=1000)
-
-    def __str__(self):
-        return self.page_name.name
-
 
 # set unique=True for act_code (remain)
 class AllPermissions(models.Model):
-    page_group = models.ForeignKey(PageGroup, on_delete=models.CASCADE)
+    page_name = models.ForeignKey(MainMenu,on_delete=models.CASCADE)
     act_name = models.CharField(max_length=100)
     act_code = models.CharField(max_length=100)
 
     class Meta:
-        unique_together = ('page_group', 'act_code')
+        unique_together = ('page_name', 'act_code')
       
     def __str__(self):
-        return f"{self.page_group.page_name} - {self.act_name}"
+        return f"{self.page_name.name} - {self.act_name}"
 
 
 #add this permission to all grop with has_perm false

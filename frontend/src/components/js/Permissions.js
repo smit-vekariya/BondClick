@@ -84,7 +84,7 @@ export default function Permissions(){
                 {permissions.map((page, pageIndex) => (
                     <React.Fragment key={pageIndex}>
                         <Col span={8} >
-                            <Card title={page.page_name__name}  bordered={false}>
+                            <Card title={page.name}  bordered={false}>
                                 {page.permission.map((perm, permIndex) => (
                                     <Checkbox  key={permIndex} onChange={() => setPerm(pageIndex, permIndex)} checked={perm.has_perm}>{perm.act_name}</Checkbox>
                                 ))}

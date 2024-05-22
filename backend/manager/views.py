@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from manager.models import GroupPermission, AllPermissions, PageGroup, SystemParameter
+from manager.models import GroupPermission, AllPermissions, SystemParameter
 from manager.serializers import SystemParameterSerializers
 from rest_framework import viewsets
 from django.http import HttpResponse
@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group
 from django.db import transaction
 from django.db.models import F
 from manager.manager import HttpsAppResponse, Util
+from account.models import MainMenu
 
 # Create your views here.
 class GroupPermissionView(viewsets.ViewSet):
@@ -23,10 +24,10 @@ class GroupPermissionView(viewsets.ViewSet):
             if group_id is None:
                 group_list = list(Group.objects.values("id","name"))
                 return HttpsAppResponse.send(group_list, 1, "")
-            pages = list(PageGroup.objects.values("id", "page_name__name", "page_code"))
+            pages = list(MainMenu.objects.values("id", "name", "code"))
             group_permission = []
             for page in pages:
-                permission = list(GroupPermission.objects.select_related('permissions').filter(group_id=group_id, permissions__page_group=page["id"]).annotate(act_name = F("permissions__act_name"), act_code = F("permissions__act_code")).values("id","act_name","act_code","has_perm"))
+                permission = list(GroupPermission.objects.select_related('permissions').filter(group_id=group_id, permissions__page_name=page["id"]).annotate(act_name = F("permissions__act_name"), act_code = F("permissions__act_code")).values("id","act_name","act_code","has_perm"))
                 page["permission"] = permission
                 group_permission.append(page)
             return HttpsAppResponse.send(group_permission, 1, "Get group permission data successfully.")

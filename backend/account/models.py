@@ -29,6 +29,7 @@ class CustomUserManager(BaseUserManager):
 
 class MainMenu(models.Model):
     name = models.CharField(max_length=100, null=True,blank=True)
+    code = models.CharField(max_length=100,  null=True,blank=True)
     icon = models.CharField(max_length=100, null=True,blank=True)
     sequence = models.CharField(max_length=100, null=True, blank=True)
     url = models.CharField(max_length=100, null=True, blank=True)

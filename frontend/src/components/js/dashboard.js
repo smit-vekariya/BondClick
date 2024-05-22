@@ -1,7 +1,8 @@
-import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { ApiFilled, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Flex, Layout, Menu, Spin } from 'antd';
 import 'font-awesome/css/font-awesome.min.css';
-import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import useAxios from "../../utils/useAxios";
+import React, { createContext, memo, useCallback, useContext,useRef, useEffect, useMemo, useState } from 'react';
 import { Link, Outlet } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 import "../CustomAntd.css";
@@ -21,6 +22,7 @@ function getItem(label, key, icon, children) {
   };
 }
 const Dashboard = () => {
+  const {authTokens} = useContext(AuthContext)
   const current = window.location.pathname
   const {user,logoutUser, messageApi} = useContext(AuthContext)
   let [loading, setLoading] = useState(false)
@@ -32,7 +34,8 @@ const Dashboard = () => {
     let response = await fetch(`${baseURL}/account/main_menu/`,{
       method:"GET",
       headers:{
-          'Content-Type':"application/json"
+          'Content-Type':"application/json",
+          'Authorization':`Bearer ${authTokens?.access}`
       },
     })
     let data = await response.json()
