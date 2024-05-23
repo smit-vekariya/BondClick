@@ -19,10 +19,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-handler400 = "manager.views.bad_request"
-handler403 = "manager.views.permission_denied"
-handler404 = "manager.views.page_not_found"
-handler500 = "manager.views.server_error_view"
+handler400 = "manager.manager.bad_request"
+handler403 = "manager.manager.permission_denied"
+handler404 = "manager.manager.page_not_found"
+handler500 = "manager.manager.server_error_view"
 
 
 urlpatterns = [

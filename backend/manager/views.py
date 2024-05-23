@@ -2,12 +2,12 @@ from django.shortcuts import render
 from manager.models import GroupPermission, AllPermissions, SystemParameter
 from manager.serializers import SystemParameterSerializers
 from rest_framework import viewsets
-from django.http import HttpResponse
 from django.contrib.auth.models import Group
 from django.db import transaction
 from django.db.models import F
-from manager.manager import HttpsAppResponse, Util
+from manager.manager import HttpsAppResponse
 from account.models import MainMenu
+from manager.decorators import has_perm
 
 # Create your views here.
 class GroupPermissionView(viewsets.ViewSet):
@@ -63,10 +63,9 @@ class SystemParameterView(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return HttpsAppResponse.send(serializer.data, 1, "Get system parameter sucessfully.")
 
+    @has_perm("can_add_system_parameter")
     def create(self, request):
         try:
-            if Util.has_perm(request.user,"can_add_system_parameter") is False:
-                return HttpsAppResponse.send([], 0, "You don't have permission to perform this action.")
             serializer = self.get_serializer(data=request.data["form_data"])
             if serializer.is_valid():
                 self.perform_create(serializer)
@@ -76,20 +75,18 @@ class SystemParameterView(viewsets.ModelViewSet):
         except Exception as e:
             return HttpsAppResponse.send([], 0, str(e))
 
+    @has_perm("can_delete_system_parameter")
     def destroy(self, request, *args, **kwargs):
         try:
-            if Util.has_perm(request.user,"can_delete_system_parameter") is False:
-                return HttpsAppResponse.send([], 0, "You don't have permission to perform this action.")
             instance = self.get_object()
             self.perform_destroy(instance)
             return HttpsAppResponse.send([], 1, "Delete system parameter successfully.")
         except Exception as e:
             return HttpsAppResponse.send([], 0, str(e))
 
+    @has_perm("can_edit_system_parameter")
     def update(self, request, *args, **kwargs):
         try:
-            if Util.has_perm(request.user,"can_edit_system_parameter") is False:
-                return HttpsAppResponse.send([], 0, "You don't have permission to perform this action.")
             instance = self.get_object()
             serializer =self.get_serializer(instance, data=request.data["form_data"])
             if serializer.is_valid():
@@ -100,24 +97,4 @@ class SystemParameterView(viewsets.ModelViewSet):
         except Exception as e:
             return HttpsAppResponse.send([], 0, str(e))
 
-
-def bad_request(request,exception):
-    response = render(request,'manager/400.html')
-    response.status_code = 400
-    return response
-
-def permission_denied(request, exception):
-    response = render(request,'manager/403.html')
-    response.status_code = 403
-    return response
-
-def page_not_found(request, exception):
-    response = render(request,'manager/404.html')
-    response.status_code = 404
-    return response
-
-def server_error_view(request):
-    response = render(request,'manager/500.html')
-    response.status_code = 500
-    return response
 

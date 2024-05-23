@@ -9,7 +9,7 @@ import sys
 import uuid
 import traceback as traceback_mod
 import warnings
-
+from django.shortcuts import render
 from dateutil import tz
 from django.conf import settings
 from django.core.cache import cache
@@ -211,14 +211,24 @@ class Util(object):
             secs = "%02d" % round(secs)
             time += str(secs) + "s"
         return time
-    
-# def check_secret_key(function):
-#     @wraps(function)
-#     def decorator(request, *args, **kwrgs):
-#         key = request.headers.get("Secret-Key")
-#         if key == settings.SECRET_KEY:
-#             return function(request, *args, **kwrgs)
-#         else:
-#         return HttpResponse(json.dumps({"data":{}, "status": 0, "message": "Secret key did not match!"}))
 
-#     return decorator
+
+def bad_request(request,exception):
+    response = render(request,'manager/400.html')
+    response.status_code = 400
+    return response
+
+def permission_denied(request, exception):
+    response = render(request,'manager/403.html')
+    response.status_code = 403
+    return response
+
+def page_not_found(request, exception):
+    response = render(request,'manager/404.html')
+    response.status_code = 404
+    return response
+
+def server_error_view(request):
+    response = render(request,'manager/500.html')
+    response.status_code = 500
+    return response
