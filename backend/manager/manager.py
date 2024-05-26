@@ -72,8 +72,6 @@ class HttpsAppResponse:
 class Util(object):
 
     @staticmethod
-    # Util.has_perm(request.user,"can_view_wallet")
-    # clear cache on update role other store in cache permenets (remain), update cahce system from settings.py
     def has_perm(user, act_code):
         if user.is_superuser:
             return True
@@ -211,6 +209,22 @@ class Util(object):
             secs = "%02d" % round(secs)
             time += str(secs) + "s"
         return time
+
+
+#Mobile number is fix (contact green api for more: https://greenapi.com/en/docs/api)
+def send_whatsapp_message(message):
+    try:
+        url=settings.GREEN_API
+        payload={
+                    "chatId": "9537127284@c.us", 
+                    "message": message,
+                }
+        headers = {'Content-Type': 'application/json'}
+        response = requests.request("POST", url, headers=headers, data = json.dumps(payload))
+        print(response.text.encode('utf8'))
+    except Exception  as e:
+        logging.exception("Something went wrong.")
+        create_from_exception(e)
 
 
 def bad_request(request,exception):

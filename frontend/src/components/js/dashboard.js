@@ -1,8 +1,7 @@
-import { ApiFilled, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import {  LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Flex, Layout, Menu, Spin } from 'antd';
 import 'font-awesome/css/font-awesome.min.css';
-import useAxios from "../../utils/useAxios";
-import React, { createContext, memo, useCallback, useContext,useRef, useEffect, useMemo, useState } from 'react';
+import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Link, Outlet } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 import "../CustomAntd.css";
@@ -45,7 +44,7 @@ const Dashboard = () => {
     }else{
         messageApi.open({type: 'error',content: data.message})
     }
-  },[messageApi])
+  },[messageApi,authTokens])
 
   useEffect(() => {
       getMainMenu()

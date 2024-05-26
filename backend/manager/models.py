@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.contrib.auth.models import Group
 from django.contrib import messages
 from account.models import MainMenu
+
 # Create your models here.
 LOG_LEVELS = (
     (logging.INFO, _("info")),
@@ -24,6 +25,14 @@ class ErrorBase(models.Model):
     message = models.TextField()
     traceback = models.TextField(blank=True, null=True)
     created_on = models.DateTimeField(auto_now_add=True)
+
+# Temporary stop
+# @receiver(post_save, sender=ErrorBase)
+# def send_error_on_whatsapp(sender, instance, created, **kwargs):
+#     from manager.manager import send_whatsapp_message
+#     if created:
+#         messages = f"FROM: Panelprime BondClick\n{instance.created_on}\n --------------------------------------------\n{instance.class_name} : {instance.message}\n--------------------------------------------\n{instance.traceback}"
+#         send_whatsapp_message(messages)
 
 
 action_types =(
@@ -87,7 +96,7 @@ class GroupPermission(models.Model):
             #  You can not create group permission from here and update only 'has perm' field. if you want to update, delete that permission from all permission and create again."
             super().save(update_fields=['has_perm'])
             
-    #for delete
+    #for stop delete (code in admin.py)
     #You can not delete group permission from here. if you want to delete group permission you have to delete permission from all permission model.
 
 class SystemParameter(models.Model):
