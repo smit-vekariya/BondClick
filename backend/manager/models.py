@@ -29,7 +29,7 @@ class ErrorBase(models.Model):
 # Temporary stop
 # @receiver(post_save, sender=ErrorBase)
 # def send_error_on_whatsapp(sender, instance, created, **kwargs):
-#     from manager.manager import send_whatsapp_message
+#     from postoffice.views import send_whatsapp_message
 #     if created:
 #         messages = f"FROM: Panelprime BondClick\n{instance.created_on}\n --------------------------------------------\n{instance.class_name} : {instance.message}\n--------------------------------------------\n{instance.traceback}"
 #         send_whatsapp_message(messages)

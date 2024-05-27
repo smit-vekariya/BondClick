@@ -2,6 +2,7 @@ from functools import wraps
 from manager.manager import Util
 from manager.manager import HttpsAppResponse
 
+
 def has_perm(act_code):
     def decorator(view):
         @wraps(view)
@@ -12,7 +13,9 @@ def has_perm(act_code):
         return _wrapped_view
     return decorator
 
+# All Example : https://www.w3resource.com/python-exercises/decorator/index.php
 
+#Example: check secret key in header
 # def check_secret_key(function):
 #     @wraps(function)
 #     def decorator(request, *args, **kwrgs):

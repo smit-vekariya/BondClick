@@ -211,22 +211,6 @@ class Util(object):
         return time
 
 
-#Mobile number is fix (contact green api for more: https://greenapi.com/en/docs/api)
-def send_whatsapp_message(message):
-    try:
-        url=settings.GREEN_API
-        payload={
-                    "chatId": "9537127284@c.us", 
-                    "message": message,
-                }
-        headers = {'Content-Type': 'application/json'}
-        response = requests.request("POST", url, headers=headers, data = json.dumps(payload))
-        print(response.text.encode('utf8'))
-    except Exception  as e:
-        logging.exception("Something went wrong.")
-        create_from_exception(e)
-
-
 def bad_request(request,exception):
     response = render(request,'manager/400.html')
     response.status_code = 400
