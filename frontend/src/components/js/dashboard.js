@@ -123,6 +123,7 @@ const HeaderBar = memo(({logoutUser, user})=>{
       <Header className='custom_header'>
           <a href='https://www.fast2sms.com/dashboard/transactional-history' target='blank' style={{marginLeft: '10px'}}><Button type="dashed">Go to Fast2sms</Button></a>
           <a href='https://dashboard.razorpay.com/app/dashboard' target='blank' style={{marginLeft: '10px'}}><Button type="dashed">Go to Razorpay</Button></a>
+          <Button style={{marginLeft: '10px'}} type="dashed">Send Mail</Button>
           <Flex gap="small" wrap="wrap" style={{float: "right", marginRight:"10px"}}>
               <Dropdown.Button menu={{items}} style={{margin: "9px 0px 5px 1px"}} placement="bottomLeft" icon={<UserOutlined />}>{user && user.full_name}</Dropdown.Button>
           </Flex>

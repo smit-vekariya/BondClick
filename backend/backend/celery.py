@@ -1,14 +1,22 @@
 import os
 from celery import Celery
+from django.conf import settings
 
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 
-celery_app = Celery('backend')
-
+# install celery from here https://github.com/tporadowski/redis/releases
+app = Celery('backend')
+app.conf.enable_utc = False
 # - namespace='CELERY' means all celery-related configuration keys
 #   should have a `CELERY_` prefix.
-celery_app.config_from_object('django.conf:settings', namespace='CELERY')
+app.config_from_object(settings, namespace='CELERY')
 
 # Load task modules from all registered Django apps.
-celery_app.autodiscover_tasks()
+app.autodiscover_tasks()
+
+@app.task(bind=True)
+def debug_task(self):
+    print(f'Request: {self.request!r}')
+
+# celery -A backend.celery worker --pool=solo -l info

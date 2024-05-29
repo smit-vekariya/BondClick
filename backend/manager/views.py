@@ -8,6 +8,7 @@ from django.db.models import F
 from manager.manager import HttpsAppResponse
 from account.models import MainMenu
 from manager.decorators import has_perm
+from manager.tasks  import send_email_fun
 
 # Create your views here.
 class GroupPermissionView(viewsets.ViewSet):
@@ -59,6 +60,7 @@ class SystemParameterView(viewsets.ModelViewSet):
     serializer_class = SystemParameterSerializers
 
     def list(self, request):
+        send_email_fun.delay("test","test","panelprime.dev@gmail.com","smitvekariya164@gmail.com")
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return HttpsAppResponse.send(serializer.data, 1, "Get system parameter sucessfully.")
