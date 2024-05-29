@@ -65,7 +65,8 @@ INSTALLED_APPS = [
     'qradmin',
     'qrapp',
     'qr_code',
-    'postoffice',
+    'django_celery_results',
+    # 'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -158,12 +159,16 @@ RAZORPAY_API_SECRET = env("RAZORPAY_API_SECRET")
 GREEN_API = env("GREEN_API")
 DEFAULT_COMPANY_ID = env("DEFAULT_COMPANY_ID")
 
-CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
-CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_BROKER_URL = "redis://127.0.0.1:6379"
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'   
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_TASK_TRACK_STARTED = True
+
+# CELERY BEAT SCHEDULER
+# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 EMAIL_BACKEND = env("EMAIL_BACKEND")
 EMAIL_HOST = env("EMAIL_HOST")
