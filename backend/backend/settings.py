@@ -64,7 +64,8 @@ INSTALLED_APPS = [
     'manager',
     'qradmin',
     'qrapp',
-    'qr_code'
+    'qr_code',
+    'postoffice',
 ]
 
 MIDDLEWARE = [
