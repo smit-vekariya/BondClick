@@ -27,10 +27,9 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.decorators import action
 from django.contrib.auth.models import Group
 from manager.models import GroupPermission
-
+from postoffice.views import send_otp_to_mobile
 
 # Create your views here.
-
 
 class UserProfile(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
@@ -143,7 +142,7 @@ class RegisterBondUser(APIView):
             if not serializer.is_valid():
                 error_messages = ", ".join(value[0] for key, value in serializer.errors.items())
                 return HttpsAppResponse.send([], 0, error_messages)
-            otp = Util.send_otp_to_mobile(mobile_no)
+            otp = send_otp_to_mobile(mobile_no)
             if len(str(otp)) > 6:
                 return HttpsAppResponse.send([], 0, otp)
             register_user_data["mobile"] = mobile_no
@@ -193,7 +192,7 @@ class LoginBondUser(APIView):
             mobile_no = login_data["mobile"]
             is_exit=  BondUser.objects.filter(mobile=mobile_no).exists()
             if is_exit:
-                otp = Util.send_otp_to_mobile(mobile_no)
+                otp = send_otp_to_mobile(mobile_no)
                 if len(str(otp)) > 6:
                     return HttpsAppResponse.send([], 0, otp)
                 login_data["mobile"] = mobile_no

@@ -12,5 +12,4 @@ urlpatterns = [
     path('about_us/', AboutUs.as_view(), name="about-us-page"),
     path('contact_us/', ContactUs.as_view(), name="contact-us-page"),  
     path('message/', MessageView.as_view(), name="message-page"),  
-    path('contact_us/', ContactUs.as_view(), name="contact-us-page"),  
 ]

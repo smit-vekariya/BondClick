@@ -18,6 +18,15 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from manager.models import ErrorBase, GroupPermission
 from account.models import BondUser
+from rest_framework.views import exception_handler
+
+# you can customize exception handler response from this like serialize error respose and other error respose (https://www.django-rest-framework.org/api-guide/exceptions/)
+def custom_exception_handler(exc, context):
+    # print(exc.detail,"=====")
+    response = exception_handler(exc, context)
+    # error = response.data["detail"]
+    # return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(error)}))
+    return response
 
 
 def create_from_exception(self, url=None, exception=None, traceback=None, **kwargs):
@@ -88,32 +97,6 @@ class Util(object):
                     has_permission = act["has_perm"]
                     return has_permission
         return False
-
-    @staticmethod
-    def send_otp_to_mobile(mobile_no):
-        try:
-            if mobile_no:
-                otp = random.randint(100000, 999999)
-                url = settings.FAST2SMS
-                api_key =  settings.FAST2SMS_API_KEY
-                querystring = {"authorization":api_key,"variables_values":str(otp),"route":"otp","numbers":mobile_no}
-                headers = { 'cache-control': "no-cache" }
-                response = requests.request("GET", url, headers=headers, params=querystring)
-                response = json.loads(response.text)
-                if response["return"]:
-                    return otp
-                else:
-                    create_from_text("Error in OTP sending", "Important", 10, f"response => {response}, info => mobile: '{mobile_no}' otp: '{otp}'")
-                    if response["status_code"] == 995:
-                        return "Sending multiple sms to same number is not allowed. Please try again later."
-                    else:
-                        return "We encountered an issue while sending the OTP. Please try again later."
-            else:
-                return "We encountered an issue while sending the OTP. Please try again later."
-        except Exception as e:
-            logging.exception("Something went wrong.")
-            create_from_exception(e)
-            return 0
 
     @staticmethod
     def create_unique_qr_code(batch_number):

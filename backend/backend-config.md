@@ -1,11 +1,13 @@
 # Python django code reference
-1. For CBV : https://ccbv.co.uk/
-2. For DRF : https://www.cdrf.co/
-3. For all type of decorator : https://www.w3resource.com/python-exercises/decorator/index.php
+> 1. For CBV : https://ccbv.co.uk/
+> 2. For DRF : https://www.cdrf.co/
+> 3. For all type of decorator : https://www.w3resource.com/python-exercises/decorator/index.php
+> 4. DRF cheet sheet: https://djangocentral.com/django-rest-framework-cheat-sheet/
 
 
 # Revision Questions
-### 1. OOPs in python:
+> 1. OOPs in python:
+
 https://www.programiz.com/python-programming/object-oriented-programming
 
 In Python object-oriented Programming (OOPs) is a programming paradigm that uses objects and classes in programming. It aims to implement real-world entities like inheritance, polymorphisms, encapsulation, etc. in the programming. The main concept of object-oriented Programming (OOPs) or oops concepts in Python is to bind the data and the functions that work together as a single unit so that no other part of the code can access this data.
