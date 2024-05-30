@@ -1,8 +1,7 @@
-import { ApiFilled, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import {  LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Flex, Layout, Menu, Spin } from 'antd';
 import 'font-awesome/css/font-awesome.min.css';
-import useAxios from "../../utils/useAxios";
-import React, { createContext, memo, useCallback, useContext,useRef, useEffect, useMemo, useState } from 'react';
+import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Link, Outlet } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 import "../CustomAntd.css";
@@ -45,7 +44,7 @@ const Dashboard = () => {
     }else{
         messageApi.open({type: 'error',content: data.message})
     }
-  },[messageApi])
+  },[messageApi,authTokens])
 
   useEffect(() => {
       getMainMenu()
@@ -124,6 +123,7 @@ const HeaderBar = memo(({logoutUser, user})=>{
       <Header className='custom_header'>
           <a href='https://www.fast2sms.com/dashboard/transactional-history' target='blank' style={{marginLeft: '10px'}}><Button type="dashed">Go to Fast2sms</Button></a>
           <a href='https://dashboard.razorpay.com/app/dashboard' target='blank' style={{marginLeft: '10px'}}><Button type="dashed">Go to Razorpay</Button></a>
+          <Button style={{marginLeft: '10px'}} type="dashed">Send Mail</Button>
           <Flex gap="small" wrap="wrap" style={{float: "right", marginRight:"10px"}}>
               <Dropdown.Button menu={{items}} style={{margin: "9px 0px 5px 1px"}} placement="bottomLeft" icon={<UserOutlined />}>{user && user.full_name}</Dropdown.Button>
           </Flex>
