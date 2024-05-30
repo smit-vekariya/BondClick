@@ -1,8 +1,10 @@
-# Python django code reference
+# Reference Python-Django
 > 1. For CBV : https://ccbv.co.uk/
 > 2. For DRF : https://www.cdrf.co/
 > 3. For all type of decorator : https://www.w3resource.com/python-exercises/decorator/index.php
-> 4. DRF cheet sheet: https://djangocentral.com/django-rest-framework-cheat-sheet/
+> 4. DRF cheet sheet:\
+    1. https://github.com/Nifled/drf-cheat-sheet?tab=readme-ov-file \
+    2. https://djangocentral.com/django-rest-framework-cheat-sheet/ 
 
 
 # Revision Questions
@@ -70,3 +72,38 @@ Multiple Inheritance: Multiple-level inheritance enables one derived class to in
 https://www.geeksforgeeks.org/object-oriented-programming-in-python-set-2-data-hiding-and-object-printing/
 
 It hides unnecessary code details from the user. Also,  when we do not want to give out sensitive parts of our code implementation and this is where data abstraction came.
+
+> 2. API vs REST API vs RESTful API
+
+API (Application Programming Interface)
+
+An API is a general term for a way two pieces of software communicate with each other. It acts as a messenger between applications, allowing them to request and receive data.
+APIs can be designed in many ways, using different protocols and formats.
+
+REST API (Representational State Transfer API)
+
+REST API is a specific type of API that follows a set of architectural guidelines called REST (Representational State Transfer).\
+REST APIs typically use HTTP verbs (GET, POST, PUT, DELETE) for different actions on data.\
+They also use data formats like JSON or XML to exchange information.\
+REST APIs are popular because they are:\
+Lightweight and flexible\
+Easy to implement\
+Widely supported across different programming languages and frameworks
+
+RESTful API
+
+A RESTful API is an API that strictly adheres to all the principles of REST architecture.\
+This includes characteristics like:\
+Statelessness (each request contains all necessary information)\
+Client-server architecture\
+Uniform interface (consistent way to interact with resources)\
+RESTful APIs are considered more reliable and predictable compared to regular REST APIs, making them ideal for complex, large-scale systems.\
+
+In short:\
+All RESTful APIs are REST APIs, but not all REST APIs are strictly RESTful.\
+REST APIs offer flexibility, while RESTful APIs provide more standardization and predictability.
+
+Here's an analogy:\
+Think of an API as a language for two programs to talk to each other.\
+REST API is like a specific dialect of that language, with some basic rules.\
+RESTful API is like following all the grammatical rules perfectly within that dialect.\
