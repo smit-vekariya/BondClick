@@ -4,8 +4,55 @@ import requests
 from django.conf import settings
 import logging
 import random
-from manager.manager import HttpsAppResponse,create_from_exception
+from manager.manager import HttpsAppResponse,create_from_exception,create_from_text
 from django.db import transaction
+from postoffice.models import EmailLog
+from django.core.mail import send_mail
+from rest_framework import viewsets
+from django.utils import timezone
+from postoffice.serializers import EmailLogSerializer
+
+# for multiple receiver add comma sepreter
+# SendMail.send_mail(request.user, True, "smit.intellial@gmail.com","this is subject","this is body")
+
+class SendMail:
+
+    # send_mail on save model method using signals
+    @staticmethod
+    def send_mail(action_by, is_now, receiver, subject, message, cc=None, bcc=None):
+        try:
+            with transaction.atomic():
+                sender = settings.EMAIL_HOST_USER
+                action_by = action_by if action_by.id else None
+                serializer = EmailLogSerializer(data={'mail_from': sender, 'mail_to': receiver, 'subject': subject, 'message': message, 'mail_cc': cc, 'mail_bcc': bcc, 'status':'pending', 'action_by':action_by, 'is_now':is_now})
+                if serializer.is_valid():
+                    serializer.save()
+                else:
+                    raise Exception(str(serializer.errors))
+                    return False
+                return True
+        except Exception as e:
+            create_from_exception(e)
+            logging.exception("Something went wrong.")
+            return False
+
+    @staticmethod
+    def send_mail_now(mail_id):
+        mail = EmailLog.objects.get(id=mail_id)
+        try:
+            sender = mail.mail_from
+            receiver = (mail.mail_to).split(',')
+            subject = mail.subject
+            message = mail.message
+            send_mail(subject, message, sender, receiver, fail_silently=True)
+            mail.status = 'sent'
+        except Exception as e:
+            mail.status = 'failed'
+            mail.error_message = str(e)
+            create_from_exception(e)
+        mail.updated_at = timezone.now()
+        mail.save()
+
 
 #Mobile number is fix (contact green api for more: https://greenapi.com/en/docs/api)
 def send_whatsapp_message(message):
@@ -47,27 +94,3 @@ def send_otp_to_mobile(mobile_no):
         create_from_exception(e)
         return 0
 
-
-def send_mail_delay(receiver, subject, message, cc=None, bcc=None):
-    try:
-        with transaction.atomic():
-            sender = settings.EMAIL_HOST_USER
-            EmailLog.objects.create(mail_from=sender, mail_to=receiver, subject=subject, message=message, mail_cc=cc, mail_bcc=bcc, status="pending")
-            return HttpsAppResponse.send([], 1, "Send mail successfully.")
-    except Exception as e:
-        return HttpsAppResponse.exception(str(e))
-
-def send_email_task(id):
-    try:
-        pass
-    except Exception as e:
-        return "Failed to send mail."
-
-# def send_mail_now(receiver, subject, message, cc=None, bcc=None):
-#     try:
-#         with transaction.atomic():
-#             sender = settings.EMAIL_HOST_USER
-#             EmailLog.objects.create(mail_from=sender, mail_to=receiver, subject=subject, message=message,mail_cc=cc, mail_bcc=bcc)
-#             return HttpsAppResponse.send([], 1, "Send mail successfully.")
-#     except Exception as e:
-#         return HttpsAppResponse.exception(str(e))
