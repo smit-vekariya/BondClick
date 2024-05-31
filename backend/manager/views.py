@@ -47,7 +47,6 @@ class GroupPermissionView(viewsets.ViewSet):
                         set_perm.save()
                         
                 return HttpsAppResponse.send([], 1, "Group permission update successfully.")
-                
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
 
@@ -74,7 +73,7 @@ class SystemParameterView(viewsets.ModelViewSet):
             else:
                 return HttpsAppResponse.send([], 0, str(serializer.errors))
         except Exception as e:
-            return HttpsAppResponse.send([], 0, str(e))
+            return HttpsAppResponse.exception(str(e))
 
     @has_perm("can_delete_system_parameter")
     def destroy(self, request, *args, **kwargs):
@@ -83,7 +82,7 @@ class SystemParameterView(viewsets.ModelViewSet):
             self.perform_destroy(instance)
             return HttpsAppResponse.send([], 1, "Delete system parameter successfully.")
         except Exception as e:
-            return HttpsAppResponse.send([], 0, str(e))
+            return HttpsAppResponse.exception(str(e))
 
     @has_perm("can_edit_system_parameter")
     def update(self, request, *args, **kwargs):
@@ -96,6 +95,6 @@ class SystemParameterView(viewsets.ModelViewSet):
             else:
                 return HttpsAppResponse.send([], 0, str(serializer.errors))
         except Exception as e:
-            return HttpsAppResponse.send([], 0, str(e))
+            return HttpsAppResponse.exception(str(e))
 
 

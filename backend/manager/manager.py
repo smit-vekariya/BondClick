@@ -22,10 +22,10 @@ from rest_framework.views import exception_handler
 
 # you can customize exception handler response from this like serialize error respose and other error respose (https://www.django-rest-framework.org/api-guide/exceptions/)
 def custom_exception_handler(exc, context):
-    # print(exc.detail,"=====")
     response = exception_handler(exc, context)
-    # error = response.data["detail"]
-    # return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(error)}))
+    if response is not None and "detail" in response.data:
+        error = response.data["detail"]
+        return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(error)}))
     return response
 
 
@@ -85,7 +85,7 @@ class Util(object):
         if user.is_superuser:
             return True
         else:
-            group_id = BondUser.objects.filter(id=user.id).values_list("groups_id", flat=True)[0]
+            group_id = user.groups.id
             if Util.get_cache("public","perm" + str(group_id)) is None:
                 group_perm = list(GroupPermission.objects.filter(group=group_id).values("permissions__act_name","permissions__act_code","has_perm"))
                 Util.set_cache("public","perm" + str(group_id), group_perm ,3600)
