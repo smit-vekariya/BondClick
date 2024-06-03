@@ -1,5 +1,5 @@
 from functools import wraps
-from manager.manager import Util
+from manager.manager import has_permission
 from manager.manager import HttpsAppResponse
 
 
@@ -7,7 +7,7 @@ def has_perm(act_code):
     def decorator(view):
         @wraps(view)
         def _wrapped_view(self, request, *args, **kwargs):
-            if Util.has_perm(self.request.user, act_code) is False:
+            if has_permission(self.request.user, act_code) is False:
                 return HttpsAppResponse.send([], 0, "You don't have permission to perform this action.")
             return view(self, request, *args, **kwargs)
         return _wrapped_view

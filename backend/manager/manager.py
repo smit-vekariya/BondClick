@@ -78,26 +78,25 @@ class HttpsAppResponse:
         return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(error)}))
 
 
-class Util(object):
-
-    @staticmethod
-    def has_perm(user, act_code):
-        if user.is_superuser:
-            return True
+def has_permission(user, act_code):
+    if user.is_superuser:
+        return True
+    else:
+        group_id = user.groups.id
+        if Util.get_cache("public","perm" + str(group_id)) is None:
+            group_perm = list(GroupPermission.objects.filter(group=group_id).values("permissions__act_name","permissions__act_code","has_perm"))
+            Util.set_cache("public","perm" + str(group_id), group_perm, 604800)
         else:
-            group_id = user.groups.id
-            if Util.get_cache("public","perm" + str(group_id)) is None:
-                group_perm = list(GroupPermission.objects.filter(group=group_id).values("permissions__act_name","permissions__act_code","has_perm"))
-                Util.set_cache("public","perm" + str(group_id), group_perm ,3600)
-            else:
-                group_perm = Util.get_cache("public","perm" + str(group_id))
-            
-            for act in group_perm:
-                if act["permissions__act_code"] == act_code:
-                    has_permission = act["has_perm"]
-                    return has_permission
-        return False
+            group_perm = Util.get_cache("public","perm" + str(group_id))
+        
+        for act in group_perm:
+            if act["permissions__act_code"] == act_code:
+                has_permission = act["has_perm"]
+                return has_permission
+    return False
 
+
+class Util(object):
     @staticmethod
     def create_unique_qr_code(batch_number):
         uuid_code = str(uuid.uuid4())
