@@ -16,20 +16,25 @@ from django.core.cache import cache
 from django.db import connection
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
-from manager.models import ErrorBase, GroupPermission
+from manager.models import ErrorBase, GroupPermission, SystemParameter
 from account.models import BondUser
 from rest_framework.views import exception_handler
 
 # you can customize exception handler response from this like serialize error respose and other error respose (https://www.django-rest-framework.org/api-guide/exceptions/)
 def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
+    create_from_exception(exception=exc, traceback=sys.exc_info()[2])
+    logging.exception("Something went wrong.")
+
     if response is not None and "detail" in response.data:
         error = response.data["detail"]
         return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(error)}))
-    return response
+        
+    # return response
+    return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(exc)}))
 
 
-def create_from_exception(self, url=None, exception=None, traceback=None, **kwargs):
+def create_from_exception(self=None, url=None, exception=None, traceback=None, **kwargs):
     if not exception:
         exc_type, exc_value, traceback = sys.exc_info()
     elif not traceback:
@@ -68,16 +73,6 @@ def create_from_text(message, class_name=None, level=40, traceback=None):
     ErrorBase.objects.create(class_name=class_name, message=message, traceback=traceback, level=level)
 
 
-class HttpsAppResponse:
-    def send(data,status,message):
-        return HttpResponse(json.dumps({"data":data, "status": status, "message": message}))
-
-    def exception(error):
-        logging.exception("Something went wrong.")
-        create_from_exception(error)
-        return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(error)}))
-
-
 def has_permission(user, act_code):
     if user.is_superuser:
         return True
@@ -94,6 +89,28 @@ def has_permission(user, act_code):
                 has_permission = act["has_perm"]
                 return has_permission
     return False
+
+
+def system_parameter(code):
+    if Util.get_cache("public","sysparameter") is None:
+        sys_para = list(SystemParameter.objects.values("code","value"))
+        Util.set_cache("public","sysparameter", sys_para, 604800)
+    else:
+        sys_para = Util.get_cache("public","sysparameter")
+    for para in sys_para:
+        if para["code"] == code:
+            return para["value"]
+    raise Exception(f"'{code}' is avaliable in system parameter table.")
+
+
+class HttpsAppResponse:
+    def send(data,status,message):
+        return HttpResponse(json.dumps({"data":data, "status": status, "message": message}))
+
+    def exception(error):
+        logging.exception("Something went wrong.")
+        create_from_exception(error)
+        return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(error)}))
 
 
 class Util(object):

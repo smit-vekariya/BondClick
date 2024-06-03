@@ -106,3 +106,8 @@ class SystemParameter(models.Model):
 
     def __str__(self):
         return self.code
+
+    def save(self, *args, **kwargs):
+        from manager.manager import Util
+        Util.clear_cache("public","sysparameter")
+        super().save(*args, **kwargs)
