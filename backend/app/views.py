@@ -7,6 +7,11 @@ from app.serializers import *
 from django.contrib import messages
 from django.shortcuts  import redirect
 from django.urls import reverse
+from app.serializers import CommentQuestionsSerializers, CommentAnswerSerializers
+from app.models import CommentQuestions, CommentAnswer
+from rest_framework import viewsets
+import json
+from django.utils import timezone
 
 # Create your views here.
 class MessageView(APIView):
@@ -27,14 +32,31 @@ class Welcome(APIView):
     def get(self, request, *args, **kwargs):
         return Response(status=200, template_name=self.template_name)
 
-class Home(APIView):
+class Home(viewsets.ModelViewSet):
     authentication_classes =[]
     permission_classes = []
+    queryset = CommentQuestions.objects.all()
+    serializer_class = CommentQuestionsSerializers
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "app/home.html"
 
-    def get(self, request, *args, **kwargs):
-        return Response(status=200, template_name=self.template_name)
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(status=200, template_name=self.template_name,data={"question_answer":json.loads(json.dumps(serializer.data))})
+
+    def create(self, request, *args, **kwargs):
+        if "answer_textarea" in request.POST:
+            answer_textarea = request.POST.get("answer_textarea")
+            question_id = request.POST.get("question_id")
+            serializer = CommentAnswerSerializers(data={"answer":answer_textarea, "created_on":timezone.now(),'questions':question_id})
+        else:
+            question_textarea = request.POST.get("question_textarea")
+            serializer = self.serializer_class(data={"question":question_textarea,"created_on":timezone.now()})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return redirect(reverse('app:home-page'))
+
 
 class AboutUs(APIView):
     authentication_classes = []
@@ -51,7 +73,6 @@ class ContactUs(APIView):
     permission_classes = []
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "app/contact_us.html"
-    serializer_class = ContactUsSerializers
 
     def get(self, request, *args, **kwargs):
         return Response(status=200, template_name=self.template_name) 
