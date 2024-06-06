@@ -85,8 +85,8 @@
 
 {% block content %}
 
-<div class="container" id="comment_section">
-  <div class="comment_section">
+<div class="container" >
+  <div class="comment_section" id="comment_section">
     {% for question in question_answer %}
       <div class="question_class" id="question_{{question.id}}">
         <div class="question_child">
@@ -101,7 +101,7 @@
             <button class="btn btn-primary" type="submit">Submit</button>
             <button class="btn btn-primary" type="reset">Clear</button>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-model_title="Edit Question" data-bs-question="{{question.question}}" data-bs-question_id="{{question.id}}"><i class="fa fa-edit"></i></button>
-            <button type="button" class="btn btn-primary" onClick="DeleteQuestion({{question.id}})"> <i class="fa fa-trash"></i></button>
+            <button type="button" class="btn btn-primary" onClick="DeleteQuestion('{{question.id}}')"> <i class="fa fa-trash"></i></button>
           </form>
         </div>
       </div>
@@ -112,7 +112,7 @@
             <p class="date_class">{{answare.created_on}}</p>
           </div>
           <div>
-            <button type="button" class="btn btn-primary" onClick="DeleteAnswer({{answare.id}})"> <i class="fa fa-trash"></i></button>
+            <button type="button" class="btn btn-primary" onClick="DeleteAnswer('{{answare.id}}')"> <i class="fa fa-trash"></i></button>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"  data-bs-model_title="Edit Answer" data-bs-answer="{{answare.answer}}" data-bs-answer_id="{{answare.id}}"><i class="fa fa-edit"></i></button>
           </div>
         </div>
@@ -121,7 +121,7 @@
    </div>
   <div class="question_text_div" >
     <form method="post">
-      <textarea class="textarea_question_class" placeholder="Ask question about our services and other" name="question_textarea"></textarea>
+      <textarea class="textarea_question_class" placeholder="Ask question about our services and other" name="question_textarea" required></textarea>
       <button type="submit" style="background: transparent;">Submit</button>
       <button type="reset" style="background: transparent;">Clear</button>
     </form>
@@ -138,7 +138,7 @@
       <div class="modal-body">
         <form>
           <div class="mb-3">
-            <textarea class="form-control" id="qustion_answer_text"></textarea>
+            <textarea class="form-control" id="qustion_answer_text" required></textarea>
           </div>
         </form>
       </div>
@@ -183,6 +183,7 @@
         success:function(data){
           $("#exampleModal").modal("hide")
           $(`#comment_section`).load(location.href + " #comment_section");
+
         }
       })
     }else{
@@ -192,7 +193,7 @@
         data:{ 'question':$("#qustion_answer_text").val()},
         success:function(data){
           $("#exampleModal").modal("hide")
-          $(`#comment_section`).load(location.href + " #comment_section");
+          base.reloadData('#comment_section')
         },
       })
     }
