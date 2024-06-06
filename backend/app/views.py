@@ -12,6 +12,8 @@ from app.models import CommentQuestions, CommentAnswer
 from rest_framework import viewsets
 import json
 from django.utils import timezone
+from rest_framework import generics
+from rest_framework.decorators import action
 
 # Create your views here.
 class MessageView(APIView):
@@ -56,6 +58,20 @@ class Home(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return redirect(reverse('app:home-page'))
+
+    def destroy_answer(self, request, *args, **kwargs):
+        instance = CommentAnswer.objects.get(pk=kwargs['pk'])
+        instance.delete()
+        return HttpsAppResponse.send([], 1, "Delete Answer successfully.")
+
+    def update_answer(self, request, *args, **kwargs):
+        instance = CommentAnswer.objects.get(pk=kwargs['pk'])
+        serializer = CommentAnswerSerializers(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return HttpsAppResponse.send([], 1, "Update answer sucessfully.")
+
+
 
 
 class AboutUs(APIView):
