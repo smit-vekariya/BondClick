@@ -70,6 +70,25 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             manager.create_from_exception(e)
 
 
+class AppLogin(APIView):
+    authentication_classes = []
+    permission_classes = []
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = "app/login.html"
+
+    def get(self, request, *args, **kwargs):
+        return Response(status=200, template_name=self.template_name)
+
+
+class AppRegistration(APIView):
+    authentication_classes = []
+    permission_classes = []
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = "app/registration.html"
+
+    def get(self, request, *args, **kwargs):
+        return Response(status=200, template_name=self.template_name)
+
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer

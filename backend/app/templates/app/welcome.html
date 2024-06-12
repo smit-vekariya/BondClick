@@ -98,13 +98,26 @@ p {
   color:#999;
   margin-top:200px;
 }
+.login_btn {
+    top: 400px;
+    border: 1px solid;
+    padding: 5px 14px;
+    margin: 41px 0px;
+    font-size: 16px;
+}
+.login_btn:hover{
+  border: 2px solid rgb(255, 255, 255) !important;
+  border-radius: 5px;
+}
+
   </style>
 {% endblock %}
 
 {% block content %}
 
 <div class="main">
-  <a href="{% url 'app:contact-us-page' %}" class="btn-shine"  style="top:400px">Get early access</a>
+  <a href="{% url 'account:app-login' %}" class="btn-shine login_btn"  style="top:400px;left: 880px;">Login Now</a>
+  <a href="{% url 'account:app-registration' %}" class="btn-shine login_btn"  style="top:400px;left: 1036px;">Register Now</a>
   <div class="btn-shine" style="top:300px;font-size: 15px;">
     <h1>WELCOME TO PANEL PRIME</h1>  
   </div>

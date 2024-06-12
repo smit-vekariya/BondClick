@@ -7,7 +7,7 @@ from app.serializers import *
 from django.contrib import messages
 from django.shortcuts  import redirect
 from django.urls import reverse
-from app.serializers import CommentQuestionsSerializers, CommentAnswerSerializers
+from app.serializers import CommentQuestionsSerializers, CommentAnswerSerializers, ContactUsSerializers
 from app.models import CommentQuestions, CommentAnswer
 from rest_framework import viewsets
 import json
@@ -88,6 +88,7 @@ class ContactUs(APIView):
     authentication_classes = []
     permission_classes = []
     renderer_classes = [TemplateHTMLRenderer]
+    serializer_class = ContactUsSerializers
     template_name = "app/contact_us.html"
 
     def get(self, request, *args, **kwargs):
