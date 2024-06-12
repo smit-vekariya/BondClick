@@ -1,6 +1,6 @@
 {% extends "app/index.html" %}
 
-{% block title %} PanelPrime: Home {% endblock %}
+{% block title %} PanelPrime: Ask Anything {% endblock %}
 
 {% block custom_styles %}
 <style>
@@ -164,7 +164,7 @@
   }
   function DeleteQuestion(question_id){
     $.ajax({
-      url:`/home/${question_id}/`,
+      url:`/ask_anything/${question_id}/`,
       type:"DELETE",
       dataType:"json",
       success:function(data){
@@ -186,7 +186,7 @@
       })
     }else{
       $.ajax({
-        url:`/home/${id}/`,
+        url:`/ask_anything/${id}/`,
         type:"PATCH",
         data:{ 'question':$("#qustion_answer_text").val()},
         success:function(data){

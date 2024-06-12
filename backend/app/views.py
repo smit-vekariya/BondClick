@@ -34,13 +34,13 @@ class Welcome(APIView):
     def get(self, request, *args, **kwargs):
         return Response(status=200, template_name=self.template_name)
 
-class Home(viewsets.ModelViewSet):
+class AskAnything(viewsets.ModelViewSet):
     authentication_classes =[]
     permission_classes = []
     queryset = CommentQuestions.objects.all()
     serializer_class = CommentQuestionsSerializers
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = "app/home.html"
+    template_name = "app/ask_anything.html"
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -57,7 +57,7 @@ class Home(viewsets.ModelViewSet):
             serializer = self.serializer_class(data={"question":question_textarea,"created_on":timezone.now()})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        return redirect(reverse('app:home-page'))
+        return redirect(reverse('app:ask-anything-page'))
 
     def destroy_answer(self, request, *args, **kwargs):
         instance = CommentAnswer.objects.get(pk=kwargs['pk'])
