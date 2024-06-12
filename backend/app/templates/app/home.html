@@ -168,8 +168,7 @@
       type:"DELETE",
       dataType:"json",
       success:function(data){
-        $(`#comment_section`).load(location.href + " #comment_section");
-
+        base.reloadData('#comment_section')
       }
     })
   }
@@ -182,8 +181,7 @@
         data:{ 'answer':$("#qustion_answer_text").val()},
         success:function(data){
           $("#exampleModal").modal("hide")
-          $(`#comment_section`).load(location.href + " #comment_section");
-
+          base.reloadData('#comment_section')
         }
       })
     }else{
