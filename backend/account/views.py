@@ -69,7 +69,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         except Exception as e:
             manager.create_from_exception(e)
 
-
+# only for testing (implement remain)
 class AppLogin(APIView):
     authentication_classes = []
     permission_classes = []
@@ -79,7 +79,7 @@ class AppLogin(APIView):
     def get(self, request, *args, **kwargs):
         return Response(status=200, template_name=self.template_name)
 
-
+# only for testing (implement remain)
 class AppRegistration(APIView):
     authentication_classes = []
     permission_classes = []
