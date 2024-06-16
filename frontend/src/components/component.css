@@ -135,3 +135,13 @@ body:has(.main_div) {
 .manage_checkbox * {
     margin-right: 10px;
 }
+
+.mail_input{
+    padding: 5px;
+}
+.mail_input .ant-input-group-addon{
+    width: 80px;
+} 
+.mail_body{
+    margin: 10px 0px;
+}

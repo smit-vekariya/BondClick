@@ -42,7 +42,7 @@ export default function AuthProvider(){
     },[navigate])
 
     useEffect(()=>{
-        if(authTokens){
+        if(authTokens && authTokens.status !== 0){
             setUser(jwtDecode(authTokens.access))
         }
         setLoading_(false)

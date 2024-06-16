@@ -1,5 +1,6 @@
 from django.shortcuts import render
 import json
+from django.views import View
 import requests
 from django.conf import settings
 import logging
@@ -9,13 +10,25 @@ from django.db import transaction
 from postoffice.models import EmailLog
 from django.core.mail import send_mail
 from rest_framework import viewsets
+from rest_framework.views import APIView
 from django.utils import timezone
 from postoffice.serializers import EmailLogSerializer
 
 # for multiple receiver add comma sepreter
 # SendMail.send_mail(request.user, True, "smit.intellial@gmail.com","this is subject","this is body")
 
-class SendMail:
+class SendMail(APIView):
+    
+    def post(self, request):
+        try:
+            mail = request.data["mail_data"]
+            send_mail =  self.send_mail(request.user, True, mail["to"], mail["subject"], mail["body"])
+            if send_mail:
+                return HttpsAppResponse.send([], 1, "Mail send Successfully.")
+            else:
+                return HttpsAppResponse.send([], 0, "Something went wrong.")
+        except Exception as e:
+            return HttpsAppResponse.exception(str(e))
 
     # send_mail on save model method using signals
     @staticmethod
@@ -24,12 +37,11 @@ class SendMail:
             with transaction.atomic():
                 sender = settings.EMAIL_HOST_USER
                 action_by = action_by if action_by.id else None
-                serializer = EmailLogSerializer(data={'mail_from': sender, 'mail_to': receiver, 'subject': subject, 'message': message, 'mail_cc': cc, 'mail_bcc': bcc, 'status':'pending', 'action_by':action_by, 'is_now':is_now})
+                serializer = EmailLogSerializer(data={'mail_from': sender, 'mail_to': receiver, 'subject': subject, 'message': message, 'mail_cc': cc, 'mail_bcc': bcc, 'status':'pending', 'action_by_id':action_by.id, 'is_now':is_now})
                 if serializer.is_valid():
                     serializer.save()
                 else:
                     raise Exception(str(serializer.errors))
-                    return False
                 return True
         except Exception as e:
             create_from_exception(e)

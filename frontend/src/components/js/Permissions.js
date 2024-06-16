@@ -12,16 +12,6 @@ export default function Permissions(){
     const [groupId ,setGroupId] = useState(0)
     const [groups, setGroups] = useState([])
 
-    const getGroup = useCallback(async()=>{
-        await api.current.get('/manager/group_permission/')
-        .then((res)=>{
-            setGroups(res.data.data)
-            getPermissions(res.data.data[0].id)
-        }).catch((error)=>{
-            messageApi.open({type: 'error',content: error.message})
-        })
-    },[messageApi])
-
     const getPermissions = useCallback(async(group_id) =>{
         setGroupId(group_id)
         await api.current.get(`/manager/group_permission/`,
@@ -35,6 +25,18 @@ export default function Permissions(){
                 messageApi.open({type: 'error',content: error.message})
             })
     },[messageApi])
+    
+    const getGroup = useCallback(async()=>{
+        await api.current.get('/manager/group_permission/')
+        .then((res)=>{
+            setGroups(res.data.data)
+            getPermissions(res.data.data[0].id)
+        }).catch((error)=>{
+            messageApi.open({type: 'error',content: error.message})
+        })
+    },[messageApi,getPermissions])
+
+  
 
     const setPerm = (pageIndex, permIndex) =>{
         const updatedPermissions = [...permissions];
