@@ -15,7 +15,7 @@ from postoffice.serializers import EmailLogSerializer
 from django.core.mail import EmailMessage
 
 
-# for multiple receiver add comma sepreter
+# for multiple receiver, cc, bcc add comma sepreter
 # is_send, msg = SendMail.send_mail(request.user, True, "smit.intellial@gmail.com","this is subject","this is body","smit.intellial@gmail.com","smit.intellial@gmail.com")
 
 class SendMail(APIView):
@@ -28,7 +28,6 @@ class SendMail(APIView):
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
 
-    # send_mail on save model method using signals
     @staticmethod
     def send_mail(action_by, is_now, receiver, subject, message, cc=None, bcc=None):
         try:
@@ -42,7 +41,9 @@ class SendMail(APIView):
                         is_send, msg = SendMail.send_mail_now(instance.id)
                         return is_send, msg
                     else:
-                        # mail will be send using post_save signals and celery task
+                        # mail will be send using celery task
+                        # add celery function for mail HERE
+                        # ex: SendMail.send_mail_deley.deley(instance.id)
                         return True, "Your email is being processed and will be sent shortly."
                 else:
                     raise Exception(str(serializer.errors))

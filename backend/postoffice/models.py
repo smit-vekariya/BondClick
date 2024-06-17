@@ -31,10 +31,4 @@ class EmailLog(models.Model):
     def __str__(self):
         return self.subject
 
-@receiver(post_save, sender=EmailLog)
-def send_mail_on_save(sender, instance, created, **kwargs):
-    if created and instance.status == 'pending':
-        if instance.is_now == False:
-           print("add celery function for mail in SendMail class ")
-
        
