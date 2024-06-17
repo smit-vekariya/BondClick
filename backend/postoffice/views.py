@@ -15,18 +15,15 @@ from django.utils import timezone
 from postoffice.serializers import EmailLogSerializer
 
 # for multiple receiver add comma sepreter
-# SendMail.send_mail(request.user, True, "smit.intellial@gmail.com","this is subject","this is body")
+#  is_send, msg = SendMail.send_mail(request.user, True, "smit.intellial@gmail.com","this is subject","this is body")
 
 class SendMail(APIView):
-    
     def post(self, request):
         try:
             mail = request.data["mail_data"]
-            send_mail =  self.send_mail(request.user, True, mail["to"], mail["subject"], mail["body"])
-            if send_mail:
-                return HttpsAppResponse.send([], 1, "Mail send Successfully.")
-            else:
-                return HttpsAppResponse.send([], 0, "Something went wrong.")
+            is_send, msg =  self.send_mail(request.user, True, mail["to"], mail["subject"], mail["body"])
+            status_code = 1 if is_send else 0
+            return HttpsAppResponse.send([], status_code, msg)
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
 
@@ -42,11 +39,11 @@ class SendMail(APIView):
                     serializer.save()
                 else:
                     raise Exception(str(serializer.errors))
-                return True
+                return True, "Mail send successfully."
         except Exception as e:
             create_from_exception(e)
             logging.exception("Something went wrong.")
-            return False
+            return False, str(e)
 
     @staticmethod
     def send_mail_now(mail_id):
