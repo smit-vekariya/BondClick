@@ -34,10 +34,7 @@ class EmailLog(models.Model):
 @receiver(post_save, sender=EmailLog)
 def send_mail_on_save(sender, instance, created, **kwargs):
     if created and instance.status == 'pending':
-        from postoffice.views import SendMail
-        if instance.is_now == True:
-           SendMail.send_mail_now(instance.id)
-        else:
+        if instance.is_now == False:
            print("add celery function for mail in SendMail class ")
 
        
