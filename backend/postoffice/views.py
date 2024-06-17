@@ -8,20 +8,21 @@ import random
 from manager.manager import HttpsAppResponse,create_from_exception,create_from_text
 from django.db import transaction
 from postoffice.models import EmailLog
-from django.core.mail import send_mail
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from django.utils import timezone
 from postoffice.serializers import EmailLogSerializer
+from django.core.mail import EmailMessage
+
 
 # for multiple receiver add comma sepreter
-#  is_send, msg = SendMail.send_mail(request.user, True, "smit.intellial@gmail.com","this is subject","this is body")
+#  is_send, msg = SendMail.send_mail(request.user, True, "smit.intellial@gmail.com","this is subject","this is body","smit.intellial@gmail.com","smit.intellial@gmail.com")
 
 class SendMail(APIView):
     def post(self, request):
         try:
             mail = request.data["mail_data"]
-            is_send, msg =  self.send_mail(request.user, True, mail["to"], mail["subject"], mail["body"])
+            is_send, msg =  self.send_mail(request.user, True, mail["to"], mail["subject"], mail["body"], mail["cc"], mail["bcc"])
             status_code = 1 if is_send else 0
             return HttpsAppResponse.send([], status_code, msg)
         except Exception as e:
@@ -53,7 +54,10 @@ class SendMail(APIView):
             receiver = (mail.mail_to).split(',')
             subject = mail.subject
             message = mail.message
-            send_mail(subject, message, sender, receiver, fail_silently=True)
+            cc = (mail.mail_cc).split(',')
+            bcc = (mail.mail_bcc).split(',')
+            email = EmailMessage(subject, message, sender, receiver, bcc=bcc, cc=cc)
+            email.send(fail_silently=True)
             mail.status = 'sent'
         except Exception as e:
             mail.status = 'failed'
