@@ -8,29 +8,26 @@ import random
 from manager.manager import HttpsAppResponse,create_from_exception,create_from_text
 from django.db import transaction
 from postoffice.models import EmailLog
-from django.core.mail import send_mail
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from django.utils import timezone
 from postoffice.serializers import EmailLogSerializer
+from django.core.mail import EmailMessage
 
-# for multiple receiver add comma sepreter
-# SendMail.send_mail(request.user, True, "smit.intellial@gmail.com","this is subject","this is body")
+
+# for multiple receiver, cc, bcc add comma sepreter
+# is_send, msg = SendMail.send_mail(request.user, True, "smit.intellial@gmail.com","this is subject","this is body","smit.intellial@gmail.com","smit.intellial@gmail.com")
 
 class SendMail(APIView):
-    
     def post(self, request):
         try:
             mail = request.data["mail_data"]
-            send_mail =  self.send_mail(request.user, True, mail["to"], mail["subject"], mail["body"])
-            if send_mail:
-                return HttpsAppResponse.send([], 1, "Mail send Successfully.")
-            else:
-                return HttpsAppResponse.send([], 0, "Something went wrong.")
+            is_send, msg =  self.send_mail(request.user, mail["is_now"], mail["to"], mail["subject"], mail["body"], mail["cc"], mail["bcc"])
+            status_code = 1 if is_send else 0
+            return HttpsAppResponse.send([], status_code, msg)
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
 
-    # send_mail on save model method using signals
     @staticmethod
     def send_mail(action_by, is_now, receiver, subject, message, cc=None, bcc=None):
         try:
@@ -39,31 +36,48 @@ class SendMail(APIView):
                 action_by = action_by if action_by.id else None
                 serializer = EmailLogSerializer(data={'mail_from': sender, 'mail_to': receiver, 'subject': subject, 'message': message, 'mail_cc': cc, 'mail_bcc': bcc, 'status':'pending', 'action_by_id':action_by.id, 'is_now':is_now})
                 if serializer.is_valid():
-                    serializer.save()
+                    instance = serializer.save()
+                    if is_now:
+                        is_send, msg = SendMail.send_mail_now(instance.id)
+                        return is_send, msg
+                    else:
+                        # mail will be send using celery task
+                        # add celery function for mail HERE
+                        # ex: SendMail.send_mail_deley.deley(instance.id)
+                        return True, "Your email is being processed and will be sent shortly."
                 else:
                     raise Exception(str(serializer.errors))
-                return True
         except Exception as e:
             create_from_exception(e)
             logging.exception("Something went wrong.")
-            return False
+            return False, str(e)
 
     @staticmethod
     def send_mail_now(mail_id):
         mail = EmailLog.objects.get(id=mail_id)
         try:
             sender = mail.mail_from
-            receiver = (mail.mail_to).split(',')
+            receiver = [email.strip() for email in mail.mail_to.split(',')]
             subject = mail.subject
             message = mail.message
-            send_mail(subject, message, sender, receiver, fail_silently=True)
+            cc = [email.strip() for email in mail.mail_cc.split(',')] if mail.mail_cc else []
+            bcc = [email.strip() for email in mail.mail_bcc.split(',')] if mail.mail_bcc else []
+
+            email = EmailMessage(subject, message, sender, receiver, bcc=bcc, cc=cc)
+            email.send(fail_silently=True)
+
             mail.status = 'sent'
+            mail.updated_at = timezone.now()
+            mail.save()
+            return True, "Mail send successfully."
         except Exception as e:
             mail.status = 'failed'
+            mail.updated_at = timezone.now()
             mail.error_message = str(e)
+            mail.save()
+
             create_from_exception(e)
-        mail.updated_at = timezone.now()
-        mail.save()
+            return False, str(e)
 
 
 #Mobile number is fix (contact green api for more: https://greenapi.com/en/docs/api)
