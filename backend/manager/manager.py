@@ -19,12 +19,20 @@ from django.utils.encoding import smart_str
 from manager.models import ErrorBase, GroupPermission, SystemParameter
 from account.models import BondUser
 from rest_framework.views import exception_handler
+from rest_framework.exceptions import ValidationError
 
 # you can customize exception handler response from this like serialize error respose and other error respose (https://www.django-rest-framework.org/api-guide/exceptions/)
 def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
     create_from_exception(exception=exc, traceback=sys.exc_info()[2])
     logging.exception("Something went wrong.")
+
+    # Custom handling for ValidationError
+    if isinstance(exc, ValidationError):
+        if isinstance(response.data, dict):
+            for key, value in response.data.items():
+                if isinstance(value, list) and value and hasattr(value[0], 'code'):
+                    response.data[key] = value[0].title()
 
     if response is not None and "detail" in response.data:
         error = response.data["detail"]

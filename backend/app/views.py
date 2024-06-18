@@ -13,6 +13,7 @@ from rest_framework import viewsets
 import json
 from django.utils import timezone
 from rest_framework import generics
+from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.decorators import action
 
 # Create your views here.
@@ -34,9 +35,13 @@ class Welcome(APIView):
     def get(self, request, *args, **kwargs):
         return Response(status=200, template_name=self.template_name)
 
-class AskAnything(viewsets.ModelViewSet):
-    authentication_classes =[]
-    permission_classes = []
+
+class AskAnything(LoginRequiredMixin, viewsets.ModelViewSet):
+    # we use LoginRequiredMixin because we need django default authentication not jwt
+    login_url = '/account/app_login/'
+    #this below two line prevent authentication from jwt
+    # authentication_classes =[]
+    # permission_classes = []
     queryset = CommentQuestions.objects.all()
     serializer_class = CommentQuestionsSerializers
     renderer_classes = [TemplateHTMLRenderer]
@@ -51,10 +56,10 @@ class AskAnything(viewsets.ModelViewSet):
         if "answer_textarea" in request.POST:
             answer_textarea = request.POST.get("answer_textarea")
             question_id = request.POST.get("question_id")
-            serializer = CommentAnswerSerializers(data={"answer":answer_textarea, "created_on":timezone.now(),'questions':question_id})
+            serializer = CommentAnswerSerializers(data={"answer":answer_textarea, "created_on":timezone.now(),'questions':question_id, 'action_by':request.user.id})
         else:
             question_textarea = request.POST.get("question_textarea")
-            serializer = self.serializer_class(data={"question":question_textarea,"created_on":timezone.now()})
+            serializer = self.serializer_class(data={"question":question_textarea,"created_on":timezone.now(), 'action_by':request.user.id})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return redirect(reverse('app:ask-anything-page'))

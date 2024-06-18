@@ -1,4 +1,5 @@
 from django.db import models
+from account.models import BondUser
 
 
 # Create your models here.
@@ -22,6 +23,7 @@ class ContactUs(models.Model):
 class CommentQuestions(models.Model):
     question = models.TextField()
     created_on = models.DateTimeField(auto_now=True)
+    action_by = models.ForeignKey(BondUser, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.question
@@ -30,6 +32,8 @@ class CommentAnswer(models.Model):
     questions = models.ForeignKey(CommentQuestions, related_name='answers', on_delete=models.CASCADE)
     answer = models.TextField()
     created_on = models.DateTimeField(auto_now=True)
+    action_by = models.ForeignKey(BondUser, on_delete=models.PROTECT)
+
 
     def __str__(self):
         return self.answer

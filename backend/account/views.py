@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 import json
+import logging
 from rest_framework.views import APIView, View
 from account.serializers import BondUserSerializers, BondUserListSerializers
 from datetime import datetime, timedelta
@@ -27,7 +28,14 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.decorators import action
 from django.contrib.auth.models import Group
 from manager.models import GroupPermission
+from django.urls import reverse
 from postoffice.views import send_otp_to_mobile
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password
+from manager.manager import create_from_exception
+from django.shortcuts  import redirect
+from django.contrib.auth import login, authenticate
+
 
 # Create your views here.
 
@@ -69,25 +77,57 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         except Exception as e:
             manager.create_from_exception(e)
 
-# only for testing (implement remain)
 class AppLogin(APIView):
     authentication_classes = []
     permission_classes = []
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "app/login.html"
+    success_url = "app:ask-anything-page"
 
     def get(self, request, *args, **kwargs):
         return Response(status=200, template_name=self.template_name)
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            data = request.data
+            user = authenticate(request, username=data["mobile"], password=data["password"])
+            if user is not None:
+                login(request, user , backend='django.contrib.auth.backends.ModelBackend')
+            return redirect(reverse(self.success_url))
+        except Exception as e:
+            logging.exception("Something went wrong.")
+            create_from_exception(e)
+            return render(request, self.template_name, context={"msg":str(e)})
+            
 
-# only for testing (implement remain)
 class AppRegistration(APIView):
     authentication_classes = []
     permission_classes = []
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "app/registration.html"
+    success_url = "/account/app_login/"
 
     def get(self, request, *args, **kwargs):
         return Response(status=200, template_name=self.template_name)
+
+    def post(self ,request, *args, **kwargs):
+        try:
+            data = request.data
+            if data["password"] != data["confirm_password"]:
+                raise Exception("Confirm password does not match.")
+            password = make_password(data["confirm_password"])
+            serializer = BondUserSerializers(data={"full_name":data["full_name"],"mobile":data["mobile"],"email":data["email"],"password":password,"is_app_user":True})
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                error_messages = ", ".join(value[0] for key, value in serializer.errors.items())
+                raise Exception(error_messages)
+            return redirect(self.success_url)
+        except Exception as e:
+            logging.exception("Something went wrong.")
+            create_from_exception(e)
+            return render(request, self.template_name, context={"msg":str(e)})
+
 
 
 class MyTokenObtainPairView(TokenObtainPairView):

@@ -12,7 +12,7 @@ class CommentAnswerSerializers(serializers.ModelSerializer):
     created_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
     class Meta:
         model = CommentAnswer
-        fields = ['id', 'answer','created_on','questions']
+        fields = ['id', 'answer','created_on','questions', 'action_by']
     
 
 class CommentQuestionsSerializers(serializers.ModelSerializer):
@@ -20,5 +20,5 @@ class CommentQuestionsSerializers(serializers.ModelSerializer):
     created_on = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
     class Meta:
         model = CommentQuestions
-        fields = ["id", "answers","question","created_on"]
+        fields = ["id", "answers","question","created_on", 'action_by']
 

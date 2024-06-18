@@ -88,6 +88,7 @@
         </div>
         <div>
           <form method="post">
+            {% csrf_token %}
             <textarea class="textarea_class" placeholder="Give your answer here" name="answer_textarea" required></textarea>
             <input type="hidden" name="question_id" value="{{question.id}}">
             <button class="btn btn-primary" type="submit">Submit</button>
@@ -113,6 +114,7 @@
    </div>
   <div class="question_text_div" >
     <form method="post">
+      {% csrf_token %}
       <textarea class="textarea_question_class" placeholder="Ask question about our services and other" name="question_textarea" required></textarea>
       <button type="submit" style="background: transparent;">Submit</button>
       <button type="reset" style="background: transparent;">Clear</button>
@@ -129,6 +131,7 @@
       </div>
       <div class="modal-body">
         <form>
+          {% csrf_token %}
           <div class="mb-3">
             <textarea class="form-control" id="qustion_answer_text" required></textarea>
           </div>
@@ -142,11 +145,13 @@
   </div>
 </div>
 <script>
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   function DeleteAnswer(answer_id){
     $.ajax({
       url:`/delete_update_answer/${answer_id}/`,
       type:"DELETE",
       dataType:"json",
+      headers: {'X-CSRFToken': csrftoken},
       success:function(data){
         if(data.status ==1 ){
           $(`#text_${answer_id}`).remove()
@@ -159,6 +164,7 @@
       url:`/ask_anything/${question_id}/`,
       type:"DELETE",
       dataType:"json",
+      headers: {'X-CSRFToken': csrftoken},
       success:function(data){
         base.reloadData('#comment_section')
       }
@@ -170,6 +176,7 @@
         url:`/delete_update_answer/${id}/`,
         type:"PUT",
         dataType:"json",
+        headers: {'X-CSRFToken': csrftoken},
         data:{ 'answer':$("#qustion_answer_text").val()},
         success:function(data){
           $("#exampleModal").modal("hide")
@@ -180,6 +187,7 @@
       $.ajax({
         url:`/ask_anything/${id}/`,
         type:"PATCH",
+        headers: {'X-CSRFToken': csrftoken},
         data:{ 'question':$("#qustion_answer_text").val()},
         success:function(data){
           $("#exampleModal").modal("hide")
