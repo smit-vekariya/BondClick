@@ -63,7 +63,7 @@ class SendMail(APIView):
             cc = [email.strip() for email in mail.mail_cc.split(',')] if mail.mail_cc else []
             bcc = [email.strip() for email in mail.mail_bcc.split(',')] if mail.mail_bcc else []
 
-            email = EmailMessage(subject, message, sender, receiver, bcc=bcc, cc=cc)
+            email = EmailMessage(subject, message, sender, receiver, bcc, cc=cc)
             email.send(fail_silently=True)
 
             mail.status = 'sent'

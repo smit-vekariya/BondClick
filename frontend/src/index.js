@@ -21,7 +21,12 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import PrivateRoute from './utils/PrivateRoute';
 import SystemParameter from './components/js/SystemParameter';
+import Page404 from './404' 
 
+const AuthRoute = ({component}) => {
+  // return <Page404 />
+  return component
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -31,15 +36,15 @@ root.render(
           <Route element={<AuthProvider  />}>
             <Route  element={<PrivateRoute  />}>
               <Route path="/" element={<Dashboard />}>
-                    <Route path="profile" element={<Profile/>}/>
-                    <Route path="company_dashboard" element={<CompanyDashBoard/>}/>
-                    <Route path="user" element={<User/>}/>
-                    <Route path="qr_batch" element={<QrBatch/>}/>
-                    <Route path="qr_code" element={<QrCode/>}/>
-                    <Route path="user_wallet/:user_id" element={<UserWallet/>}/>
-                    <Route path="users_wallet_report/" element={<UsersWalletReport/>}/>
-                    <Route path="permissions/" element={<Permissions/>}/>
-                    <Route path="system_parameter/" element={<SystemParameter/>}/>
+                    <Route path="profile"              element={<AuthRoute component={<Profile/>}           code="" />} />
+                    <Route path="company_dashboard"    element={<AuthRoute component={<CompanyDashBoard/>}  code="" />} />
+                    <Route path="user"                 element={<AuthRoute component={<User/>}              code="" />} />
+                    <Route path="qr_batch"             element={<AuthRoute component={<QrBatch/>}           code="" />} />
+                    <Route path="qr_code"              element={<AuthRoute component={<QrCode/>}            code="" />} />
+                    <Route path="user_wallet/:user_id" element={<AuthRoute component={<UserWallet/>}        code="" />} />
+                    <Route path="users_wallet_report/" element={<AuthRoute component={<UsersWalletReport/>} code="" />} />
+                    <Route path="permissions/"         element={<AuthRoute component={<Permissions/>}       code="" />} />
+                    <Route path="system_parameter/"    element={<AuthRoute component={<SystemParameter/>}   code="" />} />
               </Route>
             </Route>
             <Route path="/login" element={<Login />} />

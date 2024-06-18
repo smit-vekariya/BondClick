@@ -7,7 +7,7 @@ from account.models import MainMenu, Company, Distributor, BondUser, State, City
 
 @admin.register(MainMenu)
 class MainMenuAdmin(admin.ModelAdmin):
-    list_display = ("name", "url", "sequence", "parent", "is_parent", "icon")
+    list_display = ("name","code", "url", "sequence", "parent", "is_parent", "icon")
 
 
 @admin.register(Distributor)

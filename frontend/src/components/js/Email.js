@@ -9,7 +9,7 @@ export default function Email(){
     const api = useRef(useAxios())
     const {messageApi} = useContext(AuthContext)
     const { TextArea } = Input;
-    var mail_data = {"to":"","cc":"","bcc":"","subject":"","body":""}
+    var mail_data = {"is_now":true,"to":"","cc":"","bcc":"","subject":"","body":""}
     const [mailData, setMailData] = useState(mail_data)
     const [isModalOpen, setIsModalOpen] = useState(false);
 
