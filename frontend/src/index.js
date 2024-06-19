@@ -23,9 +23,14 @@ import PrivateRoute from './utils/PrivateRoute';
 import SystemParameter from './components/js/SystemParameter';
 import Page404 from './404' 
 
-const AuthRoute = ({component}) => {
-  // return <Page404 />
-  return component
+const AuthRoute = ({component, code}) => {
+  var main_menu = JSON.parse(localStorage.getItem("main_menu"))
+  var auth_route = main_menu.map((data) => data["code"])
+  if(auth_route.includes(code)){
+    return component
+  }else{
+    return <Page404 />
+  }
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -36,15 +41,22 @@ root.render(
           <Route element={<AuthProvider  />}>
             <Route  element={<PrivateRoute  />}>
               <Route path="/" element={<Dashboard />}>
-                    <Route path="profile"              element={<AuthRoute component={<Profile/>}           code="" />} />
-                    <Route path="company_dashboard"    element={<AuthRoute component={<CompanyDashBoard/>}  code="" />} />
-                    <Route path="user"                 element={<AuthRoute component={<User/>}              code="" />} />
-                    <Route path="qr_batch"             element={<AuthRoute component={<QrBatch/>}           code="" />} />
-                    <Route path="qr_code"              element={<AuthRoute component={<QrCode/>}            code="" />} />
-                    <Route path="user_wallet/:user_id" element={<AuthRoute component={<UserWallet/>}        code="" />} />
-                    <Route path="users_wallet_report/" element={<AuthRoute component={<UsersWalletReport/>} code="" />} />
-                    <Route path="permissions/"         element={<AuthRoute component={<Permissions/>}       code="" />} />
-                    <Route path="system_parameter/"    element={<AuthRoute component={<SystemParameter/>}   code="" />} />
+
+                    {/* nested page */}
+                    <Route path="profile"              element={<Profile/>} />
+
+                    {/* main menu page */}
+                    <Route path="company_dashboard"    element={<AuthRoute component={<CompanyDashBoard/>}  code="company_dashboard" />} />
+                    <Route path="user"                 element={<AuthRoute component={<User/>}              code="user" />} />
+                    <Route path="user/user_wallet/:user_id"  element={<AuthRoute component={<UserWallet/>}  code="user"/> } />
+                    <Route path="qr_batch"             element={<AuthRoute component={<QrBatch/>}           code="qr_batch" />} />
+                    <Route path="qr_code"              element={<AuthRoute component={<QrCode/>}            code="qr_code" />} />
+                    <Route path="users_wallet_report/" element={<AuthRoute component={<UsersWalletReport/>} code="users_wallet_report" />} />
+                    <Route path="permissions/"         element={<AuthRoute component={<Permissions/>}       code="permissions" />} />
+                    <Route path="system_parameter/"    element={<AuthRoute component={<SystemParameter/>}   code="system_parameter" />} />
+
+                    {/* catch-all route for 404 page */}
+                    <Route path="*" element={<Page404 />} />
               </Route>
             </Route>
             <Route path="/login" element={<Login />} />

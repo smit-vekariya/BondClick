@@ -26,7 +26,7 @@ export default function AuthProvider(){
             setUser(jwtDecode(data.data[0]["access"]))
             localStorage.setItem("authTokens", JSON.stringify(data.data[0]))
             localStorage.setItem("access", data.data[0]["access"])
-            navigate("/company_dashboard")
+            navigate("/")
         }else{
             messageApi.open({type: 'error',content: data.message,});
         }

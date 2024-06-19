@@ -52,7 +52,7 @@ export default function User(){
             return
         }
         else{
-            navigate(`/user_wallet/${selectedRowKeys}`)
+            navigate(`user_wallet/${selectedRowKeys}`)
             // navigate(`/user_wallet/${selectedRowKeys}`, {state:{selectedRowKeys:selectedRowKeys}})
             // this value can get using useLocation()
         }
