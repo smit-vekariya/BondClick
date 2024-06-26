@@ -9,17 +9,40 @@ import sys
 import uuid
 import traceback as traceback_mod
 import warnings
-
+from django.shortcuts import render
 from dateutil import tz
 from django.conf import settings
 from django.core.cache import cache
 from django.db import connection
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
-from manager.models import ErrorBase
+from manager.models import ErrorBase, GroupPermission, SystemParameter
+from account.models import BondUser
+from rest_framework.views import exception_handler
+from rest_framework.exceptions import ValidationError
+
+# you can customize exception handler response from this like serialize error respose and other error respose (https://www.django-rest-framework.org/api-guide/exceptions/)
+def custom_exception_handler(exc, context):
+    response = exception_handler(exc, context)
+    create_from_exception(exception=exc, traceback=sys.exc_info()[2])
+    logging.exception("Something went wrong.")
+
+    # Custom handling for ValidationError
+    if isinstance(exc, ValidationError):
+        if isinstance(response.data, dict):
+            for key, value in response.data.items():
+                if isinstance(value, list) and value and hasattr(value[0], 'code'):
+                    response.data[key] = value[0].title()
+
+    if response is not None and "detail" in response.data:
+        error = response.data["detail"]
+        return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(error)}))
+        
+    # return response
+    return HttpResponse(json.dumps({"data":[], "status": 0, "message": str(exc)}))
 
 
-def create_from_exception(self, url=None, exception=None, traceback=None, **kwargs):
+def create_from_exception(self=None, url=None, exception=None, traceback=None, **kwargs):
     if not exception:
         exc_type, exc_value, traceback = sys.exc_info()
     elif not traceback:
@@ -58,6 +81,36 @@ def create_from_text(message, class_name=None, level=40, traceback=None):
     ErrorBase.objects.create(class_name=class_name, message=message, traceback=traceback, level=level)
 
 
+def has_permission(user, act_code):
+    if user.is_superuser:
+        return True
+    else:
+        group_id = user.groups.id
+        if Util.get_cache("public","perm" + str(group_id)) is None:
+            group_perm = list(GroupPermission.objects.filter(group=group_id).values("permissions__act_name","permissions__act_code","has_perm"))
+            Util.set_cache("public","perm" + str(group_id), group_perm, 604800)
+        else:
+            group_perm = Util.get_cache("public","perm" + str(group_id))
+        
+        for act in group_perm:
+            if act["permissions__act_code"] == act_code:
+                has_permission = act["has_perm"]
+                return has_permission
+    return False
+
+
+def system_parameter(code):
+    if Util.get_cache("public","sysparameter") is None:
+        sys_para = list(SystemParameter.objects.values("code","value"))
+        Util.set_cache("public","sysparameter", sys_para, 604800)
+    else:
+        sys_para = Util.get_cache("public","sysparameter")
+    for para in sys_para:
+        if para["code"] == code:
+            return para["value"]
+    raise Exception(f"'{code}' is avaliable in system parameter table.")
+
+
 class HttpsAppResponse:
     def send(data,status,message):
         return HttpResponse(json.dumps({"data":data, "status": status, "message": message}))
@@ -69,34 +122,6 @@ class HttpsAppResponse:
 
 
 class Util(object):
-
-    @staticmethod
-    def send_otp_to_mobile(mobile_no):
-        try:
-            if mobile_no:
-                otp = random.randint(100000, 999999)
-                url = settings.FAST2SMS
-                api_key =  settings.FAST2SMS_API_KEY
-                querystring = {"authorization":api_key,"variables_values":str(otp),"route":"otp","numbers":mobile_no}
-                headers = { 'cache-control': "no-cache" }
-                response = requests.request("GET", url, headers=headers, params=querystring)
-                response = json.loads(response.text)
-                if response["return"]:
-                    return otp
-                else:
-                    create_from_text("Error in OTP sending", "Important", 10, f"response => {response}, info => mobile: '{mobile_no}' otp: '{otp}'")
-                    if response["status_code"] == 995:
-                        return "Sending multiple sms to same number is not allowed. Please try again later."
-                    else:
-                        return "We encountered an issue while sending the OTP. Please try again later."
-            else:
-                return "We encountered an issue while sending the OTP. Please try again later."
-            # return 343434
-        except Exception as e:
-            logging.exception("Something went wrong.")
-            create_from_exception(e)
-            return 0
-
     @staticmethod
     def create_unique_qr_code(batch_number):
         uuid_code = str(uuid.uuid4())
@@ -191,14 +216,24 @@ class Util(object):
             secs = "%02d" % round(secs)
             time += str(secs) + "s"
         return time
-    
-# def check_secret_key(function):
-#     @wraps(function)
-#     def decorator(request, *args, **kwrgs):
-#         key = request.headers.get("Secret-Key")
-#         if key == settings.SECRET_KEY:
-#             return function(request, *args, **kwrgs)
-#         else:
-#         return HttpResponse(json.dumps({"data":{}, "status": 0, "message": "Secret key did not match!"}))
 
-#     return decorator
+
+def bad_request(request,exception):
+    response = render(request,'manager/400.html')
+    response.status_code = 400
+    return response
+
+def permission_denied(request, exception):
+    response = render(request,'manager/403.html')
+    response.status_code = 403
+    return response
+
+def page_not_found(request, exception):
+    response = render(request,'manager/404.html')
+    response.status_code = 404
+    return response
+
+def server_error_view(request):
+    response = render(request,'manager/500.html')
+    response.status_code = 500
+    return response

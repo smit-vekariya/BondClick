@@ -1,4 +1,4 @@
-import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import {  LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Flex, Layout, Menu, Spin } from 'antd';
 import 'font-awesome/css/font-awesome.min.css';
 import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -7,6 +7,7 @@ import { AuthContext } from '../../context/AuthContext';
 import "../CustomAntd.css";
 import "../component.css";
 import logo_char from '../images/logo-char.png';
+import Email from './Email';
 // import logo from "../images/logo-no-background.png";
 
 export const DashboardContext = createContext();
@@ -21,6 +22,7 @@ function getItem(label, key, icon, children) {
   };
 }
 const Dashboard = () => {
+  const {authTokens} = useContext(AuthContext)
   const current = window.location.pathname
   const {user,logoutUser, messageApi} = useContext(AuthContext)
   let [loading, setLoading] = useState(false)
@@ -32,7 +34,8 @@ const Dashboard = () => {
     let response = await fetch(`${baseURL}/account/main_menu/`,{
       method:"GET",
       headers:{
-          'Content-Type':"application/json"
+          'Content-Type':"application/json",
+          'Authorization':`Bearer ${authTokens?.access}`
       },
     })
     let data = await response.json()
@@ -42,7 +45,7 @@ const Dashboard = () => {
     }else{
         messageApi.open({type: 'error',content: data.message})
     }
-  },[messageApi])
+  },[messageApi,authTokens])
 
   useEffect(() => {
       getMainMenu()
@@ -85,7 +88,7 @@ const Dashboard = () => {
     <Layout style={{minHeight: '100vh'}}>
       <SideBar collapsed={collapsed} menuItems={menu_items} current={current} onCollapse={useCallback((value)=>setCollapsed(value),[])}/>
       <Layout>
-        <HeaderBar logoutUser={logoutUser} user={user}/>
+        <HeaderBar logoutUser={logoutUser} user={user} setLoading={setLoading}/>
         <Content className='content_class'>
           <DashboardContext.Provider value={{setLoading:setLoading}}>
             <Spin spinning={loading}>
@@ -110,7 +113,7 @@ const SideBar = memo(({collapsed, menuItems, onCollapse, current}) =>{
   )
 });
 
-const HeaderBar = memo(({logoutUser, user})=>{
+const HeaderBar = memo(({logoutUser, user, setLoading})=>{
   const items = [
     getItem((<Link to="/profile">My Profile</Link>), '1', <UserOutlined />),
     // getItem((<Link to="/register">Register</Link>), '2', <UserAddOutlined />),
@@ -121,6 +124,9 @@ const HeaderBar = memo(({logoutUser, user})=>{
       <Header className='custom_header'>
           <a href='https://www.fast2sms.com/dashboard/transactional-history' target='blank' style={{marginLeft: '10px'}}><Button type="dashed">Go to Fast2sms</Button></a>
           <a href='https://dashboard.razorpay.com/app/dashboard' target='blank' style={{marginLeft: '10px'}}><Button type="dashed">Go to Razorpay</Button></a>
+          <DashboardContext.Provider value={{setLoading:setLoading}}>
+            <Email/>
+          </DashboardContext.Provider>
           <Flex gap="small" wrap="wrap" style={{float: "right", marginRight:"10px"}}>
               <Dropdown.Button menu={{items}} style={{margin: "9px 0px 5px 1px"}} placement="bottomLeft" icon={<UserOutlined />}>{user && user.full_name}</Dropdown.Button>
           </Flex>

@@ -7,7 +7,7 @@ from account.models import MainMenu, Company, Distributor, BondUser, State, City
 
 @admin.register(MainMenu)
 class MainMenuAdmin(admin.ModelAdmin):
-    list_display = ("name", "url", "sequence", "parent", "is_parent", "icon")
+    list_display = ("name","code", "url", "sequence", "parent", "is_parent", "icon")
 
 
 @admin.register(Distributor)
@@ -34,7 +34,6 @@ class CityAdmin(admin.ModelAdmin):
     list_display = ('name', 'code', 'state', 'is_deleted')
 
 
-
 @admin.register(UserToken)
 class UserTokenAdmin(admin.ModelAdmin):
     list_display = ("user", "access_token", "is_allowed")
@@ -43,3 +42,5 @@ class UserTokenAdmin(admin.ModelAdmin):
 @admin.register(AuthOTP)
 class AuthOTPAdmin(admin.ModelAdmin):
     list_display =('key','value', 'otp', 'expire_on', 'created_on', 'is_used')
+
+

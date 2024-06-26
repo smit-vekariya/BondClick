@@ -19,11 +19,20 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+handler400 = "manager.manager.bad_request"
+handler403 = "manager.manager.permission_denied"
+handler404 = "manager.manager.page_not_found"
+handler500 = "manager.manager.server_error_view"
+
+
 urlpatterns = [
+    path('explorer/', include('explorer.urls')),
     path('admin/', admin.site.urls),
-    path('',include("account.urls", namespace="welcome_account")),
+    path('',include("app.urls", namespace="welcome_app")),
     path('account/',include("account.urls", namespace="account")),
+    path('manager/',include("manager.urls", namespace="manager")),
     path('qr_admin/',include("qradmin.urls", namespace="qr_admin")),
     path('qr_app/',include("qrapp.urls", namespace="qr_app")),
+    path('post_office/',include("postoffice.urls", namespace="post_office")),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

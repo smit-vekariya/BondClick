@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import timedelta
@@ -28,9 +28,10 @@ class CustomUserManager(BaseUserManager):
         return user
 
 class MainMenu(models.Model):
-    name = models.CharField(max_length=100, null=True,blank=True)
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=100)
     icon = models.CharField(max_length=100, null=True,blank=True)
-    sequence = models.CharField(max_length=100, null=True, blank=True)
+    sequence = models.CharField(max_length=100)
     url = models.CharField(max_length=100, null=True, blank=True)
     is_parent = models.BooleanField(default=False)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
@@ -98,6 +99,8 @@ class BondUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    is_app_user = models.BooleanField(default=False)
+    groups = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True)
 
     USERNAME_FIELD = 'mobile'
     objects = CustomUserManager()
@@ -131,3 +134,4 @@ class AuthOTP(models.Model):
     def save(self, *args, **kwargs):
         self.expire_on = self.created_on + timedelta(minutes=1)
         super(AuthOTP, self).save(*args, **kwargs)
+

@@ -25,6 +25,7 @@ env = environ.Env(
 )
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -39,12 +40,13 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 AUTH_USER_MODEL = 'account.BondUser'
 AUTHENTICATION_BACKENDS = ['account.backends.MobileNumberBackend','account.backends.AdminLoginBackend','django.contrib.auth.backends.ModelBackend']
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'django_cache',
-    }
-}
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+#         'LOCATION': 'django_cache',
+#     }
+# }
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -56,12 +58,17 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
+    'explorer',
     'corsheaders',
     'account',
+    'app',
     'manager',
     'qradmin',
     'qrapp',
-    'qr_code'
+    'qr_code',
+    'postoffice',
+    'django_celery_results',
+    # 'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -130,6 +137,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Kolkata'
 USE_L10N = True
@@ -143,17 +151,42 @@ STATIC_ROOT = BASE_DIR / 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
 
+
+LOGIN_URL='/account/app_login/'
+LOGIN_REDIRECT_URL = '/app/'
+
 CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST")
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS")
 
 POINT_PER_AMOUNT = env("POINT_PER_AMOUNT")
 FAST2SMS = env("FAST2SMS")
 FAST2SMS_API_KEY = env("FAST2SMS_API_KEY")
 RAZORPAY_API_ID = env("RAZORPAY_API_ID")
 RAZORPAY_API_SECRET = env("RAZORPAY_API_SECRET")
+GREEN_API = env("GREEN_API")
 DEFAULT_COMPANY_ID = env("DEFAULT_COMPANY_ID")
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6379"
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Kolkata'   
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_TASK_TRACK_STARTED = True
+
+# CELERY BEAT SCHEDULER
+# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+EMAIL_BACKEND = env("EMAIL_BACKEND")
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
@@ -161,10 +194,27 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100,
+    'EXCEPTION_HANDLER': 'manager.manager.custom_exception_handler',
+    # 'DEFAULT_RENDERER_CLASSES': [
+    #     'rest_framework.renderers.JSONRenderer',
+    # ],
+    # 'DEFAULT_THROTTLE_CLASSES': [
+    #     'rest_framework.throttling.AnonRateThrottle',
+    #     'rest_framework.throttling.UserRateThrottle',
+    # ],
+    # 'DEFAULT_THROTTLE_RATES': {
+    #     'anon': '10/day',
+    #     'user': '1000/day'
+    # }
 }
 
 # Default primary key field type (https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#Explorer settings
+EXPLORER_CONNECTIONS = { 'Default': 'default' }
+EXPLORER_DEFAULT_CONNECTION = 'default'
+
 
 # documentation fo JWT (https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html#jwk-url)
 SIMPLE_JWT = {
