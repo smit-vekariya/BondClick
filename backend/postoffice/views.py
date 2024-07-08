@@ -1,6 +1,4 @@
-from django.shortcuts import render
 import json
-from django.views import View
 import requests
 from django.conf import settings
 import logging
@@ -8,11 +6,11 @@ import random
 from manager.manager import HttpsAppResponse,create_from_exception,create_from_text
 from django.db import transaction
 from postoffice.models import EmailLog
-from rest_framework import viewsets
 from rest_framework.views import APIView
 from django.utils import timezone
 from postoffice.serializers import EmailLogSerializer
 from django.core.mail import EmailMessage
+from celery import shared_task
 
 
 # for multiple receiver, cc, bcc add comma sepreter
@@ -41,9 +39,7 @@ class SendMail(APIView):
                         is_send, msg = SendMail.send_mail_now(instance.id)
                         return is_send, msg
                     else:
-                        # mail will be send using celery task
-                        # add celery function for mail HERE
-                        # ex: SendMail.send_mail_deley.deley(instance.id)
+                        send_mail_schedule.delay_on_commit(instance.id)
                         return True, "Your email is being processed and will be sent shortly."
                 else:
                     raise Exception(str(serializer.errors))
@@ -78,6 +74,11 @@ class SendMail(APIView):
 
             create_from_exception(e)
             return False, str(e)
+
+
+@shared_task
+def send_mail_schedule(id):
+    SendMail.send_mail_now(id)
 
 
 #Mobile number is fix (contact green api for more: https://greenapi.com/en/docs/api)

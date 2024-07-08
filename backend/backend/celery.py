@@ -15,8 +15,9 @@ app.config_from_object(settings, namespace='CELERY')
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks()
 
-@app.task(bind=True)
-def debug_task(self):
-    print(f'Request: {self.request!r}')
 
 # celery -A backend.celery worker --pool=solo -l info
+
+# celery -A backend worker --loglevel=INFO --pool=solo
+
+# celery -A backend beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler

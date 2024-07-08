@@ -2,6 +2,7 @@ from functools import wraps
 from manager.manager import has_permission
 from manager.manager import HttpsAppResponse
 
+# @has_perm("can_add_system_parameter")
 
 def has_perm(act_code):
     def decorator(view):
