@@ -5,7 +5,7 @@ from rest_framework import viewsets
 from datetime import datetime, timedelta
 from celery import shared_task
 from rest_framework.response import Response
-from manager.manager import Util
+from manager.manager import Util, create_from_exception
 from manager.serializers import PeriodicTaskSerializer
 
 # https://django-celery-beat.readthedocs.io/en/latest/    
@@ -16,15 +16,37 @@ class CreateScheduler(viewsets.ViewSet):
 
     def create_scheduler(self, request):
         try:
-            schedule_type = request.POST["type"]
+            data = request.POST
+            schedule_type =data["type"]
+            interval,crontab,clocked= None, None, None
             if schedule_type == "interval" : 
-                return self.create_interval_scheduler(request, request.POST)
+                interval = self.create_interval_scheduler(request,data)
             elif schedule_type == "crontab" : 
-                return self.create_crontab_scheduler(request, request.POST)
+                crontab = self.create_crontab_scheduler(request,data)
             elif schedule_type == "clocked" : 
-                return self.create_clocked_scheduler(request, request.POST)
+                clocked = self.create_clocked_scheduler(request,data)
             else:
                 return HttpsAppResponse.send([], 0, "Invalid schedule type.")
+
+            if interval or crontab or clocked:
+                PeriodicTask.objects.create(
+                    interval=interval,
+                    crontab=crontab,
+                    clocked=clocked, 
+                    name=data["name"],
+                    task=data["task"], # dropdown
+                    args=json.dumps(json.loads(data["args"])),
+                    one_off=True if schedule_type == "clocked" else False
+                    # expire_seconds =10,
+                    # kwargs=json.dumps({
+                    #     'be_careful': True,
+                    # }),
+                    # expires=datetime.strptime(data["expires"], '%Y-%m-%d %H:%M:%S.%f') if data["expires"] else None
+                    # expires= datetime.now()  + timedelta(seconds=60)
+                )
+                return HttpsAppResponse.send([], 1, "Periodic task created successfully.")
+            else:
+                return HttpsAppResponse.send([], 0, f"Something wrong with {schedule_type} scheduler.")
         except  Exception as e:
             return HttpsAppResponse.exception(str(e))
 
@@ -35,24 +57,10 @@ class CreateScheduler(viewsets.ViewSet):
                 every=data["every"],
                 period=data["period"] #dropdown
             )
-            if schedule:
-                PeriodicTask.objects.create(
-                    interval=schedule,   
-                    name=data["name"],
-                    task=data["task"], # dropdown
-                    args=json.dumps(json.loads(data["args"])),
-                    # expire_seconds =10,
-                    # kwargs=json.dumps({
-                    #     'be_careful': True,
-                    # }),
-                    # expires=datetime.strptime(data["expires"], '%Y-%m-%d %H:%M:%S.%f') if data["expires"] else None
-                    # expires= datetime.now()  + timedelta(seconds=60)
-                )
-                return HttpsAppResponse.send([], 1, "Periodic task created successfully.")
-            else:
-                return HttpsAppResponse.send([], 0, "Something wrong with interval scheduler.")
+            return schedule
         except Exception as e:
-            return HttpsAppResponse.exception(str(e))
+            create_from_exception(e)
+            return None
 
 
     def create_crontab_scheduler(self, request, data):
@@ -64,37 +72,20 @@ class CreateScheduler(viewsets.ViewSet):
                 day_of_month=data["day_of_month"],
                 month_of_year=data["month_of_year"],
             )
-            if schedule:
-                PeriodicTask.objects.create(
-                    crontab=schedule,   
-                    name=data["name"],
-                    task=data["task"],
-                    args=json.dumps(json.loads(data["args"])),
-                )
-                return HttpsAppResponse.send([], 1, "Periodic task created successfully.")
-            else:
-                return HttpsAppResponse.send([], 0, "Something wrong with crontab scheduler.")
+            return schedule
         except Exception as e:
-            return HttpsAppResponse.exception(str(e))
+            create_from_exception(e)
+            return None
     
     def create_clocked_scheduler(self, request, data):
         try:
             schedule, created = ClockedSchedule.objects.get_or_create(
                 clocked_time=data["clocked_time"],
             )
-            if schedule:
-                PeriodicTask.objects.create(
-                    clocked=schedule,   
-                    name=data["name"],
-                    task=data["task"],
-                    one_off=True,
-                    args=json.dumps(json.loads(data["args"])),
-                )
-                return HttpsAppResponse.send([], 1, "Periodic task created successfully.")
-            else:
-                return HttpsAppResponse.send([], 0, "Something wrong with cloked scheduler.")
+            return schedule
         except Exception as e:
-            return HttpsAppResponse.exception(str(e))
+            create_from_exception(e)
+            return None
     
     
 
