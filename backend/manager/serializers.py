@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from manager.models import SystemParameter
 from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSchedule, ClockedSchedule
+from django_celery_results.models import TaskResult
 
 class SystemParameterSerializers(serializers.ModelSerializer):
     class Meta:
@@ -27,6 +28,12 @@ class ClockedScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClockedSchedule
         fields = '__all__'
+
+
+class TaskResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskResult
+        fields = "__all__"
 
 
 class PeriodicTaskSerializer(serializers.ModelSerializer):

@@ -20,4 +20,5 @@ urlpatterns = [
     # periodic_task.py
     path('create_scheduler/', CreateScheduler.as_view({'post':'create_scheduler'}), name="create_scheduler"),
     path('periodic_task/', PeriodicTaskView.as_view({'get':'list'}), name="periodic_task"),
+    path('periodic_task_result/', PeriodicTaskView.as_view({'get':'periodic_task_result'}), name="periodic_task_result"),
 ]

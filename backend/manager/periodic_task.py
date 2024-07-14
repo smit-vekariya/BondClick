@@ -6,7 +6,8 @@ from datetime import datetime, timedelta
 from celery import shared_task
 from rest_framework.response import Response
 from manager.manager import Util, create_from_exception
-from manager.serializers import PeriodicTaskSerializer
+from manager.serializers import PeriodicTaskSerializer, TaskResultSerializer
+from django_celery_results.models import TaskResult
 
 # https://django-celery-beat.readthedocs.io/en/latest/    
 
@@ -112,3 +113,11 @@ class PeriodicTaskView(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         return HttpsAppResponse.send(serializer.data, 1, "Periodic task listed successfully.")
+
+    def periodic_task_result(self, request, *args, **kwargs):
+        periodic_name = self.request.query_params.get('periodic_name')
+        results = TaskResult.objects.filter(periodic_task_name=periodic_name)
+        if results:
+            serializer = TaskResultSerializer(results, many=True)
+            return HttpsAppResponse.send(serializer.data, 1, "Periodic task result listed successfully.")   
+        return HttpsAppResponse.send([], 0, "Periodic task result not found.")   
