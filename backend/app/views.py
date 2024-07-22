@@ -116,9 +116,10 @@ class ContactUs(APIView):
             return HttpsAppResponse.exception(str(e))
             
 
-class TaskSchedulerView(viewsets.ModelViewSet):
-    permission_classes =[]
-    authentication_classes =[]
+class TaskSchedulerView(LoginRequiredMixin, viewsets.ModelViewSet):
+    # permission_classes =[]
+    # authentication_classes =[]
+    login_url = '/account/app_login/'
     queryset = PeriodicTask.objects.all()
     serializer_class = PeriodicTaskSerializer
     filter_backends = [filters.SearchFilter]
@@ -162,7 +163,7 @@ class TaskSchedulerView(viewsets.ModelViewSet):
     def update_create(self, request, *args, **kargs):
         queryset = self.get_queryset()
         periodic_id = request.POST.get("periodic_id")
-        if periodic_id:
+        if periodic_id and periodic_id != "None":
             periodic_form = PeriodicTaskForm(request.POST, instance=queryset.get(id=periodic_id))
         else:
             periodic_form = PeriodicTaskForm(request.POST)
