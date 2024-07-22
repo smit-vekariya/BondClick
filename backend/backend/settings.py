@@ -60,6 +60,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'explorer',
     'corsheaders',
+    'crispy_forms',
+    'crispy_bootstrap5',
     'account',
     'app',
     'manager',
@@ -143,6 +145,9 @@ TIME_ZONE = 'Asia/Kolkata'
 USE_L10N = True
 USE_I18N = True
 USE_TZ = True
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / 'static/'

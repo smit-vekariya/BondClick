@@ -1,6 +1,8 @@
 from functools import wraps
 from manager.manager import has_permission
 from manager.manager import HttpsAppResponse
+from django.db import connection
+import time
 
 # @has_perm("can_add_system_parameter")
 
@@ -13,6 +15,27 @@ def has_perm(act_code):
             return view(self, request, *args, **kwargs)
         return _wrapped_view
     return decorator
+
+
+def query_debugger(view):
+    def wrap(self, request, *args, **kwargs):
+        initial_queries = len(connection.queries)
+        start = time.time()
+        result = view(self, request, *args, **kwargs)
+        execution_time = time.time()-start
+        final_queries = len(connection.queries)
+        total_time = 0.0
+
+        print(f"==============> function : {view.__name__} made {final_queries - initial_queries} queries <========================")
+        for data in connection.queries:
+            print(f"\n({data['time']}) => {data['sql']}")
+            total_time += float(data['time'])
+        print(f"\n===============> Total : {total_time}(query), {round(execution_time,3)}(function) <==================\n")
+
+        return result
+    return wrap
+
+
 
 # All Example : https://www.w3resource.com/python-exercises/decorator/index.php
 

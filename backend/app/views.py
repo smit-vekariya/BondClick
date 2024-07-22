@@ -10,11 +10,16 @@ from django.urls import reverse
 from app.serializers import CommentQuestionsSerializers, CommentAnswerSerializers, ContactUsSerializers
 from app.models import CommentQuestions, CommentAnswer
 from rest_framework import viewsets
+from rest_framework import filters
 import json
 from django.utils import timezone
 from rest_framework import generics
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.decorators import action
+from manager.serializers import PeriodicTaskSerializer, TaskResultSerializer
+from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSchedule, ClockedSchedule
+from app.forms import PeriodicTaskForm
+from manager.decorators import query_debugger
 
 # Create your views here.
 class MessageView(APIView):
@@ -37,7 +42,7 @@ class Welcome(APIView):
 
 
 class AskAnything(LoginRequiredMixin, viewsets.ModelViewSet):
-    # we use LoginRequiredMixin because we need django default authentication not jwt
+    # we use LoginRequiredMixin because we need django default authentication not  
     login_url = '/account/app_login/'
     #this below two line prevent authentication from jwt
     # authentication_classes =[]
@@ -110,4 +115,62 @@ class ContactUs(APIView):
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
             
+
+class TaskSchedulerView(viewsets.ModelViewSet):
+    permission_classes =[]
+    authentication_classes =[]
+    queryset = PeriodicTask.objects.all()
+    serializer_class = PeriodicTaskSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields =["name","task"]
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = "app/task_scheduler.html"
+
+    def get_queryset(self):
+        queryset = self.filter_queryset(self.queryset.select_related('interval','crontab','clocked'))
+        return queryset
+
+    def list(self, request, *args, **kargs):
+        queryset = self.get_queryset()
+        serializers = self.get_serializer(queryset, many=True)
+        periodic_id = self.request.query_params.get("id")
+        if periodic_id:
+            periodic_form = PeriodicTaskForm(instance=queryset.get(id=periodic_id))
+            form_title= "Update Periodic Task"
+        else:
+            periodic_form = PeriodicTaskForm()
+            form_title= "Create Periodic Task"
+        return Response(status=200, template_name=self.template_name, data={"task_scheduler_list":serializers.data, "periodic_form":periodic_form, "form_title":form_title, "periodic_id":periodic_id})        
+
+    def task_operation(self, request, *args, **kargs):
+        try:
+            object_ = self.get_object()
+            query_param = self.request.query_params.get("operation")
+            if query_param == "disable":
+                object_.enabled = False
+            elif query_param == "enable":
+                object_.enabled = True
+            object_.save()
+            
+            if query_param =="delete":
+                object_.delete()
+    
+            return HttpsAppResponse.send([], 1, f"Task {query_param} successfully.")
+        except Exception as e:
+            return HttpsAppResponse.exception(str(e))
+
+    def update_create(self, request, *args, **kargs):
+        queryset = self.get_queryset()
+        periodic_id = request.POST.get("periodic_id")
+        if periodic_id:
+            periodic_form = PeriodicTaskForm(request.POST, instance=queryset.get(id=periodic_id))
+        else:
+            periodic_form = PeriodicTaskForm(request.POST)
+        if periodic_form.is_valid():
+            periodic_form.save()
+            return redirect(reverse('app:task-scheduler-page'))
+        else:
+            queryset = self.filter_queryset(self.get_queryset())
+            serializers = self.get_serializer(queryset, many=True)
+            return Response(status=200, template_name=self.template_name, data={"task_scheduler_list":serializers.data, "periodic_form":periodic_form})        
 
