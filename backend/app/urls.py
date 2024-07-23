@@ -14,5 +14,6 @@ urlpatterns = [
     path('contact_us/', ContactUs.as_view(), name="contact-us-page"),  
     path('message/', MessageView.as_view(), name="message-page"),  
     path('task_scheduler/', TaskSchedulerView.as_view({'get':'list','post':'update_create'}), name="task-scheduler-page"),
-    path('task_scheduler_operation/<int:pk>/', TaskSchedulerView.as_view({'get':'task_operation'}), name="task-scheduler-operation")
+    path('task_scheduler_operation/<int:pk>/', TaskSchedulerView.as_view({'get':'task_operation'}), name="task-scheduler-operation"),
+    path('task_scheduler_result/', TaskSchedulerView.as_view({'get':'task_result'}), name="task-result")
 ]

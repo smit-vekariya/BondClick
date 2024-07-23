@@ -20,6 +20,8 @@ from manager.serializers import PeriodicTaskSerializer, TaskResultSerializer
 from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSchedule, ClockedSchedule
 from app.forms import PeriodicTaskForm
 from manager.decorators import query_debugger
+from django_celery_results.models import TaskResult
+from django.http import HttpResponse
 
 # Create your views here.
 class MessageView(APIView):
@@ -117,8 +119,6 @@ class ContactUs(APIView):
             
 
 class TaskSchedulerView(LoginRequiredMixin, viewsets.ModelViewSet):
-    # permission_classes =[]
-    # authentication_classes =[]
     login_url = '/account/app_login/'
     queryset = PeriodicTask.objects.all().select_related('interval','crontab','clocked')
     serializer_class = PeriodicTaskSerializer
@@ -167,5 +167,13 @@ class TaskSchedulerView(LoginRequiredMixin, viewsets.ModelViewSet):
             return redirect(reverse('app:task-scheduler-page'))
         else:
             serializers = self.get_serializer(queryset, many=True)
-            return Response(status=200, template_name=self.template_name, data={"task_scheduler_list":serializers.data, "periodic_form":periodic_form})        
+            return Response(status=200, template_name=self.template_name, data={"task_scheduler_list":serializers.data, "periodic_form":periodic_form}) 
+            
+    def task_result(self,request, *args, **kwargs):
+        periodic_name = self.request.query_params.get('periodic_name')
+        results = TaskResult.objects.filter(periodic_task_name=periodic_name)
+        if results:
+            serializer = TaskResultSerializer(results, many=True)
+            return Response(status=200, template_name="app/task_results_m.html", data={"results":serializer.data})
+        return HttpResponse("Periodic task result not found.")   
 

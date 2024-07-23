@@ -31,6 +31,7 @@ class ClockedScheduleSerializer(serializers.ModelSerializer):
 
 
 class TaskResultSerializer(serializers.ModelSerializer):
+    date_created = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
     class Meta:
         model = TaskResult
         fields = "__all__"

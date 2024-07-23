@@ -20,7 +20,10 @@
         display: flex;
         align-items: center;
     }
-
+    .modal-content {
+        background-color: #000 !important;
+        border: 1px solid white !important;
+    }
 </style>
 {% endblock%}
 
@@ -46,15 +49,15 @@
                     <div class="row align-items-end">
                         <div class="col">
                             <button type="button" class="btn btn-primary" onclick="EditTask('{{data.id}}')">Edit</button>
-                        </div>
-                        <div class="col">
+                
+                            <button type="button" class="btn btn-primary" onclick="ShowResult('{{data.name}}')">Result</button>
+        
                             {% if data.enabled %}
                                 <button type="button" class="btn btn-primary" onclick="EnableDisableDelete('{{data.id}}','disable')">Disable</button>
                             {% else %}
                                 <button type="button" class="btn btn-primary" onclick="EnableDisableDelete('{{data.id}}','enable')">Enable</button>
                             {% endif %}
-                        </div>
-                        <div class="col"><button type="button" class="btn btn-primary" onclick="EnableDisableDelete('{{data.id}}','delete')">Delete</button></div>
+                        <button type="button" class="btn btn-primary" onclick="EnableDisableDelete('{{data.id}}','delete')">Delete</button></div>
                     </div>
                     </div>
                 </div>
@@ -73,6 +76,21 @@
       </div>
 </div>
 
+<div class="modal fade" id="task_result" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 800px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Task Result</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <script>
     function EnableDisableDelete(id,status){
@@ -124,6 +142,17 @@
             success: function(data){
                 base.replaceDiv('.result_card', data)
                 base.replaceDiv('#task_list', data)
+            }
+        })
+    }
+
+    function ShowResult(periodic_name){
+        $.ajax({
+            url:`/task_scheduler_result/?periodic_name=${periodic_name}`,
+            type:'GET',
+            success: function(data) {
+                $("#task_result").modal("show")
+                $("#task_result .modal-body").html(data)
             }
         })
     }
