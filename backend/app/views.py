@@ -120,16 +120,12 @@ class TaskSchedulerView(LoginRequiredMixin, viewsets.ModelViewSet):
     # permission_classes =[]
     # authentication_classes =[]
     login_url = '/account/app_login/'
-    queryset = PeriodicTask.objects.all()
+    queryset = PeriodicTask.objects.all().select_related('interval','crontab','clocked')
     serializer_class = PeriodicTaskSerializer
     filter_backends = [filters.SearchFilter]
     search_fields =["name","task"]
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "app/task_scheduler.html"
-
-    def get_queryset(self):
-        queryset = self.filter_queryset(self.queryset.select_related('interval','crontab','clocked'))
-        return queryset
 
     def list(self, request, *args, **kargs):
         queryset = self.get_queryset()
@@ -147,15 +143,14 @@ class TaskSchedulerView(LoginRequiredMixin, viewsets.ModelViewSet):
         try:
             object_ = self.get_object()
             query_param = self.request.query_params.get("operation")
-            if query_param == "disable":
-                object_.enabled = False
+            if query_param == "delete":
+                object_.delete()
+                return HttpsAppResponse.send([], 1, f"Task {query_param} successfully.")
             elif query_param == "enable":
                 object_.enabled = True
+            elif query_param =="disable":
+                object_.enabled = False
             object_.save()
-            
-            if query_param =="delete":
-                object_.delete()
-    
             return HttpsAppResponse.send([], 1, f"Task {query_param} successfully.")
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
@@ -171,7 +166,6 @@ class TaskSchedulerView(LoginRequiredMixin, viewsets.ModelViewSet):
             periodic_form.save()
             return redirect(reverse('app:task-scheduler-page'))
         else:
-            queryset = self.filter_queryset(self.get_queryset())
             serializers = self.get_serializer(queryset, many=True)
             return Response(status=200, template_name=self.template_name, data={"task_scheduler_list":serializers.data, "periodic_form":periodic_form})        
 

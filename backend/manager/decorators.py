@@ -30,7 +30,7 @@ def query_debugger(view):
         for data in connection.queries:
             print(f"\n({data['time']}) => {data['sql']}")
             total_time += float(data['time'])
-        print(f"\n===============> Total : {total_time}(query), {round(execution_time,3)}(function) <==================\n")
+        print(f"\n===============> Total : {round(total_time,3)}(query), {round(execution_time,3)}(function) <==================\n")
 
         return result
     return wrap
