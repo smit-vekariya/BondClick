@@ -26,7 +26,6 @@ handler500 = "manager.manager.server_error_view"
 
 
 urlpatterns = [
-    path('explorer/', include('explorer.urls')),
     path('admin/', admin.site.urls),
     path('',include("app.urls", namespace="welcome_app")),
     path('account/',include("account.urls", namespace="account")),
@@ -34,5 +33,6 @@ urlpatterns = [
     path('qr_admin/',include("qradmin.urls", namespace="qr_admin")),
     path('qr_app/',include("qrapp.urls", namespace="qr_app")),
     path('post_office/',include("postoffice.urls", namespace="post_office")),
+    path('finance/',include("finance.urls", namespace="finance")), # this is seprete app from bondclick, you can add this app in any project
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

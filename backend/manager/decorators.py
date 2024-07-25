@@ -2,7 +2,9 @@ from functools import wraps
 from manager.manager import has_permission
 from manager.manager import HttpsAppResponse
 from django.db import connection
+from django.core.cache import cache
 import time
+
 
 # @has_perm("can_add_system_parameter")
 
@@ -35,6 +37,17 @@ def query_debugger(view):
         return result
     return wrap
 
+
+def queryset_caching(query_func):
+    def wrap(*args, **kwargs):
+        cache_key = f"{query_func.__name__}_{args}_{kwargs}"
+        result = cache.get(cache_key)
+        if not result:
+            result = query_func(*args, **kwargs)
+            # add expire time
+            cache.set(cache_key, result)
+        return result
+    return wrap
 
 
 # All Example : https://www.w3resource.com/python-exercises/decorator/index.php
