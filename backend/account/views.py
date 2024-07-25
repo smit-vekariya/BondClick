@@ -99,7 +99,7 @@ class AppLogin(APIView):
             create_from_exception(e)
             return render(request, self.template_name, context={"msg":str(e)})
 
-
+          
 class AppLogout(APIView):
     authentication_classes = []
     permission_classes = []
@@ -138,6 +138,12 @@ class AppRegistration(APIView):
             create_from_exception(e)
             return render(request, self.template_name, context={"msg":str(e)})
 
+class AppLogout(APIView):
+    success_url = "/account/app_login/"
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect(self.success_url)
 
 
 class MyTokenObtainPairView(TokenObtainPairView):

@@ -58,9 +58,11 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
-    'explorer',
     'corsheaders',
+    'crispy_forms',
+    'crispy_bootstrap5',
     'account',
+    'finance', # this is seprete app from bondclick, you can add this app in any project
     'app',
     'manager',
     'qradmin',
@@ -68,7 +70,8 @@ INSTALLED_APPS = [
     'qr_code',
     'postoffice',
     'django_celery_results',
-    # 'django_celery_beat',
+    'django_celery_beat',
+
 ]
 
 MIDDLEWARE = [
@@ -144,6 +147,9 @@ USE_L10N = True
 USE_I18N = True
 USE_TZ = True
 
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / 'static/'
 # STATICFILES_DIRS = [BASE_DIR / "static/",]
@@ -166,6 +172,7 @@ RAZORPAY_API_SECRET = env("RAZORPAY_API_SECRET")
 GREEN_API = env("GREEN_API")
 DEFAULT_COMPANY_ID = env("DEFAULT_COMPANY_ID")
 
+# CELERY_BROKER_URL = 'sqla+sqlite:///db.sqlite3'
 CELERY_BROKER_URL = "redis://127.0.0.1:6379"
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
@@ -173,9 +180,9 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'   
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_TASK_TRACK_STARTED = True
-
-# CELERY BEAT SCHEDULER
-# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_RESULT_EXTENDED = True
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 EMAIL_BACKEND = env("EMAIL_BACKEND")
 EMAIL_HOST = env("EMAIL_HOST")
@@ -210,10 +217,6 @@ REST_FRAMEWORK = {
 
 # Default primary key field type (https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-#Explorer settings
-EXPLORER_CONNECTIONS = { 'Default': 'default' }
-EXPLORER_DEFAULT_CONNECTION = 'default'
 
 
 # documentation fo JWT (https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html#jwk-url)

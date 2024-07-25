@@ -59,6 +59,7 @@ export default function Email(){
                             required
                             />
                     </div>
+                <label><input type="checkbox" checked={mailData.is_now} onChange={(e)=> setMailData({...mailData, is_now:e.target.checked }) }/>Send Now</label>
                </div>
             </Form>
         </Modal>

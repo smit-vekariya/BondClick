@@ -23,9 +23,9 @@ urlpatterns = [
     path('bond_user_profile/', BondUserProfile.as_view(), name="bond_user_profile"),
 
     # app login
+    path('app_registration/', AppRegistration.as_view(), name="app-registration"),
     path('app_login/', AppLogin.as_view(), name="app-login"),
     path('app_logout/', AppLogout.as_view(), name="app-logout"),
-    path('app_registration/', AppRegistration.as_view(), name="app-registration"),
 
     # cache data apis
     path('city_state_distributer/', GetCityStateDistributer.as_view(), name="city_state_distributer"),
