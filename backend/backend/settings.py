@@ -157,6 +157,10 @@ STATIC_ROOT = BASE_DIR / 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
 
+
+LOGIN_URL='/account/app_login/'
+LOGIN_REDIRECT_URL = '/app/'
+
 CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST")
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS")
 

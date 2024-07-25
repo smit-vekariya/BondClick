@@ -14,7 +14,7 @@ from rest_framework import filters
 import json
 from django.utils import timezone
 from rest_framework import generics
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from rest_framework.decorators import action
 from manager.serializers import PeriodicTaskSerializer, TaskResultSerializer
 from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSchedule, ClockedSchedule
@@ -22,6 +22,8 @@ from app.forms import PeriodicTaskForm
 from manager.decorators import query_debugger
 from django_celery_results.models import TaskResult
 from django.http import HttpResponse
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class MessageView(APIView):
@@ -46,14 +48,11 @@ class Welcome(APIView):
 class AskAnything(LoginRequiredMixin, viewsets.ModelViewSet):
     # we use LoginRequiredMixin because we need django default authentication not  
     login_url = '/account/app_login/'
-    #this below two line prevent authentication from jwt
-    # authentication_classes =[]
-    # permission_classes = []
     queryset = CommentQuestions.objects.all()
     serializer_class = CommentQuestionsSerializers
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "app/ask_anything.html"
-
+    
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.serializer_class(queryset, many=True)
@@ -81,9 +80,7 @@ class AskAnything(LoginRequiredMixin, viewsets.ModelViewSet):
         serializer = CommentAnswerSerializers(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        return HttpsAppResponse.send([], 1, "Update answer sucessfully.")
-
-
+        return HttpsAppResponse.send([], 1, "Update answer successfully.")
 
 
 class AboutUs(APIView):
