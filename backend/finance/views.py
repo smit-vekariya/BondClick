@@ -6,10 +6,11 @@ from finance.serializers import FinUserSerializers, TransactionsSerializers, Use
 from finance.models import FinUser, Transactions
 from rest_framework.decorators import action
 import json
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-class DashBoardView(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
-    authentication_classes = []
-    permission_classes = []
+
+class DashBoardView(LoginRequiredMixin, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    login_url = '/account/app_login/'
     queryset = FinUser.objects.all()
     serializer_class = FinUserSerializers
     renderer_classes = [TemplateHTMLRenderer]
