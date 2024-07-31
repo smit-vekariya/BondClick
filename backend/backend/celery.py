@@ -12,6 +12,7 @@ app.conf.timezone = 'Asia/Kolkata'
 # - namespace='CELERY' means all celery-related configuration keys
 #   should have a `CELERY_` prefix.
 app.config_from_object(settings, namespace='CELERY')
+app.loader.import_default_modules()
 
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks()

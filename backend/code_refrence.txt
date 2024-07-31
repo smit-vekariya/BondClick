@@ -1,5 +1,0 @@
-=> load div insted on whole div
-
-$.get(location.href, function(data) {
-    $("#comment_section").html($(data).find('#comment_section').html());
-});

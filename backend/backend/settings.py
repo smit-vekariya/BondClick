@@ -58,9 +58,11 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
-    'explorer',
     'corsheaders',
+    'crispy_forms',
+    'crispy_bootstrap5',
     'account',
+    'finance', # this is seprete app from bondclick, you can add this app in any project
     'app',
     'manager',
     'qradmin',
@@ -69,6 +71,7 @@ INSTALLED_APPS = [
     'postoffice',
     'django_celery_results',
     'django_celery_beat',
+
 ]
 
 MIDDLEWARE = [
@@ -144,12 +147,19 @@ USE_L10N = True
 USE_I18N = True
 USE_TZ = True
 
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / 'static/'
 # STATICFILES_DIRS = [BASE_DIR / "static/",]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
+
+
+LOGIN_URL='/account/app_login/'
+LOGIN_REDIRECT_URL = '/app/'
 
 CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST")
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS")
@@ -207,10 +217,6 @@ REST_FRAMEWORK = {
 
 # Default primary key field type (https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-#Explorer settings
-EXPLORER_CONNECTIONS = { 'Default': 'default' }
-EXPLORER_DEFAULT_CONNECTION = 'default'
 
 
 # documentation fo JWT (https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html#jwk-url)

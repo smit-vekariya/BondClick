@@ -34,7 +34,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from manager.manager import create_from_exception
 from django.shortcuts  import redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 
 
 # Create your views here.
@@ -92,14 +92,24 @@ class AppLogin(APIView):
             data = request.data
             user = authenticate(request, username=data["mobile"], password=data["password"])
             if user is not None:
-                login(request, user , backend='django.contrib.auth.backends.ModelBackend')
+                login(request, user , backend='django.contrib.auth.backends.ModelBackend')                
             return redirect(reverse(self.success_url))
         except Exception as e:
             logging.exception("Something went wrong.")
             create_from_exception(e)
             return render(request, self.template_name, context={"msg":str(e)})
-            
 
+          
+class AppLogout(APIView):
+    authentication_classes = []
+    permission_classes = []
+    success_url = "app:welcome-page"
+    
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect(reverse(self.success_url))
+    
+    
 class AppRegistration(APIView):
     authentication_classes = []
     permission_classes = []
@@ -128,6 +138,12 @@ class AppRegistration(APIView):
             create_from_exception(e)
             return render(request, self.template_name, context={"msg":str(e)})
 
+class AppLogout(APIView):
+    success_url = "/account/app_login/"
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect(self.success_url)
 
 
 class MyTokenObtainPairView(TokenObtainPairView):

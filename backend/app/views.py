@@ -10,11 +10,20 @@ from django.urls import reverse
 from app.serializers import CommentQuestionsSerializers, CommentAnswerSerializers, ContactUsSerializers
 from app.models import CommentQuestions, CommentAnswer
 from rest_framework import viewsets
+from rest_framework import filters
 import json
 from django.utils import timezone
 from rest_framework import generics
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from rest_framework.decorators import action
+from manager.serializers import PeriodicTaskSerializer, TaskResultSerializer
+from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSchedule, ClockedSchedule
+from app.forms import PeriodicTaskForm
+from manager.decorators import query_debugger
+from django_celery_results.models import TaskResult
+from django.http import HttpResponse
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class MessageView(APIView):
@@ -37,16 +46,13 @@ class Welcome(APIView):
 
 
 class AskAnything(LoginRequiredMixin, viewsets.ModelViewSet):
-    # we use LoginRequiredMixin because we need django default authentication not jwt
+    # we use LoginRequiredMixin because we need django default authentication not  
     login_url = '/account/app_login/'
-    #this below two line prevent authentication from jwt
-    # authentication_classes =[]
-    # permission_classes = []
     queryset = CommentQuestions.objects.all()
     serializer_class = CommentQuestionsSerializers
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "app/ask_anything.html"
-
+    
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.serializer_class(queryset, many=True)
@@ -74,9 +80,7 @@ class AskAnything(LoginRequiredMixin, viewsets.ModelViewSet):
         serializer = CommentAnswerSerializers(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        return HttpsAppResponse.send([], 1, "Update answer sucessfully.")
-
-
+        return HttpsAppResponse.send([], 1, "Update answer successfully.")
 
 
 class AboutUs(APIView):
@@ -110,4 +114,63 @@ class ContactUs(APIView):
         except Exception as e:
             return HttpsAppResponse.exception(str(e))
             
+
+class TaskSchedulerView(LoginRequiredMixin, viewsets.ModelViewSet):
+    login_url = '/account/app_login/'
+    queryset = PeriodicTask.objects.all().select_related('interval','crontab','clocked')
+    serializer_class = PeriodicTaskSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields =["name","task"]
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = "app/task_scheduler.html"
+
+    def list(self, request, *args, **kargs):
+        queryset = self.get_queryset()
+        serializers = self.get_serializer(queryset, many=True)
+        periodic_id = self.request.query_params.get("id")
+        if periodic_id:
+            periodic_form = PeriodicTaskForm(instance=queryset.get(id=periodic_id))
+            form_title= "Update Periodic Task"
+        else:
+            periodic_form = PeriodicTaskForm()
+            form_title= "Create Periodic Task"
+        return Response(status=200, template_name=self.template_name, data={"task_scheduler_list":serializers.data, "periodic_form":periodic_form, "form_title":form_title, "periodic_id":periodic_id})        
+
+    def task_operation(self, request, *args, **kargs):
+        try:
+            object_ = self.get_object()
+            query_param = self.request.query_params.get("operation")
+            if query_param == "delete":
+                object_.delete()
+                return HttpsAppResponse.send([], 1, f"Task {query_param} successfully.")
+            elif query_param == "enable":
+                object_.enabled = True
+            elif query_param =="disable":
+                object_.enabled = False
+            object_.save()
+            return HttpsAppResponse.send([], 1, f"Task {query_param} successfully.")
+        except Exception as e:
+            return HttpsAppResponse.exception(str(e))
+
+    def update_create(self, request, *args, **kargs):
+        queryset = self.get_queryset()
+        periodic_id = request.POST.get("periodic_id")
+        if periodic_id and periodic_id != "None":
+            periodic_form = PeriodicTaskForm(request.POST, instance=queryset.get(id=periodic_id))
+        else:
+            periodic_form = PeriodicTaskForm(request.POST)
+        if periodic_form.is_valid():
+            periodic_form.save()
+            return redirect(reverse('app:task-scheduler-page'))
+        else:
+            serializers = self.get_serializer(queryset, many=True)
+            return Response(status=200, template_name=self.template_name, data={"task_scheduler_list":serializers.data, "periodic_form":periodic_form}) 
+            
+    def task_result(self,request, *args, **kwargs):
+        periodic_name = self.request.query_params.get('periodic_name')
+        results = TaskResult.objects.filter(periodic_task_name=periodic_name)
+        if results:
+            serializer = TaskResultSerializer(results, many=True)
+            return Response(status=200, template_name="app/task_results_m.html", data={"results":serializer.data})
+        return HttpResponse("Periodic task result not found.")   
 

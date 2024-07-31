@@ -51,7 +51,6 @@ class CreateScheduler(viewsets.ViewSet):
         except  Exception as e:
             return HttpsAppResponse.exception(str(e))
 
-
     def create_interval_scheduler(self, request, data):
         try:
             schedule, created = IntervalSchedule.objects.get_or_create(
@@ -62,7 +61,6 @@ class CreateScheduler(viewsets.ViewSet):
         except Exception as e:
             create_from_exception(e)
             return None
-
 
     def create_crontab_scheduler(self, request, data):
         try:
@@ -87,30 +85,16 @@ class CreateScheduler(viewsets.ViewSet):
         except Exception as e:
             create_from_exception(e)
             return None
-    
-    
-
-@shared_task(name="test", bind=True)
-def test(self):
-    print("=====> this is for testing <========")
-
-
-# note:
-
-# 1. stop scheduler if any error occure 
-# OR
-# 2. run scheduler and skip task for that time where error occure dont stop task 
-# stop calling task after expire
-
+     
 
 class PeriodicTaskView(viewsets.ModelViewSet):
     permission_classes =[]
     authentication_classes =[]
-    queryset = PeriodicTask.objects.all()
+    queryset = PeriodicTask.objects.all().select_related('interval','crontab','clocked')
     serializer_class = PeriodicTaskSerializer
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return HttpsAppResponse.send(serializer.data, 1, "Periodic task listed successfully.")
 
@@ -121,3 +105,8 @@ class PeriodicTaskView(viewsets.ModelViewSet):
             serializer = TaskResultSerializer(results, many=True)
             return HttpsAppResponse.send(serializer.data, 1, "Periodic task result listed successfully.")   
         return HttpsAppResponse.send([], 0, "Periodic task result not found.")   
+
+
+@shared_task(name="test", bind=True)
+def test(self):
+    print("=====> this is for testing <========")
