@@ -83,6 +83,7 @@ class AppLogin(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "app/login.html"
     success_url = "app:ask-anything-page"
+    redirect_field_name = 'next' 
 
     def get(self, request, *args, **kwargs):
         return Response(status=200, template_name=self.template_name)
@@ -93,7 +94,11 @@ class AppLogin(APIView):
             user = authenticate(request, username=data["mobile"], password=data["password"])
             if user is not None:
                 login(request, user , backend='django.contrib.auth.backends.ModelBackend')                
-            return redirect(reverse(self.success_url))
+            redirect_to = request.GET.get(self.redirect_field_name, None)
+            if redirect_to:
+                return redirect(redirect_to)
+            else:
+                return redirect(reverse(self.success_url))
         except Exception as e:
             logging.exception("Something went wrong.")
             create_from_exception(e)
@@ -139,6 +144,8 @@ class AppRegistration(APIView):
             return render(request, self.template_name, context={"msg":str(e)})
 
 class AppLogout(APIView):
+    authentication_classes =[]
+    permission_classes = []
     success_url = "/account/app_login/"
 
     def get(self, request, *args, **kwargs):
